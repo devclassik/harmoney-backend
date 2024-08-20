@@ -1,0 +1,30 @@
+name: 🚀 App Build Test
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    steps:
+    - name: 🚚 Commit Checkout
+      uses: actions/checkout@v3
+    - name: 📦 Install Node v${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: npm install
+      run: npm i --dev
+    - name: clean build directory
+      run: rm -rf build && mkdir build
+    - name: use tsc
+      uses: icrawl/action-tsc@v1
+    - name: 🔨 build
+      run: npm run compile
+    # - run: npm test
+
