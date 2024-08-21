@@ -37,10 +37,10 @@ export class Wallet {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'double', default: 0 })
+  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.00 })
   mainBalance?: number;
 
-  @Column({ type: 'double', default: 0 })
+  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.00 })
   bookBalance?: number;
 
   @Column({ type: 'varchar', default: null, nullable: true })
