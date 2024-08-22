@@ -5,7 +5,7 @@ import { MESSAGES, generateRandomString } from '../utils';
 import { CustomError, ErrorMiddleware } from '../middlewares';
 import config from '../config';
 
-const { firebase, google } = config;
+const { firebase } = config;
 
 export const fbAdmin = admin.initializeApp({
   credential: admin.credential.cert(firebase),
@@ -13,8 +13,8 @@ export const fbAdmin = admin.initializeApp({
 
 export class FileManager {
   private storageBucket;
-  constructor () {
-    this.storageBucket = fbAdmin.storage().bucket(google.bucket);
+  constructor() {
+    this.storageBucket = fbAdmin.storage().bucket(firebase.storage_bucket);
   }
 
   private upload = async (file: UploadedFile): Promise<string> => {

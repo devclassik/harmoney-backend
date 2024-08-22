@@ -28,9 +28,6 @@ const config = {
     domain: process.env.MAILGUN_DOMAIN,
     sender: process.env.MAILGUN_SENDER,
   },
-  google: {
-    bucket: process.env.FIREBASE_STORAGE_BUCKET,
-  },
   firebase: {
     type: process.env.FIREBASE_TYPE,
     projectId: process.env.FIREBASE_PROJECT_ID,
@@ -43,6 +40,7 @@ const config = {
     authProviderX509CertUrl: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
     clientX509CertUrl: process.env.FIREBASE_CLIENT_CERT_URL,
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+    storage_bucket: process.env.FIREBASE_STORAGE_BUCKET,
   },
 };
 
