@@ -1,23 +1,17 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import config from '../config';
-import {
-  User,
-  Wallet
-} from './entity';
+import { User, MerchantBusiness, Wallet } from './entity';
 
 export const AppDataSource = new DataSource({
-  type: "postgres",
+  type: 'postgres',
   url:
     config.db.url ||
     `postgres://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.name}`,
   synchronize: !!config.db.sync,
   logging: !!config.db.logging,
   ssl: config.app.env === 'local' ? false : { rejectUnauthorized: false },
-  entities: [
-    User,
-    Wallet
-  ],
+  entities: [User, MerchantBusiness, Wallet],
   migrations: [],
   subscribers: [],
 });

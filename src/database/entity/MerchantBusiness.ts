@@ -1,0 +1,100 @@
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { User } from './User';
+
+export enum BusinessCategories {
+  WATER = 'WATER',
+  GAS = 'GAS',
+  INSURANCE = 'INSURANCE',
+  APARTMENT = 'APARTMENT',
+  EDUCATION = 'EDUCATION',
+  GOVERNMENT_PAYMENTS = 'GOVERNMENT_PAYMENTS',
+  EMBASSIES = 'EMBASSIES',
+  BUS = 'BUS',
+  TRAIN = 'TRAIN',
+  FLIGHT = 'FLIGHT',
+  HOTEL = 'HOTEL',
+  MOVIES = 'MOVIES',
+  EVENT_TICKETING = 'EVENT_TICKETING',
+  PHARMARCY = 'PHARMARCY',
+  BLOOD_BANK = 'BLOOD_BANK',
+  HOSPITAL = 'HOSPITAL',
+  DOCTOR_CONSULT = 'DOCTOR_CONSULT',
+}
+
+export enum BusinessType {
+  SOLE_PROPRIETORSHIP = 'SOLE_PROPRIETORSHIP',
+  PARTNERSHIP = 'PARTNERSHIP',
+  LIMITED_LIABILITY_COMPANY = 'LIMITED_LIABILITY_COMPANY',
+  PUBLIC_LIABILITY_COMPANY = 'PUBLIC_LIABILITY_COMPANY',
+  COMPANY_LIMITED_BY_GUARANTEE = 'COMPANY_LIMITED_BY_GUARANTEE',
+  INCORPORATED_TRUSTEE = 'INCORPORATED_TRUSTEE',
+}
+
+@Entity('merchant_businesses')
+export class MerchantBusiness {
+  constructor(data: MerchantBusiness) {
+    if (typeof data === 'object') {
+      Object.keys(data).forEach((index) => {
+        this[index] = data[index];
+      });
+    }
+  }
+
+  @PrimaryGeneratedColumn()
+  id?: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  name?: string;
+
+  @Column({ type: 'enum', enum: BusinessCategories })
+  category?: BusinessCategories;
+
+  @Column({ type: 'text', nullable: true })
+  address?: string;
+
+  @Column({ type: 'varchar', default: null, nullable: true })
+  accountNumber?: string;
+
+  @Column({ type: 'varchar', default: null, nullable: true })
+  accountName?: string;
+
+  @Column({ type: 'varchar', default: null, nullable: true })
+  bankName?: string;
+
+  @Column({ type: 'varchar', default: null, nullable: true })
+  bankCode?: string;
+
+  @Column({ type: 'varchar', default: null, nullable: true })
+  cac?: string;
+
+  @Column({ type: 'enum', enum: BusinessType, default: null, nullable: true })
+  business_type?: BusinessType;
+
+  @Column({ type: 'varchar', default: null, nullable: true })
+  registered_name?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatarUrl?: string;
+
+  @OneToOne(() => User, ({ business }) => business)
+  @JoinColumn()
+  merchant?: User;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt?: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt?: Date;
+
+  @DeleteDateColumn({ type: 'timestamp' })
+  deletedAt?: Date;
+}

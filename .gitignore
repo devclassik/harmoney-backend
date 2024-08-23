@@ -108,4 +108,3 @@ dist
 assets/uploads/*
 tmp/*
 build/
-userLinks.md

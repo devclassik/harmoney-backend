@@ -4,11 +4,11 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { User } from "./User";
+} from 'typeorm';
+import { User } from './User';
 
 export enum Currency {
   NAIRA = 'NGN',
@@ -23,8 +23,7 @@ export enum NubanProvider {
   SUDO = 'SUDO',
 }
 
-
-@Entity("wallets")
+@Entity('wallets')
 export class Wallet {
   constructor(data: Wallet) {
     if (typeof data === 'object') {
@@ -37,10 +36,10 @@ export class Wallet {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.00 })
+  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
   mainBalance?: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.00 })
+  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
   bookBalance?: number;
 
   @Column({ type: 'varchar', default: null, nullable: true })
@@ -60,19 +59,17 @@ export class Wallet {
 
   @Column({ type: 'enum', enum: NubanProvider, nullable: true, default: null })
   nubanProvider?: NubanProvider;
-  
 
-  @ManyToOne(() => User, ({ wallets }) => wallets)
+  @OneToOne(() => User, ({ wallet }) => wallet)
   @JoinColumn()
   user?: User;
 
-  
-  @CreateDateColumn({ type: "timestamp" })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
 
-  @UpdateDateColumn({ type: "timestamp"})
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt?: Date;
 
-  @DeleteDateColumn({ type: "timestamp"})
+  @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
 }

@@ -4,14 +4,20 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { Wallet } from "./Wallet";
+} from 'typeorm';
+import { Wallet } from './Wallet';
+import { MerchantBusiness } from './MerchantBusiness';
 
+export enum UserRoles {
+  ADMIN = 'ADMIN',
+  CUSTOMER = 'CUSTOMER',
+  MERCHANT = 'MERCHANT',
+}
 
-@Entity("users")
+@Entity('users')
 export class User {
   constructor(data: User) {
     if (typeof data === 'object') {
@@ -24,42 +30,62 @@ export class User {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: "varchar", unique: true, nullable: false })
+  @Column({ type: 'varchar', nullable: false })
+  first_name?: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  last_name?: string;
+
+  @Column({ type: 'varchar', unique: true, nullable: false })
   email?: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: 'varchar', nullable: false })
+  phone_no?: string;
+
+  @Column({ type: 'varchar', nullable: false })
   password?: string;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   confirmEmailToken?: string;
 
-  @Column({ type: "boolean", default: false })
+  @Column({ type: 'boolean', default: false })
   isEmailVerified?: boolean;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   passwordResetToken?: string;
 
-  @Column({ type: "varchar", unique: true, nullable: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   username?: string;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   avatarUrl?: string;
 
-  @Column({ type: "varchar", unique: true, nullable: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   refCode?: string;
-  
-  
-  @OneToMany(() => Wallet, ({ user }) => user)
+
+  @Column({ type: 'varchar', nullable: true })
+  bvn?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  confirmBVNToken?: string;
+
+  @Column({ type: 'enum', enum: UserRoles, default: UserRoles.CUSTOMER })
+  role?: UserRoles;
+
+  @OneToOne(() => Wallet, ({ user }) => user)
   @JoinColumn()
-  wallets?: Wallet[];
+  wallet?: Wallet;
 
+  @OneToOne(() => MerchantBusiness, ({ merchant }) => merchant)
+  @JoinColumn()
+  business?: MerchantBusiness;
 
-  @CreateDateColumn({ type: "timestamp" })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
 
-  @UpdateDateColumn({ type: "timestamp"})
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt?: Date;
 
-  @DeleteDateColumn({ type: "timestamp"})
+  @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
 }
