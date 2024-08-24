@@ -58,7 +58,7 @@ export class MerchantBusiness {
   @Column({ type: 'enum', enum: BusinessCategories })
   category?: BusinessCategories;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', default: null, nullable: true })
   address?: string;
 
   @Column({ type: 'varchar', default: null, nullable: true })

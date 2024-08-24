@@ -4,7 +4,7 @@ import { AppDataSource } from './database';
 import { ErrorMiddleware } from './middlewares';
 import { keepAlive, logger, stream } from './utils';
 import config from './config';
-// import { Routes } from './routes';
+import { Routes } from './routes';
 import { StatusCodes } from 'http-status-codes';
 import fileUpload from 'express-fileupload';
 import cors from 'cors';
@@ -47,9 +47,9 @@ AppDataSource.initialize()
       logger.info(`=================================`);
     });
 
-    keepAlive()
+    keepAlive();
 
-    // app.use('/api/v1', Routes);
+    app.use('/api/v1', Routes);
 
     app.use((req: Request, res: Response) => {
       res.json({ message });

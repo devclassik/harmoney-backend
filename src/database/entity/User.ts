@@ -11,7 +11,7 @@ import {
 import { Wallet } from './Wallet';
 import { MerchantBusiness } from './MerchantBusiness';
 
-export enum UserRoles {
+export enum AccountType {
   ADMIN = 'ADMIN',
   CUSTOMER = 'CUSTOMER',
   MERCHANT = 'MERCHANT',
@@ -39,7 +39,7 @@ export class User {
   @Column({ type: 'varchar', unique: true, nullable: false })
   email?: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true, default: null })
   phone_no?: string;
 
   @Column({ type: 'varchar', nullable: false })
@@ -69,8 +69,8 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   confirmBVNToken?: string;
 
-  @Column({ type: 'enum', enum: UserRoles, default: UserRoles.CUSTOMER })
-  role?: UserRoles;
+  @Column({ type: 'enum', enum: AccountType, default: AccountType.CUSTOMER })
+  account_type?: AccountType;
 
   @OneToOne(() => Wallet, ({ user }) => user)
   @JoinColumn()
