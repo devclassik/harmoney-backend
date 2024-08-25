@@ -88,7 +88,6 @@ export class AuthController {
           password: pwdHash,
           confirmEmailToken: await generateRandomString(6, '0'),
           username,
-          refCode: username,
           account_type,
         }),
       );
@@ -101,6 +100,9 @@ export class AuthController {
             merchant: new User({ id: user.id }),
           }),
         );
+
+        user.business = new MerchantBusiness({ id: business.id });
+        await this.userRepo.save(user);
       }
 
       await sendNewUserVerificationMail(user.email, user.confirmEmailToken);

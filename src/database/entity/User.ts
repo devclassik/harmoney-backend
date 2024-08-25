@@ -60,14 +60,14 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   avatarUrl?: string;
 
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  refCode?: string;
-
   @Column({ type: 'varchar', nullable: true })
   bvn?: string;
 
   @Column({ type: 'varchar', nullable: true })
   confirmBVNToken?: string;
+
+  @Column({ type: 'boolean', default: false })
+  isBVNVerified?: boolean;
 
   @Column({ type: 'enum', enum: AccountType, default: AccountType.CUSTOMER })
   account_type?: AccountType;

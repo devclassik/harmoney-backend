@@ -39,6 +39,12 @@ export enum BusinessType {
   INCORPORATED_TRUSTEE = 'INCORPORATED_TRUSTEE',
 }
 
+export enum ActivationStatus {
+  PENDING = 'PENDING',
+  ACTIVATE = 'ACTIVATE',
+  REJECT = 'REJECT',
+}
+
 @Entity('merchant_businesses')
 export class MerchantBusiness {
   constructor(data: MerchantBusiness) {
@@ -84,6 +90,14 @@ export class MerchantBusiness {
 
   @Column({ type: 'varchar', nullable: true })
   avatarUrl?: string;
+
+  @Column({
+    type: 'enum',
+    enum: ActivationStatus,
+    default: ActivationStatus.PENDING,
+    nullable: false,
+  })
+  activation_status?: ActivationStatus;
 
   @OneToOne(() => User, ({ business }) => business)
   @JoinColumn()
