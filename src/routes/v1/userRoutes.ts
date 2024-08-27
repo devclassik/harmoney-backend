@@ -14,3 +14,6 @@ UserRoutes.post(
   authGuard,
   userController.changePassword,
 );
+
+UserRoutes.post('/user/setup-pin', authGuard, userController.setupTrnxPin);
+UserRoutes.post('/user/change-pin', authGuard, userController.changeTrnxPin);

@@ -72,6 +72,9 @@ export class User {
   @Column({ type: 'enum', enum: AccountType, default: AccountType.CUSTOMER })
   account_type?: AccountType;
 
+  @Column({ type: 'varchar', nullable: true, default: null })
+  trnxPin?: string;
+
   @OneToOne(() => Wallet, ({ user }) => user)
   @JoinColumn()
   wallet?: Wallet;

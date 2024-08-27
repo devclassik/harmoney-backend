@@ -10,7 +10,12 @@ import {
 } from '../services';
 import { hashPassword, CustomError, ErrorMiddleware } from '../middlewares';
 import { AppDataSource, User, Wallet } from '../database';
-import { ChangePasswordDto, UpdateProfileDto } from './dto';
+import {
+  ChangePasswordDto,
+  ChangeTrnxPinDto,
+  SetupTrnxPinDto,
+  UpdateProfileDto,
+} from './dto';
 
 export class UserController {
   private userRepo: Repository<User>;
@@ -172,16 +177,106 @@ export class UserController {
           );
         }
 
-        const email = user.email;
-
-        // delete wallet
-        await this.walletRepo.delete({
+        // soft-delete wallet
+        await this.walletRepo.softDelete({
           user: new User({ id: user.id }),
         });
 
-        await this.userRepo.delete(user);
+        await this.userRepo.softDelete(user);
 
         await sendUserAccountDeletedMail(res.locals.user.email);
+
+        return res
+          .status(StatusCodes.OK)
+          .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+      }
+
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(apiResponse('error', 'Cannot perform this operation.'));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  setupTrnxPin = async (
+    req: Request<null, null, SetupTrnxPinDto, null>,
+    res: Response,
+  ): Promise<Response | void> => {
+    const { pin, confirmPin } = req.body;
+    try {
+      const user = await this.userRepo.findOne({
+        where: { email: res.locals.user.email },
+      });
+
+      if (!user) {
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND('User'),
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      if (user.trnxPin.length) {
+        throw new CustomError('Pin already setup.', StatusCodes.BAD_REQUEST);
+      }
+
+      if (pin != confirmPin) {
+        throw new CustomError(
+          MESSAGES.CONFIRM_PASSWORD_ERROR,
+          StatusCodes.NOT_ACCEPTABLE,
+        );
+      }
+
+      const pinHash = await hashPassword(pin);
+
+      user.trnxPin = pinHash;
+      await this.userRepo.save(user);
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  changeTrnxPin = async (
+    req: Request<null, null, ChangeTrnxPinDto, null>,
+    res: Response,
+  ): Promise<Response | void> => {
+    const { oldPin, newPin, confirmNewPin } = req.body;
+    try {
+      const user = await this.userRepo.findOne({
+        where: { email: res.locals.user.email },
+      });
+
+      if (!user) {
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND('User'),
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      if (user.trnxPin && user.trnxPin.length) {
+        const correctTrnxPin = await bcrypt.compare(oldPin, user.trnxPin);
+        if (!correctTrnxPin) {
+          throw new CustomError(
+            'Incorrect current pin.',
+            StatusCodes.NOT_ACCEPTABLE,
+          );
+        }
+
+        if (newPin != confirmNewPin) {
+          throw new CustomError(
+            MESSAGES.CONFIRM_PASSWORD_ERROR,
+            StatusCodes.NOT_ACCEPTABLE,
+          );
+        }
+
+        const pinHash = await hashPassword(newPin);
+
+        user.trnxPin = pinHash;
+        await this.userRepo.save(user);
 
         return res
           .status(StatusCodes.OK)
