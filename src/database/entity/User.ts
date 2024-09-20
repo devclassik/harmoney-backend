@@ -69,11 +69,17 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isBVNVerified?: boolean;
 
+  @Column({ type: 'bool', default: false })
+  isLoggedIn?: boolean;
+
+  @Column({ type: 'bool', default: true })
+  allowEmailNotification?: boolean;
+
+  @Column({ type: 'bool', default: true })
+  allowPushNotification?: boolean;
+
   @Column({ type: 'enum', enum: AccountType, default: AccountType.CUSTOMER })
   account_type?: AccountType;
-
-  @Column({ type: 'varchar', nullable: true, default: null })
-  trnxPin?: string;
 
   @OneToOne(() => Wallet, ({ user }) => user)
   @JoinColumn()

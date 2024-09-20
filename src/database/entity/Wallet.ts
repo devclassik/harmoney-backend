@@ -60,6 +60,9 @@ export class Wallet {
   @Column({ type: 'enum', enum: NubanProvider, nullable: true, default: null })
   nubanProvider?: NubanProvider;
 
+  @Column({ type: 'varchar', nullable: true, default: null })
+  txPin?: string;
+
   @OneToOne(() => User, ({ wallet }) => wallet)
   @JoinColumn()
   user?: User;
