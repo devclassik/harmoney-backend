@@ -23,6 +23,11 @@ export enum NubanProvider {
   SUDO = 'SUDO',
 }
 
+export enum WalletType {
+  USER = 'USER',
+  MERCHANT = 'MERCHANT',
+}
+
 @Entity('wallets')
 export class Wallet {
   constructor(data: Wallet) {
@@ -62,6 +67,14 @@ export class Wallet {
 
   @Column({ type: 'varchar', nullable: true, default: null })
   txPin?: string;
+
+  @Column({
+    type: 'enum',
+    enum: WalletType,
+    default: WalletType.USER,
+    nullable: false,
+  })
+  wallet_type?: WalletType;
 
   @OneToOne(() => User, ({ wallet }) => wallet)
   @JoinColumn()

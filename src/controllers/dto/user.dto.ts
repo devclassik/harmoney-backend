@@ -1,3 +1,5 @@
+import { IdentityTypes } from '../../database';
+
 export interface UpdateProfileDto {
   first_name: string;
   last_name: string;
@@ -11,13 +13,7 @@ export interface ChangePasswordDto {
   confirmNewPassword: string;
 }
 
-export interface SetupTrnxPinDto {
-  pin: string;
-  confirmPin: string;
-}
-
-export interface ChangeTrnxPinDto {
-  oldPin: string;
-  newPin: string;
-  confirmNewPin: string;
+export interface InitIdentityDto {
+  identityType: IdentityTypes;
+  identityNumber: string;
 }

@@ -4,6 +4,7 @@ import {
   MerchantBusiness,
   User,
   Wallet,
+  WalletType,
 } from '../database';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -90,6 +91,10 @@ export class AuthController {
       const wallet = await this.walletRepo.save(
         new Wallet({
           user: new User({ id: user.id }),
+          wallet_type:
+            account_type == AccountType.MERCHANT
+              ? WalletType.MERCHANT
+              : WalletType.USER,
         }),
       );
       user.wallet = new Wallet({ id: wallet.id });
@@ -128,21 +133,11 @@ export class AuthController {
   };
 
   resendSignupEmailVerificationOtp = async (
-    req: Request,
+    req: Request & { user: User },
     res: Response,
   ): Promise<Response | void> => {
+    const user = req.user;
     try {
-      const user = await this.userRepo.findOne({
-        where: { email: res.locals.user.email },
-      });
-
-      if (!user) {
-        throw new CustomError(
-          MESSAGES.RESOURCE_NOT_FOUND('User'),
-          StatusCodes.BAD_REQUEST,
-        );
-      }
-
       user.confirmEmailToken = await generateRandomString(6, '0');
       await this.userRepo.save(user);
 
@@ -157,16 +152,13 @@ export class AuthController {
   };
 
   verifySignupOtp = async (
-    req: Request,
+    req: Request & { user: User },
     res: Response,
   ): Promise<Response | void> => {
     const { otp } = req.body;
+    const user = req.user;
     try {
-      const user = await this.userRepo.findOne({
-        where: { email: res.locals.user.email },
-      });
-
-      if (!user || user.confirmEmailToken != otp) {
+      if (user.confirmEmailToken != otp) {
         throw new CustomError('Invalid otp', StatusCodes.BAD_REQUEST);
       }
 

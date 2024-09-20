@@ -18,23 +18,17 @@ export class WalletController {
   }
 
   setupTrnxPin = async (
-    req: Request<null, null, SetupTrnxPinDto, null>,
+    req: Request<null, null, SetupTrnxPinDto, null> & { user: User },
     res: Response,
   ): Promise<Response | void> => {
     const { pin, confirmPin } = req.body;
+    let user = req.user;
+
     try {
-      const user = await this.userRepo.findOne({
-        where: { email: res.locals.user.email },
+      const wallet = await this.walletRepo.findOne({
+        where: { user: new User({ id: user.id }) },
+        relations: ['wallet'],
       });
-
-      if (!user) {
-        throw new CustomError(
-          MESSAGES.RESOURCE_NOT_FOUND('User'),
-          StatusCodes.BAD_REQUEST,
-        );
-      }
-
-      const wallet = user.wallet;
 
       if (!wallet) {
         throw new CustomError(
@@ -68,23 +62,17 @@ export class WalletController {
   };
 
   changeTrnxPin = async (
-    req: Request<null, null, ChangeTrnxPinDto, null>,
+    req: Request<null, null, ChangeTrnxPinDto, null> & { user: User },
     res: Response,
   ): Promise<Response | void> => {
     const { oldPin, newPin, confirmNewPin } = req.body;
+    let user = req.user;
+
     try {
-      const user = await this.userRepo.findOne({
-        where: { email: res.locals.user.email },
+      const wallet = await this.walletRepo.findOne({
+        where: { user: new User({ id: user.id }) },
+        relations: ['wallet'],
       });
-
-      if (!user) {
-        throw new CustomError(
-          MESSAGES.RESOURCE_NOT_FOUND('User'),
-          StatusCodes.BAD_REQUEST,
-        );
-      }
-
-      const wallet = user.wallet;
 
       if (!wallet) {
         throw new CustomError(

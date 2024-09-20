@@ -4,12 +4,14 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Wallet } from './Wallet';
 import { MerchantBusiness } from './MerchantBusiness';
+import { UserIdentity } from './UserIdentity';
 
 export enum AccountType {
   ADMIN = 'ADMIN',
@@ -60,15 +62,6 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   avatarUrl?: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  bvn?: string;
-
-  @Column({ type: 'varchar', nullable: true })
-  confirmBVNToken?: string;
-
-  @Column({ type: 'boolean', default: false })
-  isBVNVerified?: boolean;
-
   @Column({ type: 'bool', default: false })
   isLoggedIn?: boolean;
 
@@ -88,6 +81,9 @@ export class User {
   @OneToOne(() => MerchantBusiness, ({ merchant }) => merchant)
   @JoinColumn()
   business?: MerchantBusiness;
+
+  @OneToMany(() => UserIdentity, ({ user }) => user)
+  identities?: UserIdentity[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

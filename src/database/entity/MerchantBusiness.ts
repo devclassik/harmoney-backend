@@ -4,11 +4,13 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './User';
+import { UserIdentity } from './UserIdentity';
 
 export enum BusinessCategories {
   WATER = 'WATER',
@@ -102,6 +104,9 @@ export class MerchantBusiness {
   @OneToOne(() => User, ({ business }) => business)
   @JoinColumn()
   merchant?: User;
+
+  @OneToMany(() => UserIdentity, ({ business }) => business)
+  identities?: UserIdentity[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

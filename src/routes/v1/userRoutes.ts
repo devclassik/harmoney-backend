@@ -14,3 +14,9 @@ UserRoutes.post(
   authGuard,
   userController.changePassword,
 );
+
+UserRoutes.post(
+  '/user/verifyIdentity/initiate',
+  authGuard,
+  userController.initiateIdentityVerification,
+);
