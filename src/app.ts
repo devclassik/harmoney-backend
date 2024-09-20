@@ -50,8 +50,8 @@ AppDataSource.initialize()
     keepAlive();
 
     app.use('/api/v1', Routes);
-
-    app.use((req: Request, res: Response) => {
+    
+    app.use('/healthz', (req: Request, res: Response) => {
       res.json({ message });
     });
 

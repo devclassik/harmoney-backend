@@ -36,12 +36,12 @@ export class UserIdentity {
 
   @Column({ type: 'varchar', default: null, nullable: true })
   number?: string;
+  
+  @Column({ type: 'bool', default: false })
+  validated?: boolean;
 
   @Column({ type: 'varchar', default: null, nullable: true })
   identityId?: string;
-
-  @Column({ type: 'bool', default: false })
-  validated?: boolean;
 
   @Column({ type: 'varchar', nullable: true })
   confirmToken?: string;

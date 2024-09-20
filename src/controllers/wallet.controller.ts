@@ -9,11 +9,9 @@ import { AppDataSource, User, Wallet } from '../database';
 import { ChangeTrnxPinDto, SetupTrnxPinDto } from './dto';
 
 export class WalletController {
-  private userRepo: Repository<User>;
   private walletRepo: Repository<Wallet>;
 
   constructor() {
-    this.userRepo = AppDataSource.getRepository(User);
     this.walletRepo = AppDataSource.getRepository(Wallet);
   }
 

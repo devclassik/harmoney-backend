@@ -38,7 +38,7 @@ export class AuthController {
   private userRepo: Repository<User>;
   private walletRepo: Repository<Wallet>;
   private businessRepo: Repository<MerchantBusiness>;
-  Wallet;
+
   constructor() {
     this.userRepo = AppDataSource.getRepository(User);
     this.walletRepo = AppDataSource.getRepository(Wallet);

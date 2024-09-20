@@ -17,3 +17,8 @@ export interface InitIdentityDto {
   identityType: IdentityTypes;
   identityNumber: string;
 }
+
+export interface FinalizeIdentityDto {
+  identityType: IdentityTypes;
+  otp: string;
+}

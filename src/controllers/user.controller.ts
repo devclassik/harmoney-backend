@@ -16,7 +16,12 @@ import {
   UserIdentity,
   Wallet,
 } from '../database';
-import { ChangePasswordDto, InitIdentityDto, UpdateProfileDto } from './dto';
+import {
+  ChangePasswordDto,
+  FinalizeIdentityDto,
+  InitIdentityDto,
+  UpdateProfileDto,
+} from './dto';
 
 export class UserController {
   private userRepo: Repository<User>;
@@ -192,20 +197,51 @@ export class UserController {
     const user = req.user;
 
     try {
-      // const identityExist = await this.identityRepo.findOne({
-      //   where: {
-      //     number: identityNumber,
-      //     type: identityType,
-      //     user: Not(new User({ id: user.id })),
-      //   },
-      // });
+      const identityExist = await this.identityRepo.findOne({
+        where: {
+          number: identityNumber,
+          type: identityType,
+          user: Not(new User({ id: user.id })),
+        },
+      });
 
-      // if (identityExist) {
-      //   throw new CustomError(
-      //     'This Identity is used y another user.',
-      //     StatusCodes.NOT_ACCEPTABLE,
-      //   );
-      // }
+      if (identityExist) {
+        throw new CustomError(
+          MESSAGES.DUPLICATE(identityType),
+          StatusCodes.NOT_ACCEPTABLE,
+        );
+      }
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, {}));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  finalizeIdentityVerification = async (
+    req: Request<null, null, FinalizeIdentityDto, null> & { user: User },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { identityType, otp } = req.body;
+    const user = req.user;
+
+    try {
+      const identityExist = await this.identityRepo.findOne({
+        where: {
+          confirmToken: otp,
+          type: identityType,
+          user: Not(new User({ id: user.id })),
+        },
+      });
+
+      if (identityExist) {
+        throw new CustomError(
+          MESSAGES.DUPLICATE(identityType),
+          StatusCodes.NOT_ACCEPTABLE,
+        );
+      }
 
       return res
         .status(StatusCodes.OK)
