@@ -3,6 +3,7 @@ import {
   AppDataSource,
   MerchantBusiness,
   User,
+  Wallet,
 } from '../database';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -34,10 +35,12 @@ import {
 
 export class AuthController {
   private userRepo: Repository<User>;
+  private walletRepo: Repository<Wallet>;
   private businessRepo: Repository<MerchantBusiness>;
-
+  Wallet;
   constructor() {
     this.userRepo = AppDataSource.getRepository(User);
+    this.walletRepo = AppDataSource.getRepository(Wallet);
     this.businessRepo = AppDataSource.getRepository(MerchantBusiness);
   }
 
@@ -83,6 +86,14 @@ export class AuthController {
           account_type,
         }),
       );
+
+      const wallet = await this.walletRepo.save(
+        new Wallet({
+          user: new User({ id: user.id }),
+        }),
+      );
+      user.wallet = new Wallet({ id: wallet.id });
+      await this.userRepo.save(user);
 
       if (account_type == AccountType.MERCHANT) {
         const business = await this.businessRepo.save(
