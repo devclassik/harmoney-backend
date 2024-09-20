@@ -51,7 +51,6 @@ export class AuthController {
       phone_no,
       email,
       password,
-      confirmPassword,
       account_type,
       business_name,
       category,
@@ -65,13 +64,6 @@ export class AuthController {
       if (existingUser) {
         throw new CustomError(
           MESSAGES.EMAIL_ALREADY_USED,
-          StatusCodes.BAD_REQUEST,
-        );
-      }
-
-      if (confirmPassword != password) {
-        throw new CustomError(
-          MESSAGES.CONFIRM_PASSWORD_ERROR,
           StatusCodes.BAD_REQUEST,
         );
       }

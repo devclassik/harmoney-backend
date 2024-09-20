@@ -6,7 +6,6 @@ export interface RegisterDto {
   phone_no: string;
   email: string;
   password: string;
-  confirmPassword: string;
   account_type: AccountType;
   // merchants only
   business_name?: string;

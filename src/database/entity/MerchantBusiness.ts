@@ -80,7 +80,7 @@ export class MerchantBusiness {
   bankCode?: string;
 
   @Column({ type: 'varchar', default: null, nullable: true })
-  cac?: string;
+  regNumber?: string;
 
   @Column({ type: 'enum', enum: BusinessType, default: null, nullable: true })
   business_type?: BusinessType;
