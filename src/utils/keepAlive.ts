@@ -1,14 +1,17 @@
+import { Axios } from 'axios';
 import config from '../config';
-import { apiClient } from './apiClient';
 
 export const keepAlive = () => {
   const url =
     config.app.env === 'local'
       ? `${config.app.url}:${config.app.port}`
       : `${config.app.url}`;
-  
+
+  const api = new Axios({
+    baseURL: url,
+  });
+
   setInterval(async () => {
-    const api = apiClient(url);
-    await api.get<any>('/');
+    await api.get('/');
   }, 30000);
 };

@@ -108,3 +108,5 @@ dist
 assets/uploads/*
 tmp/*
 build/
+*.pem
+*.cer

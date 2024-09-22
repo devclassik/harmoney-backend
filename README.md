@@ -6,7 +6,12 @@ Home page airtime data cable would be arranged with most used/frequently used.
 STRUCTURE FOR MARKETPLACE HOLDER
 
 Structure 1
-Safe haven feature 1. airtime 2. data 3. cable 4. electricity 5. internet
+Safe haven feature 
+  1. airtime
+  2. data
+  3. cable
+  4. electricity
+  5. internet
 
 The Structure 2 below would be from multiple providers/merchants
 
