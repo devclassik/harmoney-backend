@@ -42,6 +42,15 @@ const config = {
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
     storage_bucket: process.env.FIREBASE_STORAGE_BUCKET,
   },
+  safehaven: {
+    url: process.env.SAFEHAVEN_BASE_URL,
+    client_assertion: process.env.SAFEHAVEN_CLIENT_ASSERTION,
+    client_assertion_type: process.env.SAFEHAVEN_CLIENT_ASSERTION_TYPE,
+    client_id: process.env.SAFEHAVEN_CLIENT_ID,
+    grant_type: process.env.SAFEHAVEN_GRANT_TYPE,
+    debit_account: process.env.SAFEHAVEN_DEBIT_ACCOUNT,
+    refresh_token: process.env.SAFEHAVEN_REFRESH_TOKEN,
+  },
 };
 
 export default config;
