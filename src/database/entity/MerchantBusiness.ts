@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 import { User } from './User';
 import { UserIdentity } from './UserIdentity';
-import { Transaction } from './Transaction';
 import { Order } from './Order';
 
 export enum BusinessCategories {

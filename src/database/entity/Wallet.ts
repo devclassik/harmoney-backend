@@ -83,10 +83,10 @@ export class Wallet {
   user?: User;
 
   @OneToMany(() => Transaction, ({ sourceWallet }) => sourceWallet)
-  debitTransactions: Transaction[];
+  debitTransactions?: Transaction[];
 
   @OneToMany(() => Transaction, ({ destinationWallet }) => destinationWallet)
-  creditTransactions: Transaction[];
+  creditTransactions?: Transaction[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

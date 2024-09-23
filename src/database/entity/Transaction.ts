@@ -9,8 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Beneficiary } from './Beneficiary';
-import { User } from './User';
-import { Currency, Wallet } from './Wallet';
+import { Wallet } from './Wallet';
 import { Order } from './Order';
 
 export enum TransactionType {
@@ -58,6 +57,13 @@ export enum TransactionCategory {
   DOCTOR_CONSULT = 'DOCTOR_CONSULT',
 }
 
+enum Currency {
+  NAIRA = 'NGN',
+  DOLLAR = 'USD',
+  EURO = 'EUR',
+  POUND = 'GBP',
+}
+
 @Entity('transactions')
 export class Transaction {
   constructor(data: Transaction) {
@@ -101,17 +107,14 @@ export class Transaction {
   @Column({ type: 'varchar', default: null, nullable: true })
   bankCode?: string;
 
-  // @Column({ type: 'enum', enum: Currency, default: Currency.NAIRA })
-  // currency?: Currency;
+  @Column({ type: 'enum', enum: Currency, default: Currency.NAIRA })
+  currency?: Currency;
 
   @Column({ type: 'varchar', nullable: true })
   recipientCode?: string;
 
-  @Column({ type: 'text', nullable: true })
-  reason?: string;
-
-  @Column({ type: 'text', nullable: true })
-  transactionToken?: string;
+  @Column({ type: 'text', nullable: true, default: null })
+  description?: string;
 
   @Column({
     type: 'enum',

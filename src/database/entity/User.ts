@@ -13,7 +13,6 @@ import { Wallet } from './Wallet';
 import { MerchantBusiness } from './MerchantBusiness';
 import { UserIdentity } from './UserIdentity';
 import { Beneficiary } from './Beneficiary';
-import { Transaction } from './Transaction';
 import { Order } from './Order';
 
 export enum AccountType {
