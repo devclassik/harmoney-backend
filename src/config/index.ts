@@ -23,6 +23,12 @@ const config = {
     dir: process.env.LOG_DIR || '',
     format: process.env.LOG_FORMAT || 'dev',
   },
+  mail: {
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
   mailgun: {
     key: process.env.MAILGUN_API_KEY,
     domain: process.env.MAILGUN_DOMAIN,
