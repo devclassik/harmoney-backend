@@ -5,14 +5,16 @@ import bcrypt from 'bcrypt';
 import { MESSAGES, apiResponse } from '../utils';
 import { appEventEmitter } from '../services';
 import { hashPassword, CustomError, ErrorMiddleware } from '../middlewares';
-import { AppDataSource, User, Wallet } from '../database';
+import { AppDataSource, Transaction, User, Wallet } from '../database';
 import { ChangeTrnxPinDto, SetupTrnxPinDto } from './dto';
 
 export class WalletController {
   private walletRepo: Repository<Wallet>;
+  private transactionRepo: Repository<Transaction>;
 
   constructor() {
     this.walletRepo = AppDataSource.getRepository(Wallet);
+    this.transactionRepo = AppDataSource.getRepository(Transaction);
   }
 
   setupTrnxPin = async (
@@ -20,7 +22,7 @@ export class WalletController {
     res: Response,
   ): Promise<Response | void> => {
     const { pin, confirmPin } = req.body;
-    let user = req.user;
+    const user = req.user;
 
     try {
       const wallet = await this.walletRepo.findOne({
@@ -64,7 +66,7 @@ export class WalletController {
     res: Response,
   ): Promise<Response | void> => {
     const { oldPin, newPin, confirmNewPin } = req.body;
-    let user = req.user;
+    const user = req.user;
 
     try {
       const wallet = await this.walletRepo.findOne({
@@ -108,6 +110,29 @@ export class WalletController {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json(apiResponse('error', 'Cannot perform this operation.'));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  fetchWalletTransactions = async (
+    req: Request<null, null, null, null> & { user: User },
+    res: Response,
+  ): Promise<Response | void> => {
+    const user = req.user;
+
+    try {
+      const transactions = await this.transactionRepo.find({
+        where: [
+          { destinationWallet: new Wallet({ id: user.wallet.id }) },
+          { sourceWallet: new Wallet({ id: user.wallet.id }) },
+        ],
+        relations: ['beneficiary', 'destinationWallet'],
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, transactions));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

@@ -16,3 +16,8 @@ WalletRoutes.post(
   authGuard,
   walletController.changeTrnxPin,
 );
+WalletRoutes.get(
+  '/wallet/transactions',
+  authGuard,
+  walletController.fetchWalletTransactions,
+);
