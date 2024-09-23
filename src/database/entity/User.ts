@@ -12,6 +12,9 @@ import {
 import { Wallet } from './Wallet';
 import { MerchantBusiness } from './MerchantBusiness';
 import { UserIdentity } from './UserIdentity';
+import { Beneficiary } from './Beneficiary';
+import { Transaction } from './Transaction';
+import { Order } from './Order';
 
 export enum AccountType {
   ADMIN = 'ADMIN',
@@ -84,6 +87,12 @@ export class User {
 
   @OneToMany(() => UserIdentity, ({ user }) => user)
   identities?: UserIdentity[];
+
+  @OneToMany(() => Beneficiary, ({ owner }) => owner)
+  beneficiaries?: Beneficiary[];
+
+  @OneToMany(() => Order, ({ customer }) => customer)
+  orders?: Order[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

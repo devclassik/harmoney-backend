@@ -36,7 +36,7 @@ export class UserIdentity {
 
   @Column({ type: 'varchar', default: null, nullable: true })
   number?: string;
-  
+
   @Column({ type: 'bool', default: false })
   validated?: boolean;
 

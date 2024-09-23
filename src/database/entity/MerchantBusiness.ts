@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import { User } from './User';
 import { UserIdentity } from './UserIdentity';
+import { Transaction } from './Transaction';
+import { Order } from './Order';
 
 export enum BusinessCategories {
   WATER = 'WATER',
@@ -26,7 +28,7 @@ export enum BusinessCategories {
   HOTEL = 'HOTEL',
   MOVIES = 'MOVIES',
   EVENT_TICKETING = 'EVENT_TICKETING',
-  PHARMARCY = 'PHARMARCY',
+  PHARMACY = 'PHARMACY',
   BLOOD_BANK = 'BLOOD_BANK',
   HOSPITAL = 'HOSPITAL',
   DOCTOR_CONSULT = 'DOCTOR_CONSULT',
@@ -107,6 +109,9 @@ export class MerchantBusiness {
 
   @OneToMany(() => UserIdentity, ({ business }) => business)
   identities?: UserIdentity[];
+
+  @OneToMany(() => Order, ({ business }) => business)
+  orders?: Order[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

@@ -4,11 +4,13 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './User';
+import { Transaction } from './Transaction';
 
 export enum Currency {
   NAIRA = 'NGN',
@@ -79,6 +81,12 @@ export class Wallet {
   @OneToOne(() => User, ({ wallet }) => wallet)
   @JoinColumn()
   user?: User;
+
+  @OneToMany(() => Transaction, ({ sourceWallet }) => sourceWallet)
+  debitTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, ({ destinationWallet }) => destinationWallet)
+  creditTransactions: Transaction[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
