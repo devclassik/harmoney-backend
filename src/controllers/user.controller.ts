@@ -20,6 +20,7 @@ import {
   ChangePasswordDto,
   FinalizeIdentityDto,
   InitIdentityDto,
+  UpdateNotificationDto,
   UpdateProfileDto,
 } from './dto';
 
@@ -68,13 +69,8 @@ export class UserController {
   ): Promise<Response | void> => {
     const { first_name, last_name, phone_no, username } = req.body;
     const user = req.user;
-    const files = req.files?.avatar;
 
     try {
-      const avatarUrl = files
-        ? await this.fileManager.uploadFile(files)
-        : user.avatarUrl;
-
       await this.userRepo.save(
         new User({
           id: user.id,
@@ -82,7 +78,6 @@ export class UserController {
           last_name,
           phone_no,
           username,
-          avatarUrl: avatarUrl as string,
         }),
       );
 
@@ -100,7 +95,60 @@ export class UserController {
     }
   };
 
-  uploadProfilePhoto = async () => {};
+  uploadProfilePhoto = async (
+    req: Request<null, null, { target: 'USER' | 'BUSINESS' }, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { target } = req.body;
+    const user = req.user;
+    const files = req.files?.photo;
+    try {
+      if (!files) {
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND('File'),
+          StatusCodes.NOT_ACCEPTABLE,
+        );
+      }
+      const photoUrl = await this.fileManager.uploadFile(files);
+
+      if (target == 'BUSINESS') {
+        const business = await this.businessRepo.findOne({
+          where: { merchant: new User({ id: user.id }) },
+        });
+
+        if (!business) {
+          throw new CustomError(
+            MESSAGES.RESOURCE_NOT_FOUND('Merchant'),
+            StatusCodes.NOT_ACCEPTABLE,
+          );
+        }
+
+        await this.businessRepo.save(
+          new MerchantBusiness({
+            id: business.id,
+            avatarUrl: photoUrl as string,
+          }),
+        );
+      }
+
+      if (target == 'USER') {
+        await this.userRepo.save(
+          new User({
+            id: user.id,
+            avatarUrl: photoUrl as string,
+          }),
+        );
+      }
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
 
   changePassword = async (
     req: Request<null, null, ChangePasswordDto, null> & { user: User },
@@ -253,9 +301,30 @@ export class UserController {
     }
   };
 
-  uploadNotificationSetting = async () => {};
+  updateNotificationSetting = async (
+    req: Request<null, null, UpdateNotificationDto, null> & { user: User },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { email, push } = req.body;
+    const user = req.user;
+    try {
+      await this.userRepo.save(
+        new User({
+          id: user.id,
+          allowEmailNotification: !!email,
+          allowPushNotification: !!push,
+        }),
+      );
 
-  uploadBusinessProfile = async () => {};
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
 
-  uploadBusinessBank = async () => {};
+  updateBusinessProfile = async () => {};
+
+  updateBusinessBank = async () => {};
 }

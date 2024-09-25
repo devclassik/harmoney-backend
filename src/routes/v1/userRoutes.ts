@@ -12,7 +12,7 @@ UserRoutes.patch('/user/profile', authGuard, userController.updateUser);
 UserRoutes.patch(
   '/user/notification-setting',
   authGuard,
-  userController.uploadNotificationSetting,
+  userController.updateNotificationSetting,
 );
 
 UserRoutes.put(
@@ -35,10 +35,10 @@ UserRoutes.post(
 UserRoutes.patch(
   '/user/business/profile',
   authGuard,
-  userController.uploadBusinessProfile,
+  userController.updateBusinessProfile,
 );
 UserRoutes.put(
   '/user/business/bank',
   authGuard,
-  userController.uploadBusinessBank,
+  userController.updateBusinessBank,
 );

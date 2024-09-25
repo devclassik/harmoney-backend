@@ -22,3 +22,8 @@ export interface FinalizeIdentityDto {
   identityType: IdentityTypes;
   otp: string;
 }
+
+export interface UpdateNotificationDto {
+  email: boolean;
+  push: boolean;
+}

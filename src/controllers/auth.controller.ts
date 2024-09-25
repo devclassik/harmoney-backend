@@ -183,6 +183,7 @@ export class AuthController {
     try {
       const user = await this.userRepo.findOne({
         where: { email },
+        relations: ['business', 'identities', 'wallet'],
       });
 
       if (user) {

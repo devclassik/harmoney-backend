@@ -55,6 +55,7 @@ export class SafeHaven {
       `/vas/service/${id}/service-categories`,
     getCategoryProducts: (id: string) => `/vas/service-category/${id}/products`,
     purchase: (type: PurchaseTypes) => `/vas/pay/${type}`,
+    getBanks: '/transfers/banks',
   };
 
   private getAccessToken = async (): Promise<AuthorizationResponse> => {
@@ -318,6 +319,24 @@ export class SafeHaven {
       const { data } = JSON.parse(result.data);
       console.log('utility safe haven ==>', data, '<<==safe');
       return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public getAllBanks = async () => {
+    try {
+      const { access_token, ibs_client_id } = await this.getAccessToken();
+
+      const result = await this.axios.get(`${this.paths.getBanks}`, {
+        headers: {
+          ...this.defaultHeader,
+          ClientID: ibs_client_id,
+          Authorization: getBearerToken(access_token),
+        },
+      });
+
+      return JSON.parse(result.data);
     } catch (error) {
       throw error;
     }
