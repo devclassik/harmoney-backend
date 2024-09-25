@@ -93,7 +93,7 @@ export const authGuard = async (
         } else {
           // make user available for the next middleware
           const decodedData = decodedToken as { data: TokenDto };
-          console.log('decodedData: ', JSON.stringify(decodedData.data));
+          // console.log('decodedData: ', JSON.stringify(decodedData.data));
 
           const user = await AppDataSource.getRepository(User).findOne({
             where: { email: decodedData.data.email },

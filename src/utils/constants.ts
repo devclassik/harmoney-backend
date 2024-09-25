@@ -3,6 +3,7 @@ export const MESSAGES = {
   OPS_SUCCESSFUL: 'Operation Successful',
   NOT_FOUND: 'Not found',
   RESOURCE_NOT_FOUND: (resource: string) => `${resource} not found.`,
+  INVALID_RESOURCE: (resource: string) => `Invalid ${resource}.`,
   DUPLICATE: (resource: string) => `${resource} already exist.`,
   UNABLE_TO_VALIDATE_WALLET: 'Error encountered while validating wallet.',
   EMAIL_TOKEN_SENT: (email: string) =>

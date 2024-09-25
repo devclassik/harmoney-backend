@@ -31,23 +31,38 @@ export class PaymentController {
     }
   };
 
-  // fetchBankDetails = async (
-  //   req: Request<null, null, BankDetailsDto, null> & { user: User },
-  //   res: Response,
-  // ): Promise<Response | void> => {
-  //   const user = req.user;
+  fetchAccountDetails = async (
+    req: Request<null, null, BankDetailsDto, null> & { user: User },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { accountNumber, bankCode } = req.body;
+    const user = req.user;
 
-  //   try {
-  //     const orders = await this.orderRepo.find({
-  //       where: { business: new MerchantBusiness({ id: user.business.id }) },
-  //       relations: ['transaction'],
-  //     });
+    try {
+      const result = await this.gateway.getAccountDetails({
+        accountNumber,
+        bankCode,
+      });
 
-  //     return res
-  //       .status(StatusCodes.OK)
-  //       .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, orders));
-  //   } catch (error) {
-  //     ErrorMiddleware.handleError(error, req, res);
-  //   }
-  // };
+      if (result?.data?.accountName) {
+        const data = {
+          accountNumber: result.data.accountNumber,
+          accountName: result.data.accountName,
+          bankCode: result.data.bankCode,
+        };
+
+        return res
+          .status(StatusCodes.OK)
+          .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, data));
+      }
+
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(
+          apiResponse('error', MESSAGES.INVALID_RESOURCE('Account'), {}),
+        );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
 }
