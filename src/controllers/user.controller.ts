@@ -100,6 +100,8 @@ export class UserController {
     }
   };
 
+  uploadProfilePhoto = async () => {};
+
   changePassword = async (
     req: Request<null, null, ChangePasswordDto, null> & { user: User },
     res: Response,
@@ -250,4 +252,10 @@ export class UserController {
       ErrorMiddleware.handleError(error, req, res);
     }
   };
+
+  uploadNotificationSetting = async () => {};
+
+  uploadBusinessProfile = async () => {};
+
+  uploadBusinessBank = async () => {};
 }

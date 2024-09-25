@@ -21,3 +21,5 @@ WalletRoutes.get(
   authGuard,
   walletController.fetchWalletTransactions,
 );
+
+WalletRoutes.get('/wallet/payouts', authGuard, walletController.fetchPayouts);

@@ -137,4 +137,7 @@ export class WalletController {
       ErrorMiddleware.handleError(error, req, res);
     }
   };
+
+  fetchPayouts = async () => {};
+
 }
