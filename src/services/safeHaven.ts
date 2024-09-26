@@ -1,6 +1,7 @@
 import { Axios } from 'axios';
 import config from '../config';
 import { logger } from '../utils';
+import { IdentityTypes } from '../database';
 
 const getBearerToken = (token: string) => `Bearer ${token}`;
 
@@ -57,6 +58,8 @@ export class SafeHaven {
     purchase: (type: PurchaseTypes) => `/vas/pay/${type}`,
     getBanks: '/transfers/banks',
     nameEnquiry: '/transfers/name-enquiry',
+    initIdentityCheck: '/identity/v2',
+    verifyIdentityCheck: '/identity/v2/validate',
   };
 
   private getAccessToken = async (): Promise<AuthorizationResponse> => {
@@ -74,8 +77,8 @@ export class SafeHaven {
         },
       );
 
-      logger.info("tokennnn: ");
-      logger.info(JSON.stringify(result.data));
+      // logger.info('tokennnn: ');
+      // logger.info(JSON.stringify(result.data));
       return JSON.parse(result.data);
     } catch (error) {
       throw error;
@@ -354,6 +357,60 @@ export class SafeHaven {
 
       const result = await this.axios.post(
         `${this.paths.nameEnquiry}`,
+        JSON.stringify(payload),
+        {
+          headers: {
+            ...this.defaultHeader,
+            ClientID: ibs_client_id,
+            Authorization: getBearerToken(access_token),
+          },
+        },
+      );
+
+      return JSON.parse(result.data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public initiateIdentityCheck = async (payload: {
+    type: IdentityTypes;
+    number: string;
+  }) => {
+    try {
+      const { access_token, ibs_client_id } = await this.getAccessToken();
+
+      const result = await this.axios.post(
+        `${this.paths.initIdentityCheck}`,
+        JSON.stringify({
+          ...payload,
+          debitAccountNumber: config.safehaven.debit_account,
+        }),
+        {
+          headers: {
+            ...this.defaultHeader,
+            ClientID: ibs_client_id,
+            Authorization: getBearerToken(access_token),
+          },
+        },
+      );
+
+      return JSON.parse(result.data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public finalizeIdentityCheck = async (payload: {
+    type: IdentityTypes;
+    identityId: string;
+    otp: string;
+  }) => {
+    try {
+      const { access_token, ibs_client_id } = await this.getAccessToken();
+
+      const result = await this.axios.post(
+        `${this.paths.verifyIdentityCheck}`,
         JSON.stringify(payload),
         {
           headers: {

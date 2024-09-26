@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import { MESSAGES, apiResponse, makeUserPublicView } from '../utils';
 import {
   FileManager,
+  SafeHaven,
   appEventEmitter,
   sendUserAccountDeletedMail,
 } from '../services';
@@ -25,13 +26,15 @@ import {
 } from './dto';
 
 export class UserController {
+  private gateway: SafeHaven;
+  private fileManager: FileManager;
   private userRepo: Repository<User>;
   private walletRepo: Repository<Wallet>;
   private identityRepo: Repository<UserIdentity>;
   private businessRepo: Repository<MerchantBusiness>;
-  private fileManager: FileManager;
 
   constructor() {
+    this.gateway = new SafeHaven();
     this.fileManager = new FileManager();
     this.userRepo = AppDataSource.getRepository(User);
     this.walletRepo = AppDataSource.getRepository(Wallet);
@@ -251,7 +254,7 @@ export class UserController {
         where: {
           number: identityNumber,
           type: identityType,
-          user: Not(new User({ id: user.id })),
+          user: Not(user.id),
         },
       });
 
@@ -262,9 +265,14 @@ export class UserController {
         );
       }
 
+      const result = await this.gateway.initiateIdentityCheck({
+        type: identityType,
+        number: identityNumber,
+      });
+
       return res
         .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, {}));
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
@@ -278,15 +286,14 @@ export class UserController {
     const user = req.user;
 
     try {
-      const identityExist = await this.identityRepo.findOne({
+      const identity = await this.identityRepo.findOne({
         where: {
           confirmToken: otp,
           type: identityType,
-          user: Not(new User({ id: user.id })),
         },
       });
 
-      if (identityExist) {
+      if (!identity) {
         throw new CustomError(
           MESSAGES.DUPLICATE(identityType),
           StatusCodes.NOT_ACCEPTABLE,

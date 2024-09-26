@@ -32,6 +32,12 @@ UserRoutes.post(
   userController.initiateIdentityVerification,
 );
 
+UserRoutes.post(
+  '/user/verifyIdentity/finalize',
+  authGuard,
+  userController.finalizeIdentityVerification,
+);
+
 UserRoutes.patch(
   '/user/business/profile',
   authGuard,
