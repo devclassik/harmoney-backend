@@ -1,4 +1,4 @@
-import { IdentityTypes } from '../../database';
+import { BusinessCategories, IdentityTypes } from '../../database';
 
 export interface UpdateProfileDto {
   first_name: string;
@@ -26,4 +26,17 @@ export interface FinalizeIdentityDto {
 export interface UpdateNotificationDto {
   email: boolean;
   push: boolean;
+}
+
+export interface UpdateBusinessProfileDto {
+  business_name: string;
+  category: BusinessCategories;
+  address: string;
+}
+
+export interface UpdateBusinessBankDetailsDto {
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  accountName?: string;
 }

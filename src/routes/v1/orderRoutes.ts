@@ -1,9 +1,14 @@
 import express from 'express';
 import { OrderController } from '../../controllers';
-import { authGuard } from '../../middlewares';
+import { authGuard, businessGuard } from '../../guards';
 
 export const OrderRoutes = express.Router();
 
 const orderController = new OrderController();
 
-OrderRoutes.get('/orders', authGuard, orderController.fetchOrders);
+OrderRoutes.get(
+  '/orders',
+  authGuard,
+  businessGuard,
+  orderController.fetchOrders,
+);

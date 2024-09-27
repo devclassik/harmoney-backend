@@ -58,9 +58,7 @@ export class PaymentController {
 
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json(
-          apiResponse('error', MESSAGES.INVALID_RESOURCE('Account'), {}),
-        );
+        .json(apiResponse('error', MESSAGES.INVALID_RESOURCE('Account'), {}));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

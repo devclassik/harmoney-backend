@@ -1,6 +1,6 @@
 import express from 'express';
 import { UserController } from '../../controllers';
-import { authGuard } from '../../middlewares';
+import { authGuard, businessGuard } from '../../guards';
 
 export const UserRoutes = express.Router();
 
@@ -41,10 +41,12 @@ UserRoutes.post(
 UserRoutes.patch(
   '/user/business/profile',
   authGuard,
+  businessGuard,
   userController.updateBusinessProfile,
 );
 UserRoutes.put(
   '/user/business/bank',
   authGuard,
+  businessGuard,
   userController.updateBusinessBank,
 );

@@ -1,6 +1,6 @@
 import express from 'express';
 import { WalletController } from '../../controllers';
-import { authGuard } from '../../middlewares';
+import { authGuard } from '../../guards';
 
 export const WalletRoutes = express.Router();
 

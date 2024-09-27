@@ -5,3 +5,4 @@ export * from './UserIdentity';
 export * from './Beneficiary';
 export * from './Transaction';
 export * from './Order';
+export * from './MerchantService';

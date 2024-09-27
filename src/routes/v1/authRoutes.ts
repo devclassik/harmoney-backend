@@ -1,6 +1,7 @@
 import express from 'express';
 import { AuthController } from '../../controllers';
-import { regenerateToken, authGuard } from '../../middlewares';
+import { regenerateToken } from '../../middlewares';
+import { authGuard } from '../../guards';
 
 export const AuthRoutes = express.Router();
 
