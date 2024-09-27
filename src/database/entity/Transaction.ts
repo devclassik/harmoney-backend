@@ -80,16 +80,16 @@ export class Transaction {
   @Column({ type: 'varchar', nullable: true })
   reference?: string;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0.0 })
   amount?: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0.0 })
   currentWalletBalance?: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0.0 })
   previousWalletBalance?: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0.0 })
   fee?: number;
 
   @Column({ type: 'boolean', default: false })

@@ -8,6 +8,7 @@ export const AuthRoutes = express.Router();
 const authController = new AuthController();
 
 AuthRoutes.post('/auth/register', authController.register);
+
 AuthRoutes.post('/auth/login', authController.login);
 
 AuthRoutes.post(
@@ -15,6 +16,7 @@ AuthRoutes.post(
   authGuard,
   authController.resendSignupEmailVerificationOtp,
 );
+
 AuthRoutes.post(
   '/auth/verify/email',
   authGuard,
@@ -25,10 +27,12 @@ AuthRoutes.post(
   '/auth/password-reset/initiate',
   authController.initiatePasswordReset,
 );
+
 AuthRoutes.post(
   '/auth/password-reset/verify',
   authController.verifyPasswordResetOtp,
 );
+
 AuthRoutes.post(
   '/auth/password-reset/finalize',
   authController.finalizePasswordReset,

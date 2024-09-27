@@ -21,8 +21,6 @@ import {
   ChangePasswordDto,
   FinalizeIdentityDto,
   InitIdentityDto,
-  UpdateBusinessBankDetailsDto,
-  UpdateBusinessProfileDto,
   UpdateNotificationDto,
   UpdateProfileDto,
 } from './dto';
@@ -56,7 +54,10 @@ export class UserController {
       });
 
       if (!user) {
-        throw new CustomError('User not found.', StatusCodes.BAD_REQUEST);
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND('User'),
+          StatusCodes.BAD_REQUEST,
+        );
       }
 
       return res.status(StatusCodes.OK).json(
@@ -329,84 +330,6 @@ export class UserController {
       return res
         .status(StatusCodes.OK)
         .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
-    } catch (error) {
-      ErrorMiddleware.handleError(error, req, res);
-    }
-  };
-
-  updateBusinessProfile = async (
-    req: Request<null, null, UpdateBusinessProfileDto, null> & {
-      user: User;
-      business: MerchantBusiness;
-    },
-    res: Response,
-  ): Promise<Response | void> => {
-    const { business_name, category, address } = req.body;
-    const business = req.business;
-
-    try {
-      await this.businessRepo.save(
-        new MerchantBusiness({
-          id: business.id,
-          name: business_name,
-          category,
-          address,
-        }),
-      );
-
-      const updatedBusiness = await this.businessRepo.findOne({
-        where: { id: business.id },
-      });
-
-      return res
-        .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, updatedBusiness));
-    } catch (error) {
-      ErrorMiddleware.handleError(error, req, res);
-    }
-  };
-
-  updateBusinessBank = async (
-    req: Request<null, null, UpdateBusinessBankDetailsDto, null> & {
-      user: User;
-      business: MerchantBusiness;
-    },
-    res: Response,
-  ): Promise<Response | void> => {
-    const { accountNumber, bankCode, bankName } = req.body;
-    const business = req.business;
-
-    try {
-      const bankRes = await this.gateway.getAccountDetails({
-        accountNumber,
-        bankCode,
-      });
-
-      if (bankRes?.data?.accountName) {
-        await this.businessRepo.save(
-          new MerchantBusiness({
-            id: business.id,
-            accountName: bankRes.data.accountName,
-            accountNumber: bankRes.data.accountNumber,
-            bankCode: bankRes.data.bankCode,
-            bankName,
-          }),
-        );
-
-        const updatedBusiness = await this.businessRepo.findOne({
-          where: { id: business.id },
-        });
-
-        return res
-          .status(StatusCodes.OK)
-          .json(
-            apiResponse('success', MESSAGES.OPS_SUCCESSFUL, updatedBusiness),
-          );
-      }
-
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json(apiResponse('error', MESSAGES.INVALID_RESOURCE('Account'), {}));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

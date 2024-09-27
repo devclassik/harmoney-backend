@@ -9,6 +9,7 @@ import {
   Transaction,
   Beneficiary,
   Order,
+  MerchantService,
 } from './entity';
 
 export const AppDataSource = new DataSource({
@@ -22,6 +23,7 @@ export const AppDataSource = new DataSource({
   entities: [
     User,
     MerchantBusiness,
+    MerchantService,
     Wallet,
     UserIdentity,
     Transaction,

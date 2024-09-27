@@ -11,11 +11,13 @@ WalletRoutes.post(
   authGuard,
   walletController.setupTrnxPin,
 );
+
 WalletRoutes.post(
   '/wallet/change-pin',
   authGuard,
   walletController.changeTrnxPin,
 );
+
 WalletRoutes.get(
   '/wallet/transactions',
   authGuard,

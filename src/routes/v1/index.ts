@@ -4,6 +4,7 @@ import { UserRoutes } from './userRoutes';
 import { WalletRoutes } from './walletRoutes';
 import { OrderRoutes } from './orderRoutes';
 import { PaymentRoutes } from './paymentRoutes';
+import { BusinessRoutes } from './businessRoutes';
 
 export const Routes = express.Router();
 
@@ -12,3 +13,4 @@ Routes.use(UserRoutes);
 Routes.use(WalletRoutes);
 Routes.use(OrderRoutes);
 Routes.use(PaymentRoutes);
+Routes.use(BusinessRoutes);

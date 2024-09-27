@@ -12,6 +12,7 @@ import {
 import { User } from './User';
 import { MerchantBusiness } from './MerchantBusiness';
 import { Transaction } from './Transaction';
+import { MerchantService } from './MerchantService';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -35,7 +36,10 @@ export class Order {
   @Column({ type: 'varchar', nullable: false })
   reference?: string;
 
-  @Column({ type: 'decimal', precision: 15, scale: 8, default: 0.0 })
+  @Column({ type: 'varchar', nullable: true, default: null })
+  serviceName?: string;
+
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0.0 })
   amount?: number;
 
   @Column({ type: 'text', nullable: true, default: '' })
@@ -58,9 +62,6 @@ export class Order {
   @Column({ type: 'varchar', nullable: true, default: null })
   customerName?: string;
 
-  @Column({ type: 'varchar', nullable: true, default: null })
-  serviceRequested?: string;
-
   @ManyToOne(() => User, ({ orders }) => orders)
   @JoinColumn()
   customer?: User;
@@ -72,6 +73,10 @@ export class Order {
   @OneToOne(() => Transaction, ({ order }) => order)
   @JoinColumn()
   transaction?: Transaction;
+
+  @OneToOne(() => MerchantService, ({ orders }) => orders)
+  @JoinColumn()
+  service?: MerchantService;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

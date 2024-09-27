@@ -12,6 +12,7 @@ import {
 import { User } from './User';
 import { UserIdentity } from './UserIdentity';
 import { Order } from './Order';
+import { MerchantService } from './MerchantService';
 
 export enum BusinessCategories {
   WATER = 'WATER',
@@ -111,6 +112,9 @@ export class MerchantBusiness {
 
   @OneToMany(() => Order, ({ business }) => business)
   orders?: Order[];
+
+  @OneToMany(() => MerchantService, ({ business }) => business)
+  services?: MerchantService[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
