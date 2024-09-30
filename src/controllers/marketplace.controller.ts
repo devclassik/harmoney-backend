@@ -75,4 +75,59 @@ export class MarketplaceController {
       ErrorMiddleware.handleError(error, req, res);
     }
   };
+
+  fetchAllVAS = async (
+    req: Request<null, null, null, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    try {
+      const result = await this.gateway.getAllVas();
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  getVasCategories = async (
+    req: Request<{ vasId: string }, null, null, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { vasId } = req.params;
+    try {
+      const result = await this.gateway.getVasCategories(vasId);
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  fetchDataPlans = async (
+    req: Request<{ provider: string }, null, null, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { provider } = req.params;
+    const user = req.user;
+
+    try {
+      const result = await this.gateway.getAllVas();
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
 }

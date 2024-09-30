@@ -17,3 +17,21 @@ MarketplaceRoutes.get(
   authGuard,
   marketplaceController.fetchProviderServices,
 );
+
+MarketplaceRoutes.get(
+  '/marketplace/vas',
+  authGuard,
+  marketplaceController.fetchAllVAS,
+);
+
+MarketplaceRoutes.get(
+  '/marketplace/vas/:vasId',
+  authGuard,
+  marketplaceController.getVasCategories,
+);
+
+MarketplaceRoutes.get(
+  '/marketplace/:provider/plans/data',
+  authGuard,
+  marketplaceController.fetchDataPlans,
+);
