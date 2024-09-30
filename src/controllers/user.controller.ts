@@ -102,8 +102,8 @@ export class UserController {
     }
   };
 
-  uploadProfilePhoto = async (
-    req: Request<null, null, { target: 'USER' | 'BUSINESS' }, null> & {
+  uploadPhoto = async (
+    req: Request<null, null, { target: 'USER' | 'BUSINESS' | 'SERVICE' }, null> & {
       user: User;
     },
     res: Response,
@@ -118,7 +118,7 @@ export class UserController {
           StatusCodes.NOT_ACCEPTABLE,
         );
       }
-      const photoUrl = await this.fileManager.uploadFile(files);
+      const imageUrl = await this.fileManager.uploadFile(files);
 
       if (target == 'BUSINESS') {
         const business = await this.businessRepo.findOne({
@@ -135,7 +135,7 @@ export class UserController {
         await this.businessRepo.save(
           new MerchantBusiness({
             id: business.id,
-            avatarUrl: photoUrl as string,
+            avatarUrl: imageUrl as string,
           }),
         );
       }
@@ -144,14 +144,14 @@ export class UserController {
         await this.userRepo.save(
           new User({
             id: user.id,
-            avatarUrl: photoUrl as string,
+            avatarUrl: imageUrl as string,
           }),
         );
       }
 
       return res
         .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, { imageUrl }));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

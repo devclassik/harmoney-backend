@@ -38,7 +38,7 @@ export class MerchantService {
   description?: string;
 
   @Column({ type: 'varchar', nullable: true })
-  avatarUrl?: string;
+  imageUrl?: string;
 
   @ManyToOne(() => MerchantBusiness, ({ services }) => services)
   @JoinColumn()

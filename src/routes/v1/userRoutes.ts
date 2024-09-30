@@ -6,6 +6,8 @@ export const UserRoutes = express.Router();
 
 const userController = new UserController();
 
+UserRoutes.put('/upload-photo', authGuard, userController.uploadPhoto);
+
 UserRoutes.get('/user', authGuard, userController.getUser);
 UserRoutes.delete('/user', authGuard, userController.deleteAccount);
 UserRoutes.patch('/user/profile', authGuard, userController.updateUser);
@@ -14,12 +16,6 @@ UserRoutes.patch(
   '/user/notification-setting',
   authGuard,
   userController.updateNotificationSetting,
-);
-
-UserRoutes.put(
-  '/user/profile/photo',
-  authGuard,
-  userController.uploadProfilePhoto,
 );
 
 UserRoutes.post(

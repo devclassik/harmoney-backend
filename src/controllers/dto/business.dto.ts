@@ -17,6 +17,7 @@ export interface CreateServiceDto {
   name: string;
   amount?: number;
   isFixedAmount: boolean;
+  imageUrl?: string;
 }
 
 export interface UpdateServiceDto {
@@ -24,4 +25,5 @@ export interface UpdateServiceDto {
   name: string;
   amount?: number;
   isFixedAmount: boolean;
+  imageUrl?: string;
 }
