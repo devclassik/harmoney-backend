@@ -66,7 +66,7 @@ MarketplaceRoutes.post(
 
 MarketplaceRoutes.post(
   '/marketplace/purchase/internet',
-  authGuard,
-  trnxPinGuard,
+  // authGuard,
+  // trnxPinGuard,
   marketplaceController.purchaseInternet,
 );

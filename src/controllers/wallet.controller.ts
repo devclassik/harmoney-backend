@@ -27,7 +27,6 @@ export class WalletController {
     try {
       const wallet = await this.walletRepo.findOne({
         where: { user: new User({ id: user.id }) },
-        relations: ['wallet'],
       });
 
       if (!wallet) {
@@ -37,7 +36,7 @@ export class WalletController {
         );
       }
 
-      if (wallet.txPin.length) {
+      if (wallet.txPin) {
         throw new CustomError('Pin already setup.', StatusCodes.BAD_REQUEST);
       }
 
@@ -71,7 +70,6 @@ export class WalletController {
     try {
       const wallet = await this.walletRepo.findOne({
         where: { user: new User({ id: user.id }) },
-        relations: ['wallet'],
       });
 
       if (!wallet) {
@@ -139,5 +137,4 @@ export class WalletController {
   };
 
   fetchPayouts = async () => {};
-
 }
