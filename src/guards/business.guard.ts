@@ -4,7 +4,7 @@ import { AppDataSource, MerchantBusiness, User } from '../database';
 import { apiResponse } from '../utils';
 
 /**
- * Ensure user is authenticated for requested resource.
+ * Ensure user has a business to access requested resource.
  * @param req
  * @param res
  * @param next

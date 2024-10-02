@@ -21,11 +21,17 @@ MarketplaceRoutes.get(
 MarketplaceRoutes.get(
   '/marketplace/vas/:vasIdentifier',
   authGuard,
-  marketplaceController.getVasCategories,
+  marketplaceController.getVasItems,
 );
 
 MarketplaceRoutes.get(
-  '/marketplace/:provider/plans/data',
+  '/marketplace/vas/:serviceId/plans',
   authGuard,
-  marketplaceController.fetchDataPlans,
+  marketplaceController.fetchVasItemPlans,
+);
+
+MarketplaceRoutes.post(
+  '/marketplace/vas/verify',
+  authGuard,
+  marketplaceController.verifyPowerOrCableTvData,
 );

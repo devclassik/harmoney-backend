@@ -79,7 +79,7 @@ export class MarketplaceController {
     }
   };
 
-  getVasCategories = async (
+  getVasItems = async (
     req: Request<{ vasIdentifier: string }, null, null, null> & {
       user: User;
     },
@@ -118,21 +118,53 @@ export class MarketplaceController {
     }
   };
 
-  fetchDataPlans = async (
-    req: Request<{ provider: string }, null, null, null> & {
+  fetchVasItemPlans = async (
+    req: Request<{ serviceId: string }, null, null, null> & {
       user: User;
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { provider } = req.params;
+    const { serviceId } = req.params;
     const user = req.user;
 
     try {
-      const result = await this.gateway.getAllVas();
+      const result = await this.gateway.getCategoryProducts(serviceId);
 
       return res
         .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
+        .json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || []),
+        );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  verifyPowerOrCableTvData = async (
+    req: Request<
+      null,
+      null,
+      { serviceId: string; meterOrCardNumber: string },
+      null
+    > & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { serviceId, meterOrCardNumber } = req.body;
+    const user = req.user;
+
+    try {
+      const result = await this.gateway.verifyPowerOrCableInfo(
+        serviceId,
+        meterOrCardNumber,
+      );
+
+      return res
+        .status(StatusCodes.OK)
+        .json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
+        );
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
