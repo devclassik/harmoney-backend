@@ -13,7 +13,14 @@ import {
   SafeHavenService,
   User,
 } from '../database';
-import { FetchProviderServicesDto } from './dto';
+import {
+  AirtimePurchaseDto,
+  CablePurchaseDto,
+  DataPurchaseDto,
+  FetchProviderServicesDto,
+  UtilityPurchaseDto,
+  VerifyPowerOrCableTvDataDto,
+} from './dto';
 
 export class MarketplaceController {
   private gateway: SafeHaven;
@@ -141,12 +148,7 @@ export class MarketplaceController {
   };
 
   verifyPowerOrCableTvData = async (
-    req: Request<
-      null,
-      null,
-      { serviceId: string; meterOrCardNumber: string },
-      null
-    > & {
+    req: Request<null, null, VerifyPowerOrCableTvDataDto, null> & {
       user: User;
     },
     res: Response,
@@ -165,6 +167,134 @@ export class MarketplaceController {
         .json(
           apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
         );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  purchaseAirtime = async (
+    req: Request<null, null, AirtimePurchaseDto, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { serviceId, phoneNumber, amount } = req.body;
+    const user = req.user;
+
+    try {
+      //TODO debit user wallet
+      const result = await this.gateway.airtimePurchase({
+        serviceCategoryId: serviceId,
+        amount,
+        phoneNumber,
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
+        );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  purchaseData = async (
+    req: Request<null, null, DataPurchaseDto, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { serviceId, phoneNumber, amount, bundleCode } = req.body;
+    const user = req.user;
+
+    try {
+      //TODO debit user wallet
+      const result = await this.gateway.dataPurchase({
+        serviceCategoryId: serviceId,
+        amount,
+        phoneNumber,
+        bundleCode,
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
+        );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  purchaseCabletv = async (
+    req: Request<null, null, CablePurchaseDto, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { serviceId, cardNumber, amount, bundleCode } = req.body;
+    const user = req.user;
+
+    try {
+      //TODO debit user wallet
+      const result = await this.gateway.cablePurchase({
+        serviceCategoryId: serviceId,
+        amount,
+        cardNumber,
+        bundleCode,
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
+        );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  purchaseUtility = async (
+    req: Request<null, null, UtilityPurchaseDto, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { serviceId, meterNumber, amount, vendType } = req.body;
+    const user = req.user;
+
+    try {
+      //TODO debit user wallet
+      const result = await this.gateway.utilityPurchase({
+        serviceCategoryId: serviceId,
+        amount,
+        meterNumber,
+        vendType,
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
+        );
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  purchaseInternet = async (
+    req: Request<null, null, null, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const user = req.user;
+
+    try {
+      return res
+        .status(StatusCodes.NOT_IMPLEMENTED)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

@@ -6,7 +6,6 @@ import { IdentityTypes } from '../database';
 const getBearerToken = (token: string) => `Bearer ${token}`;
 
 export interface makePurchase {
-  phone: string;
   amount: number;
   vendType?: string;
   cardNumber?: string;
