@@ -2,12 +2,13 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
 import { AppDataSource } from './database';
 import { ErrorMiddleware } from './middlewares';
-import { keepAlive, logger, stream } from './utils';
+import { logger, stream } from './utils';
 import config from './config';
 import { Routes } from './routes';
 import { StatusCodes } from 'http-status-codes';
 import fileUpload from 'express-fileupload';
 import cors from 'cors';
+import { startJobs } from './cronjobs';
 
 const { app: server, log } = config;
 
@@ -47,10 +48,10 @@ AppDataSource.initialize()
       logger.info(`=================================`);
     });
 
-    keepAlive();
+    startJobs();
 
     app.use('/api/v1', Routes);
-    
+
     app.use('/healthz', (req: Request, res: Response) => {
       res.json({ message });
     });

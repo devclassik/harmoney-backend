@@ -6,3 +6,4 @@ export * from './Beneficiary';
 export * from './Transaction';
 export * from './Order';
 export * from './MerchantService';
+export * from './SafeHavenService';

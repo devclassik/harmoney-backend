@@ -10,6 +10,7 @@ import {
   Beneficiary,
   Order,
   MerchantService,
+  SafeHavenService,
 } from './entity';
 
 export const AppDataSource = new DataSource({
@@ -29,6 +30,7 @@ export const AppDataSource = new DataSource({
     Transaction,
     Beneficiary,
     Order,
+    SafeHavenService,
   ],
   migrations: [],
   subscribers: [],

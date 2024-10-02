@@ -76,32 +76,15 @@ export class MarketplaceController {
     }
   };
 
-  fetchAllVAS = async (
-    req: Request<null, null, null, null> & {
-      user: User;
-    },
-    res: Response,
-  ): Promise<Response | void> => {
-    try {
-      const result = await this.gateway.getAllVas();
-
-      return res
-        .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
-    } catch (error) {
-      ErrorMiddleware.handleError(error, req, res);
-    }
-  };
-
   getVasCategories = async (
-    req: Request<{ vasId: string }, null, null, null> & {
+    req: Request<{ vasIdentifier: string }, null, null, null> & {
       user: User;
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { vasId } = req.params;
+    const { vasIdentifier } = req.params;
     try {
-      const result = await this.gateway.getVasCategories(vasId);
+      const result = await this.gateway.getVasCategories(vasIdentifier);
 
       return res
         .status(StatusCodes.OK)

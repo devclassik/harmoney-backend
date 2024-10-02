@@ -19,13 +19,7 @@ MarketplaceRoutes.get(
 );
 
 MarketplaceRoutes.get(
-  '/marketplace/vas',
-  authGuard,
-  marketplaceController.fetchAllVAS,
-);
-
-MarketplaceRoutes.get(
-  '/marketplace/vas/:vasId',
+  '/marketplace/vas/:vasIdentifier',
   authGuard,
   marketplaceController.getVasCategories,
 );
