@@ -10,6 +10,7 @@ import {
   BusinessCategories,
   MerchantBusiness,
   MerchantService,
+  SafeHavenService,
   User,
 } from '../database';
 import { FetchProviderServicesDto } from './dto';
@@ -18,11 +19,13 @@ export class MarketplaceController {
   private gateway: SafeHaven;
   private businessRepo: Repository<MerchantBusiness>;
   private serviceRepo: Repository<MerchantService>;
+  private vasRepo: Repository<SafeHavenService>;
 
   constructor() {
     this.gateway = new SafeHaven();
     this.businessRepo = AppDataSource.getRepository(MerchantBusiness);
     this.serviceRepo = AppDataSource.getRepository(MerchantService);
+    this.vasRepo = AppDataSource.getRepository(SafeHavenService);
   }
 
   fetchProviders = async (
@@ -83,12 +86,33 @@ export class MarketplaceController {
     res: Response,
   ): Promise<Response | void> => {
     const { vasIdentifier } = req.params;
+
     try {
-      const result = await this.gateway.getVasCategories(vasIdentifier);
+      const service = await this.vasRepo.findOne({
+        where: { identifier: vasIdentifier },
+      });
+
+      if (!service) {
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND(vasIdentifier),
+          StatusCodes.FORBIDDEN,
+        );
+      }
+
+      const result = await this.gateway.getVasCategories(service.serviceId);
+
+      const data = result.data.map((item) => {
+        return {
+          serviceId: item._id,
+          name: item.name,
+          description: item.description,
+          logoUrl: item.logoUrl,
+        };
+      });
 
       return res
         .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, data));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
