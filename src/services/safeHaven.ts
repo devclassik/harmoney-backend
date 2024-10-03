@@ -454,7 +454,9 @@ export class SafeHaven {
         },
       );
 
-      return JSON.parse(result.data);
+      const res = JSON.parse(result.data);
+      logger.info(`createSubAccount response: ${res.data}`);
+      return res;
     } catch (error) {
       throw error;
     }

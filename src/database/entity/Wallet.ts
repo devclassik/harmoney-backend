@@ -68,6 +68,9 @@ export class Wallet {
   nubanProvider?: NubanProvider;
 
   @Column({ type: 'varchar', nullable: true, default: null })
+  saveHavenAccountId?: string;
+
+  @Column({ type: 'varchar', nullable: true, default: null })
   txPin?: string;
 
   @Column({

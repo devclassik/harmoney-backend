@@ -12,6 +12,7 @@ import {
 import { hashPassword, CustomError, ErrorMiddleware } from '../middlewares';
 import {
   AppDataSource,
+  IdentityTypes,
   MerchantBusiness,
   User,
   UserIdentity,
@@ -103,7 +104,12 @@ export class UserController {
   };
 
   uploadPhoto = async (
-    req: Request<null, null, { target: 'USER' | 'BUSINESS' | 'SERVICE' }, null> & {
+    req: Request<
+      null,
+      null,
+      { target: 'USER' | 'BUSINESS' | 'SERVICE' },
+      null
+    > & {
       user: User;
     },
     res: Response,
@@ -292,21 +298,68 @@ export class UserController {
     try {
       const identity = await this.identityRepo.findOne({
         where: {
-          confirmToken: otp,
+          // confirmToken: otp,
           type: identityType,
+          user: new User({ id: user.id }),
         },
       });
 
       if (!identity) {
         throw new CustomError(
-          MESSAGES.DUPLICATE(identityType),
+          MESSAGES.RESOURCE_NOT_FOUND(`${identityType} Identity`),
           StatusCodes.NOT_ACCEPTABLE,
         );
       }
 
+      if (identity.validated) {
+        throw new CustomError('Already Validated', StatusCodes.NOT_ACCEPTABLE);
+      }
+
+      const vResult = await this.gateway.finalizeIdentityCheck({
+        type: identity.type,
+        identityId: identity.identityId,
+        otp,
+      });
+
+      if (identity.type == IdentityTypes.BVN) {
+        const wallet = await this.walletRepo.findOne({
+          where: { user: new User({ id: user.id }) },
+        });
+
+        if (wallet && !wallet.accountNumber) {
+          const aResult = await this.gateway.createSubAccount({
+            otp,
+            phoneNumber: user.phone_no,
+            emailAddress: user.email,
+            identityId: identity.identityId,
+            identityType: identity.type,
+            identityNumber: identity.number,
+            externalReference: `${user.first_name} ${user.last_name}`,
+          });
+
+          const {
+            bank,
+            message,
+            accountName,
+            accountNumber,
+            saveHavenAccountId,
+          } = aResult.data;
+
+          if (!accountNumber) {
+            throw new CustomError(message, StatusCodes.NOT_ACCEPTABLE);
+          }
+
+          wallet.accountName = accountName;
+          wallet.accountNumber = accountNumber;
+          wallet.saveHavenAccountId = saveHavenAccountId;
+          wallet.bankCode = `${bank.id}`;
+          await this.walletRepo.save(wallet);
+        }
+      }
+
       return res
         .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, {}));
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, vResult));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
