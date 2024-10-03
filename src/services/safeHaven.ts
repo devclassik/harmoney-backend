@@ -5,7 +5,18 @@ import { IdentityTypes } from '../database';
 
 const getBearerToken = (token: string) => `Bearer ${token}`;
 
-export interface makePurchase {
+export interface CreateSubAccount {
+  otp: string;
+  identityId: string;
+  phoneNumber: string;
+  emailAddress: string;
+  identityNumber: string;
+  externalReference: string;
+  identityType: IdentityTypes;
+  callbackUrl?: string;
+}
+
+export interface MakePurchase {
   amount: number;
   vendType?: string;
   cardNumber?: string;
@@ -57,6 +68,7 @@ export class SafeHaven {
     purchase: (type: PurchaseTypes) => `/vas/pay/${type}`,
     getBanks: '/transfers/banks',
     nameEnquiry: '/transfers/name-enquiry',
+    createSubAccount: '/accounts/v2/subaccount',
     initIdentityCheck: '/identity/v2',
     verifyIdentityCheck: '/identity/v2/validate',
   };
@@ -198,7 +210,7 @@ export class SafeHaven {
     }
   };
 
-  public airtimePurchase = async (payload: makePurchase) => {
+  public airtimePurchase = async (payload: MakePurchase) => {
     try {
       const { access_token, ibs_client_id } = await this.getAccessToken();
 
@@ -221,16 +233,16 @@ export class SafeHaven {
         headers,
       });
 
-      const { data } = JSON.parse(result.data);
-      console.log('airtime safe haven ==>', data, '<<==safe');
-      logger.info(`airtimePurchase response: ${data}`);
-      return data;
+      const res = JSON.parse(result.data);
+      console.log('airtime safe haven ==>', res.data, '<<==safe');
+      logger.info(`airtimePurchase response: ${res.data}`);
+      return res;
     } catch (error) {
       throw error;
     }
   };
 
-  public dataPurchase = async (payload: makePurchase) => {
+  public dataPurchase = async (payload: MakePurchase) => {
     try {
       const { access_token, ibs_client_id } = await this.getAccessToken();
 
@@ -263,7 +275,7 @@ export class SafeHaven {
     }
   };
 
-  public cablePurchase = async (payload: makePurchase) => {
+  public cablePurchase = async (payload: MakePurchase) => {
     try {
       const { access_token, ibs_client_id } = await this.getAccessToken();
 
@@ -297,7 +309,7 @@ export class SafeHaven {
     }
   };
 
-  public utilityPurchase = async (payload: makePurchase) => {
+  public utilityPurchase = async (payload: MakePurchase) => {
     try {
       const { access_token, ibs_client_id } = await this.getAccessToken();
 
@@ -410,6 +422,28 @@ export class SafeHaven {
 
       const result = await this.axios.post(
         `${this.paths.verifyIdentityCheck}`,
+        JSON.stringify(payload),
+        {
+          headers: {
+            ...this.defaultHeader,
+            ClientID: ibs_client_id,
+            Authorization: getBearerToken(access_token),
+          },
+        },
+      );
+
+      return JSON.parse(result.data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public createSubAccount = async (payload: CreateSubAccount) => {
+    try {
+      const { access_token, ibs_client_id } = await this.getAccessToken();
+
+      const result = await this.axios.post(
+        `${this.paths.createSubAccount}`,
         JSON.stringify(payload),
         {
           headers: {

@@ -183,6 +183,7 @@ export class MarketplaceController {
 
     try {
       //TODO debit user wallet
+      // create transaction
       const result = await this.gateway.airtimePurchase({
         serviceCategoryId: serviceId,
         amount,

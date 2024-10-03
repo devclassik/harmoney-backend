@@ -88,6 +88,7 @@ export class AuthController {
         }),
       );
 
+      // create internal wallet
       const wallet = await this.walletRepo.save(
         new Wallet({
           user: new User({ id: user.id }),
