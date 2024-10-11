@@ -293,6 +293,7 @@ export class MarketplaceController {
           category: TransactionCategory.DATA,
           customer: phoneNumber,
           sourceWallet: new Wallet({ id: wallet.id }),
+          bundle: bundleCode,
         }),
       );
 
@@ -373,6 +374,7 @@ export class MarketplaceController {
           category: TransactionCategory.CABLE_TV,
           customer: cardNumber,
           sourceWallet: new Wallet({ id: wallet.id }),
+          bundle: bundleCode
         }),
       );
 
@@ -389,7 +391,7 @@ export class MarketplaceController {
           ...trnx,
           status: TransactionStatus.SUCCESSFUL,
           sourceRefId: result.data?.reference,
-          description: `${result.data?.receiver?.distribution} ${result.data?.receiver?.vendType} purchase`,
+          description: `${result.data?.receiver?.distribution} purchase`,
         });
 
         if (user.allowEmailNotification) {

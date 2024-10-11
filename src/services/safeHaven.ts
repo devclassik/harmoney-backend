@@ -280,10 +280,9 @@ export class SafeHaven {
         headers,
       });
 
-      const { data } = JSON.parse(result.data);
-      console.log('data safe haven ==>', data, '<<==safe');
-      logger.info(`dataPurchase response: ${data}`);
-      return data;
+      const res = JSON.parse(result.data);
+      logger.info(`dataPurchase response: ${result.data}`);
+      return res;
     } catch (error) {
       throw error;
     }
@@ -314,11 +313,9 @@ export class SafeHaven {
         headers,
       });
 
-      const { data } = JSON.parse(result.data);
-      console.log('cable safe haven ==>', data, '<<==safe');
-      logger.info(`cablePurchase response: ${data}`);
-
-      return data;
+      const res = JSON.parse(result.data);
+      logger.info(`cablePurchase response: ${result.data}`);
+      return res;
     } catch (error) {
       throw error;
     }
@@ -343,15 +340,15 @@ export class SafeHaven {
         debitAccountNumber:
           payload.debitAccountNumber ?? config.safehaven.debit_account,
       });
-      console.log(dataString, '<<==datastring');
+      
       const url = `${this.paths.purchase(PurchaseTypes.UTILITY)}`;
       const result = await this.axios.post(url, dataString, {
         headers,
       });
-      console.log(result, '<<==result');
-      const { data } = JSON.parse(result.data);
-      console.log('utility safe haven ==>', data, '<<==safe');
-      return data;
+
+      const res = JSON.parse(result.data);
+      logger.info(`utilityPurchase response: ${result.data}`);
+      return res;
     } catch (error) {
       throw error;
     }

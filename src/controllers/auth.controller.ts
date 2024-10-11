@@ -1,5 +1,6 @@
 import {
   AccountType,
+  ActivationStatus,
   AppDataSource,
   MerchantBusiness,
   User,
@@ -107,6 +108,7 @@ export class AuthController {
             name: business_name,
             category,
             merchant: new User({ id: user.id }),
+            activation_status: ActivationStatus.ACTIVATE, // temporal: pending admin design
           }),
         );
 
