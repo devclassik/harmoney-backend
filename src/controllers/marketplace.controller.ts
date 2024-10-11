@@ -237,7 +237,7 @@ export class MarketplaceController {
           const name =
             user?.business?.name ?? `${user.first_name} ${user.last_name}`;
 
-          await sendDebitAlertMail(user.email, name, amount);
+          await sendDebitAlertMail(user.email, name, amount, trnx.description);
         }
 
         if (user.allowPushNotification) {
@@ -317,7 +317,7 @@ export class MarketplaceController {
           const name =
             user?.business?.name ?? `${user.first_name} ${user.last_name}`;
 
-          await sendDebitAlertMail(user.email, name, amount);
+          await sendDebitAlertMail(user.email, name, amount, trnx.description);
         }
 
         if (user.allowPushNotification) {
@@ -396,7 +396,7 @@ export class MarketplaceController {
           const name =
             user?.business?.name ?? `${user.first_name} ${user.last_name}`;
 
-          await sendDebitAlertMail(user.email, name, amount);
+          await sendDebitAlertMail(user.email, name, amount, trnx.description);
         }
 
         if (user.allowPushNotification) {
@@ -475,7 +475,7 @@ export class MarketplaceController {
           const name =
             user?.business?.name ?? `${user.first_name} ${user.last_name}`;
 
-          await sendDebitAlertMail(user.email, name, amount);
+          await sendDebitAlertMail(user.email, name, amount, trnx.description);
         }
 
         if (user.allowPushNotification) {

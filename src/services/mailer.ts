@@ -132,12 +132,13 @@ export const sendDebitAlertMail = async (
   to: string,
   name: string,
   amount: number,
+  reason: string,
 ) => {
   const mail = {
     to,
     subject: `Transaction Successful`,
-    text: `Hello ${name}, Your account have been debited a sum of ${amount}.`,
-    html: `<p>Hello ${name}, Your account have been debited a sum of ${amount}.</p>`,
+    text: `Hello ${name}, Your account have been debited a sum of ${amount}. Reason: ${reason}`,
+    html: `<p>Hello ${name}, Your account have been debited a sum of ${amount}. Reason: ${reason}</p>`,
   };
 
   await sendMail(mail);
