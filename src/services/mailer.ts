@@ -111,3 +111,34 @@ export const sendUserAccountDeletedMail = async (to: string) => {
 
   await sendMail(mail);
 };
+
+export const sendCreditAlertMail = async (
+  to: string,
+  name: string,
+  sourceName: string,
+  amount: number,
+) => {
+  const mail = {
+    to,
+    subject: `Transaction Received`,
+    text: `Hello ${name}, Your account have been funded by ${sourceName} with a total sum of ${amount}.`,
+    html: `<p>Hello ${name}, Your account have been funded by ${sourceName} with a total sum of ${amount}.</p>`,
+  };
+
+  await sendMail(mail);
+};
+
+export const sendDebitAlertMail = async (
+  to: string,
+  name: string,
+  amount: number,
+) => {
+  const mail = {
+    to,
+    subject: `Transaction Successful`,
+    text: `Hello ${name}, Your account have been debited a sum of ${amount}.`,
+    html: `<p>Hello ${name}, Your account have been debited a sum of ${amount}.</p>`,
+  };
+
+  await sendMail(mail);
+};

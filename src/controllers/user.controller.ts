@@ -352,7 +352,11 @@ export class UserController {
           where: { user: new User({ id: user.id }) },
         });
 
-        if (wallet && !wallet.accountNumber) {
+        if (
+          wallet &&
+          !wallet.accountNumber &&
+          identity.type == IdentityTypes.BVN
+        ) {
           const aResult = await this.gateway.createSubAccount({
             otp,
             phoneNumber: user.phone_no,

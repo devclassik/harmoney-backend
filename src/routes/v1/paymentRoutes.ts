@@ -13,3 +13,5 @@ PaymentRoutes.post(
   authGuard,
   paymentController.fetchAccountDetails,
 );
+
+PaymentRoutes.post('/payment/webhook', paymentController.webhook);

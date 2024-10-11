@@ -8,6 +8,7 @@ import {
   deductBookBalance,
   deductMainBalance,
   incrementBookBalance,
+  sendDebitAlertMail,
 } from '../services';
 import { CustomError, ErrorMiddleware } from '../middlewares';
 import {
@@ -220,7 +221,7 @@ export class MarketplaceController {
         serviceCategoryId: serviceId,
         amount,
         phoneNumber,
-        debitAccountNumber: wallet.accountNumber
+        debitAccountNumber: wallet.accountNumber,
       });
 
       if (result.status == 'successful') {
@@ -232,6 +233,18 @@ export class MarketplaceController {
             sourceRefId: result.data?.tx_ref,
           }),
         );
+
+        if (user.allowEmailNotification) {
+          const name =
+            wallet.user?.business?.name ??
+            `${wallet.user.first_name} ${wallet.user.last_name}`;
+
+          await sendDebitAlertMail(user.email, name, amount);
+        }
+
+        if (user.allowPushNotification) {
+          // send inApp notification
+        }
       } else {
         await incrementBookBalance(wallet, amount);
         trnx = await this.transactionRepo.save(
