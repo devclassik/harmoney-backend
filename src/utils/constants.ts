@@ -15,4 +15,5 @@ export const MESSAGES = {
   INVALID_OTP: 'Invalid OTP.',
   FILE_SIZE_LIMIT: (limit: string) => `File size exceeded limit of ${limit}`,
   CONFIRM_PIN_ERROR: 'Confirm transaction pin mismatch.',
+  INSUFFICIENT_BALANCE: 'Insufficient Balance.'
 };

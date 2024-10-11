@@ -57,6 +57,9 @@ const config = {
     debit_account: process.env.SAFEHAVEN_DEBIT_ACCOUNT,
     refresh_token: process.env.SAFEHAVEN_REFRESH_TOKEN,
   },
+  charges: {
+    bills: +process.env.BILL_PAYMENT_CHARGES || 0.0,
+  },
 };
 
 export default config;

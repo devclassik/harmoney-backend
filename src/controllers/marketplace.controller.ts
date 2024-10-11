@@ -1,8 +1,14 @@
 import { Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { MESSAGES, apiResponse } from '../utils';
-import { SafeHaven, appEventEmitter } from '../services';
+import { MESSAGES, apiResponse, generateRandomString, logger } from '../utils';
+import {
+  SafeHaven,
+  appEventEmitter,
+  deductBookBalance,
+  deductMainBalance,
+  incrementBookBalance,
+} from '../services';
 import { CustomError, ErrorMiddleware } from '../middlewares';
 import {
   ActivationStatus,
@@ -11,7 +17,12 @@ import {
   MerchantBusiness,
   MerchantService,
   SafeHavenService,
+  Transaction,
+  TransactionCategory,
+  TransactionStatus,
+  TransactionType,
   User,
+  Wallet,
 } from '../database';
 import {
   AirtimePurchaseDto,
@@ -21,18 +32,21 @@ import {
   UtilityPurchaseDto,
   VerifyPowerOrCableTvDataDto,
 } from './dto';
+import config from '../config';
 
 export class MarketplaceController {
   private gateway: SafeHaven;
   private businessRepo: Repository<MerchantBusiness>;
   private serviceRepo: Repository<MerchantService>;
   private vasRepo: Repository<SafeHavenService>;
+  private transactionRepo: Repository<Transaction>;
 
   constructor() {
     this.gateway = new SafeHaven();
     this.businessRepo = AppDataSource.getRepository(MerchantBusiness);
     this.serviceRepo = AppDataSource.getRepository(MerchantService);
     this.vasRepo = AppDataSource.getRepository(SafeHavenService);
+    this.transactionRepo = AppDataSource.getRepository(Transaction);
   }
 
   fetchProviders = async (
@@ -175,26 +189,65 @@ export class MarketplaceController {
   purchaseAirtime = async (
     req: Request<null, null, AirtimePurchaseDto, null> & {
       user: User;
+      wallet: Wallet;
     },
     res: Response,
   ): Promise<Response | void> => {
     const { serviceId, phoneNumber, amount } = req.body;
     const user = req.user;
+    const wallet = req.wallet;
 
     try {
-      //TODO debit user wallet
-      // create transaction
+      const tx_ref = await generateRandomString(30, 'a0');
+      await deductBookBalance(wallet, amount);
+
+      let trnx = await this.transactionRepo.save(
+        new Transaction({
+          reference: tx_ref,
+          amount,
+          currentWalletBalance: wallet.mainBalance - amount,
+          previousWalletBalance: wallet.mainBalance,
+          fee: config.charges.bills,
+          description: `Airtime purchase`,
+          type: TransactionType.DEBIT,
+          category: TransactionCategory.AIRTIME,
+          customer: phoneNumber,
+          sourceWallet: new Wallet({ id: wallet.id }),
+        }),
+      );
+
       const result = await this.gateway.airtimePurchase({
         serviceCategoryId: serviceId,
         amount,
         phoneNumber,
+        debitAccountNumber: wallet.accountNumber
       });
+
+      if (result.status == 'successful') {
+        await deductMainBalance(wallet, amount);
+        trnx = await this.transactionRepo.save(
+          new Transaction({
+            id: trnx.id,
+            status: TransactionStatus.SUCCESSFUL,
+            sourceRefId: result.data?.tx_ref,
+          }),
+        );
+      } else {
+        await incrementBookBalance(wallet, amount);
+        trnx = await this.transactionRepo.save(
+          new Transaction({
+            id: trnx.id,
+            status: TransactionStatus.FAILED,
+            sourceRefId: result.data?.tx_ref,
+          }),
+        );
+      }
+
+      logger.info(result.data);
 
       return res
         .status(StatusCodes.OK)
-        .json(
-          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
-        );
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, trnx || {}));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

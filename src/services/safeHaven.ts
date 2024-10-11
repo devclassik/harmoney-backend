@@ -16,6 +16,17 @@ export interface CreateSubAccount {
   callbackUrl?: string;
 }
 
+export interface TransferDto {
+  nameEnquiryReference: string;
+  debitAccountNumber: string;
+  beneficiaryBankCode: string;
+  beneficiaryAccountNumber: string;
+  amount: number;
+  saveBeneficiary?: boolean;
+  narration?: string;
+  paymentReference?: string;
+}
+
 export interface MakePurchase {
   amount: number;
   vendType?: string;
@@ -27,6 +38,7 @@ export interface MakePurchase {
   serviceProvider?: string;
   customerName?: string;
   customerAddress?: string;
+  debitAccountNumber?: string;
 }
 
 export interface AuthorizationResponse {
@@ -71,6 +83,7 @@ export class SafeHaven {
     createSubAccount: '/accounts/v2/subaccount',
     initIdentityCheck: '/identity/v2',
     verifyIdentityCheck: '/identity/v2/validate',
+    transfer: '/transfer',
   };
 
   private getAccessToken = async (): Promise<AuthorizationResponse> => {
@@ -225,7 +238,8 @@ export class SafeHaven {
         amount: +payload.amount,
         phoneNumber: payload.phoneNumber,
         serviceCategoryId: payload.serviceCategoryId,
-        debitAccountNumber: config.safehaven.debit_account,
+        debitAccountNumber:
+          payload.debitAccountNumber ?? config.safehaven.debit_account,
       });
 
       const url = `${this.paths.purchase(PurchaseTypes.AIRTIME)}`;
@@ -439,6 +453,30 @@ export class SafeHaven {
   };
 
   public createSubAccount = async (payload: CreateSubAccount) => {
+    try {
+      const { access_token, ibs_client_id } = await this.getAccessToken();
+
+      const result = await this.axios.post(
+        `${this.paths.createSubAccount}`,
+        JSON.stringify(payload),
+        {
+          headers: {
+            ...this.defaultHeader,
+            ClientID: ibs_client_id,
+            Authorization: getBearerToken(access_token),
+          },
+        },
+      );
+
+      const res = JSON.parse(result.data);
+      logger.info(`createSubAccount response: ${res.data}`);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public transferFund = async (payload: TransferDto) => {
     try {
       const { access_token, ibs_client_id } = await this.getAccessToken();
 

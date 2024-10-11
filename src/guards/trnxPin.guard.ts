@@ -15,6 +15,7 @@ export const trnxPinGuard = async (
   req: Request<any, any, any, any> & {
     user: User;
     business: MerchantBusiness;
+    wallet: Wallet;
   },
   res: Response,
   next: NextFunction,
@@ -45,6 +46,8 @@ export const trnxPinGuard = async (
       .status(StatusCodes.FORBIDDEN)
       .json(apiResponse('error', MESSAGES.INVALID_RESOURCE('Transaction Pin')));
   }
+
+  req.wallet = wallet;
 
   next();
 };
