@@ -469,7 +469,7 @@ export class SafeHaven {
       );
 
       const res = JSON.parse(result.data);
-      logger.info(`createSubAccount response: ${res.data}`);
+      logger.info(`createSubAccount response: ${result.data}`);
       return res;
     } catch (error) {
       throw error;
@@ -493,7 +493,7 @@ export class SafeHaven {
       );
 
       const res = JSON.parse(result.data);
-      logger.info(`createSubAccount response: ${res.data}`);
+      logger.info(`Transfer response: ${res.data}`);
       return res;
     } catch (error) {
       throw error;

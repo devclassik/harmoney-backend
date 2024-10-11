@@ -2,7 +2,7 @@ import { Not, Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
-import { MESSAGES, apiResponse, makeUserPublicView } from '../utils';
+import { MESSAGES, apiResponse, logger, makeUserPublicView } from '../utils';
 import {
   FileManager,
   SafeHaven,
@@ -14,6 +14,7 @@ import {
   AppDataSource,
   IdentityTypes,
   MerchantBusiness,
+  NubanProvider,
   User,
   UserIdentity,
   Wallet,
@@ -25,6 +26,7 @@ import {
   UpdateNotificationDto,
   UpdateProfileDto,
 } from './dto';
+import config from '../config';
 
 export class UserController {
   private gateway: SafeHaven;
@@ -280,9 +282,33 @@ export class UserController {
         number: identityNumber,
       });
 
+      if (result.data && result.data.status == 'SUCCESS') {
+        const identity = await this.identityRepo.save(
+          new UserIdentity({
+            type: identityType,
+            number: identityNumber,
+            validated: false,
+            identityId: result.data._id,
+            confirmToken: result.data.otpId,
+            user,
+          }),
+        );
+
+        return res.status(StatusCodes.OK).json(
+          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, {
+            identityId: result.data._id,
+            identityType: result.data.type,
+            otpVerified: result.data.otpVerified,
+            providerResponse: result.data.providerResponse,
+          }),
+        );
+      }
+
       return res
-        .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data));
+        .status(StatusCodes.NOT_ACCEPTABLE)
+        .json(
+          apiResponse('success', MESSAGES.VERIFICATION_FAILED, result.data),
+        );
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
@@ -292,13 +318,13 @@ export class UserController {
     req: Request<null, null, FinalizeIdentityDto, null> & { user: User },
     res: Response,
   ): Promise<Response | void> => {
-    const { identityType, otp } = req.body;
+    const { identityId, identityType, otp } = req.body;
     const user = req.user;
 
     try {
       const identity = await this.identityRepo.findOne({
         where: {
-          // confirmToken: otp,
+          identityId,
           type: identityType,
           user: new User({ id: user.id }),
         },
@@ -321,7 +347,7 @@ export class UserController {
         otp,
       });
 
-      if (identity.type == IdentityTypes.BVN) {
+      if (vResult.data.otpVerified) {
         const wallet = await this.walletRepo.findOne({
           where: { user: new User({ id: user.id }) },
         });
@@ -334,32 +360,42 @@ export class UserController {
             identityId: identity.identityId,
             identityType: identity.type,
             identityNumber: identity.number,
-            externalReference: `${user.first_name} ${user.last_name}`,
+            externalReference: `${user.first_name} ${user.last_name} - ${identity.number}`,
           });
 
-          const {
-            bank,
-            message,
-            accountName,
-            accountNumber,
-            saveHavenAccountId,
-          } = aResult.data;
-
-          if (!accountNumber) {
-            throw new CustomError(message, StatusCodes.NOT_ACCEPTABLE);
+          if (!aResult.data || !aResult.data.accountNumber) {
+            throw new CustomError(
+              aResult.message ?? 'Failed to provision NUBAN.',
+              StatusCodes.NOT_ACCEPTABLE,
+            );
           }
 
-          wallet.accountName = accountName;
-          wallet.accountNumber = accountNumber;
-          wallet.saveHavenAccountId = saveHavenAccountId;
-          wallet.bankCode = `${bank.id}`;
+          wallet.accountName = aResult.data.accountName;
+          wallet.accountNumber = aResult.data.accountNumber;
+          wallet.saveHavenAccountId = aResult.data._id;
+          wallet.bankCode = config.safehaven.bank_code;
+          wallet.bankName = config.safehaven.bank_name;
+          wallet.externalReference = aResult.data.externalReference;
+          wallet.nubanProvider = NubanProvider.SAFE_HAVEN;
+
           await this.walletRepo.save(wallet);
         }
+
+        await this.identityRepo.save({ ...identity, validated: true });
+        await this.identityRepo.delete({
+          user: new User({ id: user.id }),
+          type: identityType,
+          validated: false,
+        });
       }
 
-      return res
-        .status(StatusCodes.OK)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, vResult));
+      return res.status(StatusCodes.OK).json(
+        apiResponse('success', MESSAGES.OPS_SUCCESSFUL, {
+          identityType: vResult.data.type,
+          otpVerified: vResult.data.otpVerified,
+          providerResponse: vResult.data.providerResponse,
+        }),
+      );
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

@@ -11,9 +11,10 @@ export const MESSAGES = {
   EMAIL_ALREADY_USED: 'Email already in use by another user.',
   CONFIRM_PASSWORD_ERROR: 'Confirm password mismatch.',
   VERIFICATION_SUCCESSFUL: 'Verification successfully completed!',
+  VERIFICATION_FAILED: 'Verification failed',
   INVALID_CREDENTIALS: 'Invalid email or password.',
   INVALID_OTP: 'Invalid OTP.',
   FILE_SIZE_LIMIT: (limit: string) => `File size exceeded limit of ${limit}`,
   CONFIRM_PIN_ERROR: 'Confirm transaction pin mismatch.',
-  INSUFFICIENT_BALANCE: 'Insufficient Balance.'
+  INSUFFICIENT_BALANCE: 'Insufficient Balance.',
 };

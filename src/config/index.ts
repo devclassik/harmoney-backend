@@ -56,6 +56,8 @@ const config = {
     grant_type: process.env.SAFEHAVEN_GRANT_TYPE,
     debit_account: process.env.SAFEHAVEN_DEBIT_ACCOUNT,
     refresh_token: process.env.SAFEHAVEN_REFRESH_TOKEN,
+    bank_code: process.env.SAFEHAVEN_BANK_CODE,
+    bank_name: process.env.SAFEHAVEN_BANK_NAME,
   },
   charges: {
     bills: +process.env.BILL_PAYMENT_CHARGES || 0.0,

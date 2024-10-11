@@ -71,6 +71,9 @@ export class Wallet {
   saveHavenAccountId?: string;
 
   @Column({ type: 'varchar', nullable: true, default: null })
+  externalReference?: string;
+
+  @Column({ type: 'varchar', nullable: true, default: null })
   txPin?: string;
 
   @Column({
