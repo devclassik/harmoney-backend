@@ -21,7 +21,7 @@ export const deductBookBalance = async (wallet: Wallet, amount: number) => {
 export const incrementBookBalance = async (wallet: Wallet, amount: number) => {
   const walletRepo = AppDataSource.getRepository(Wallet);
 
-  await walletRepo.increment({ id: wallet.id }, 'mainBalance', amount);
+  await walletRepo.increment({ id: wallet.id }, 'bookBalance', amount);
 
   return true;
 };

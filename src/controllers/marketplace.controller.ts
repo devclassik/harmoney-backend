@@ -199,7 +199,7 @@ export class MarketplaceController {
     const wallet = req.wallet;
 
     try {
-      const tx_ref = await generateRandomString(30, 'a0');
+      const tx_ref = await generateRandomString(30, '0');
       await deductBookBalance(wallet, amount);
 
       let trnx = await this.transactionRepo.save(
@@ -224,20 +224,18 @@ export class MarketplaceController {
         debitAccountNumber: wallet.accountNumber,
       });
 
-      if (result.status == 'successful') {
+      if (result.statusCode == 200) {
         await deductMainBalance(wallet, amount);
-        trnx = await this.transactionRepo.save(
-          new Transaction({
-            id: trnx.id,
-            status: TransactionStatus.SUCCESSFUL,
-            sourceRefId: result.data?.tx_ref,
-          }),
-        );
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.SUCCESSFUL,
+          sourceRefId: result.data?.reference,
+          description: `${result.data?.receiver?.distribution} ${result.data?.receiver?.vendType} purchase`,
+        });
 
         if (user.allowEmailNotification) {
           const name =
-            wallet.user?.business?.name ??
-            `${wallet.user.first_name} ${wallet.user.last_name}`;
+            user?.business?.name ?? `${user.first_name} ${user.last_name}`;
 
           await sendDebitAlertMail(user.email, name, amount);
         }
@@ -247,16 +245,18 @@ export class MarketplaceController {
         }
       } else {
         await incrementBookBalance(wallet, amount);
-        trnx = await this.transactionRepo.save(
-          new Transaction({
-            id: trnx.id,
-            status: TransactionStatus.FAILED,
-            sourceRefId: result.data?.tx_ref,
-          }),
-        );
-      }
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.FAILED,
+          sourceRefId: result.data?.tx_ref,
+          currentWalletBalance: wallet.mainBalance + amount,
+          previousWalletBalance: wallet.mainBalance,
+        });
 
-      logger.info(result.data);
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json(apiResponse('error', MESSAGES.OPS_FAILED, trnx || {}));
+      }
 
       return res
         .status(StatusCodes.OK)
@@ -269,26 +269,78 @@ export class MarketplaceController {
   purchaseData = async (
     req: Request<null, null, DataPurchaseDto, null> & {
       user: User;
+      wallet: Wallet;
     },
     res: Response,
   ): Promise<Response | void> => {
     const { serviceId, phoneNumber, amount, bundleCode } = req.body;
     const user = req.user;
+    const wallet = req.wallet;
 
     try {
-      //TODO debit user wallet
+      const tx_ref = await generateRandomString(30, '0');
+      await deductBookBalance(wallet, amount);
+
+      let trnx = await this.transactionRepo.save(
+        new Transaction({
+          reference: tx_ref,
+          amount,
+          currentWalletBalance: wallet.mainBalance - amount,
+          previousWalletBalance: wallet.mainBalance,
+          fee: config.charges.bills,
+          description: `Data purchase`,
+          type: TransactionType.DEBIT,
+          category: TransactionCategory.DATA,
+          customer: phoneNumber,
+          sourceWallet: new Wallet({ id: wallet.id }),
+        }),
+      );
+
       const result = await this.gateway.dataPurchase({
         serviceCategoryId: serviceId,
         amount,
         phoneNumber,
         bundleCode,
+        debitAccountNumber: wallet.accountNumber,
       });
+
+      if (result.statusCode == 200) {
+        await deductMainBalance(wallet, amount);
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.SUCCESSFUL,
+          sourceRefId: result.data?.reference,
+          description: `${result.data?.receiver?.distribution} ${result.data?.receiver?.vendType} purchase`,
+        });
+
+        if (user.allowEmailNotification) {
+          const name =
+            user?.business?.name ?? `${user.first_name} ${user.last_name}`;
+
+          await sendDebitAlertMail(user.email, name, amount);
+        }
+
+        if (user.allowPushNotification) {
+          // send inApp notification
+        }
+      } else {
+        await incrementBookBalance(wallet, amount);
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.FAILED,
+          sourceRefId: result.data?.tx_ref,
+          currentWalletBalance: wallet.mainBalance + amount,
+          previousWalletBalance: wallet.mainBalance,
+        });
+
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json(apiResponse('error', MESSAGES.OPS_FAILED, trnx || {}));
+      }
 
       return res
         .status(StatusCodes.OK)
-        .json(
-          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
-        );
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, trnx || {}));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
@@ -297,14 +349,33 @@ export class MarketplaceController {
   purchaseCabletv = async (
     req: Request<null, null, CablePurchaseDto, null> & {
       user: User;
+      wallet: Wallet;
     },
     res: Response,
   ): Promise<Response | void> => {
     const { serviceId, cardNumber, amount, bundleCode } = req.body;
     const user = req.user;
+    const wallet = req.wallet;
 
     try {
-      //TODO debit user wallet
+      const tx_ref = await generateRandomString(30, '0');
+      await deductBookBalance(wallet, amount);
+
+      let trnx = await this.transactionRepo.save(
+        new Transaction({
+          reference: tx_ref,
+          amount,
+          currentWalletBalance: wallet.mainBalance - amount,
+          previousWalletBalance: wallet.mainBalance,
+          fee: config.charges.bills,
+          description: `Cable TV purchase`,
+          type: TransactionType.DEBIT,
+          category: TransactionCategory.CABLE_TV,
+          customer: cardNumber,
+          sourceWallet: new Wallet({ id: wallet.id }),
+        }),
+      );
+
       const result = await this.gateway.cablePurchase({
         serviceCategoryId: serviceId,
         amount,
@@ -312,11 +383,43 @@ export class MarketplaceController {
         bundleCode,
       });
 
+      if (result.statusCode == 200) {
+        await deductMainBalance(wallet, amount);
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.SUCCESSFUL,
+          sourceRefId: result.data?.reference,
+          description: `${result.data?.receiver?.distribution} ${result.data?.receiver?.vendType} purchase`,
+        });
+
+        if (user.allowEmailNotification) {
+          const name =
+            user?.business?.name ?? `${user.first_name} ${user.last_name}`;
+
+          await sendDebitAlertMail(user.email, name, amount);
+        }
+
+        if (user.allowPushNotification) {
+          // send inApp notification
+        }
+      } else {
+        await incrementBookBalance(wallet, amount);
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.FAILED,
+          sourceRefId: result.data?.tx_ref,
+          currentWalletBalance: wallet.mainBalance + amount,
+          previousWalletBalance: wallet.mainBalance,
+        });
+
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json(apiResponse('error', MESSAGES.OPS_FAILED, trnx || {}));
+      }
+
       return res
         .status(StatusCodes.OK)
-        .json(
-          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
-        );
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, trnx || {}));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
@@ -325,14 +428,33 @@ export class MarketplaceController {
   purchaseUtility = async (
     req: Request<null, null, UtilityPurchaseDto, null> & {
       user: User;
+      wallet: Wallet;
     },
     res: Response,
   ): Promise<Response | void> => {
     const { serviceId, meterNumber, amount, vendType } = req.body;
     const user = req.user;
+    const wallet = req.wallet;
 
     try {
-      //TODO debit user wallet
+      const tx_ref = await generateRandomString(30, '0');
+      await deductBookBalance(wallet, amount);
+
+      let trnx = await this.transactionRepo.save(
+        new Transaction({
+          reference: tx_ref,
+          amount,
+          currentWalletBalance: wallet.mainBalance - amount,
+          previousWalletBalance: wallet.mainBalance,
+          fee: config.charges.bills,
+          description: `Electricity purchase`,
+          type: TransactionType.DEBIT,
+          category: TransactionCategory.ELECTRICITY,
+          customer: meterNumber,
+          sourceWallet: new Wallet({ id: wallet.id }),
+        }),
+      );
+
       const result = await this.gateway.utilityPurchase({
         serviceCategoryId: serviceId,
         amount,
@@ -340,11 +462,43 @@ export class MarketplaceController {
         vendType,
       });
 
+      if (result.statusCode == 200) {
+        await deductMainBalance(wallet, amount);
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.SUCCESSFUL,
+          sourceRefId: result.data?.reference,
+          description: `${result.data?.receiver?.distribution} ${result.data?.receiver?.vendType} purchase`,
+        });
+
+        if (user.allowEmailNotification) {
+          const name =
+            user?.business?.name ?? `${user.first_name} ${user.last_name}`;
+
+          await sendDebitAlertMail(user.email, name, amount);
+        }
+
+        if (user.allowPushNotification) {
+          // send inApp notification
+        }
+      } else {
+        await incrementBookBalance(wallet, amount);
+        trnx = await this.transactionRepo.save({
+          ...trnx,
+          status: TransactionStatus.FAILED,
+          sourceRefId: result.data?.tx_ref,
+          currentWalletBalance: wallet.mainBalance + amount,
+          previousWalletBalance: wallet.mainBalance,
+        });
+
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json(apiResponse('error', MESSAGES.OPS_FAILED, trnx || {}));
+      }
+
       return res
         .status(StatusCodes.OK)
-        .json(
-          apiResponse('success', MESSAGES.OPS_SUCCESSFUL, result.data || {}),
-        );
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, trnx || {}));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

@@ -1,6 +1,7 @@
 export const MESSAGES = {
   PROCESSING_ERROR: 'Request Processing error',
   OPS_SUCCESSFUL: 'Operation Successful',
+  OPS_FAILED: 'Operation Failed',
   NOT_FOUND: 'Not found',
   RESOURCE_NOT_FOUND: (resource: string) => `${resource} not found.`,
   INVALID_RESOURCE: (resource: string) => `Invalid ${resource}.`,

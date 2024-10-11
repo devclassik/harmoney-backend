@@ -248,8 +248,7 @@ export class SafeHaven {
       });
 
       const res = JSON.parse(result.data);
-      console.log('airtime safe haven ==>', res.data, '<<==safe');
-      logger.info(`airtimePurchase response: ${res.data}`);
+      logger.info(`airtimePurchase response: ${result.data}`);
       return res;
     } catch (error) {
       throw error;
@@ -272,7 +271,8 @@ export class SafeHaven {
         bundleCode: payload.bundleCode,
         phoneNumber: payload.phoneNumber,
         serviceCategoryId: payload.serviceCategoryId,
-        debitAccountNumber: config.safehaven.debit_account,
+        debitAccountNumber:
+          payload.debitAccountNumber ?? config.safehaven.debit_account,
       });
 
       const url = `${this.paths.purchase(PurchaseTypes.DATA)}`;
@@ -305,7 +305,8 @@ export class SafeHaven {
         cardNumber: payload.cardNumber,
         bundleCode: payload.bundleCode,
         serviceCategoryId: payload.serviceCategoryId,
-        debitAccountNumber: config.safehaven.debit_account,
+        debitAccountNumber:
+          payload.debitAccountNumber ?? config.safehaven.debit_account,
       });
 
       const url = `${this.paths.purchase(PurchaseTypes.CABLE)}`;
@@ -339,7 +340,8 @@ export class SafeHaven {
         vendType: payload.vendType,
         meterNumber: payload.meterNumber,
         serviceCategoryId: payload.serviceCategoryId,
-        debitAccountNumber: config.safehaven.debit_account,
+        debitAccountNumber:
+          payload.debitAccountNumber ?? config.safehaven.debit_account,
       });
       console.log(dataString, '<<==datastring');
       const url = `${this.paths.purchase(PurchaseTypes.UTILITY)}`;

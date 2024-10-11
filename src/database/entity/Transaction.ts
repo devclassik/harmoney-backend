@@ -37,6 +37,7 @@ export enum TransactionCategory {
   AIRTIME = 'AIRTIME',
   DATA = 'DATA',
   CABLE_TV = 'CABLE_TV',
+  ELECTRICITY = 'ELECTRICITY',
   INTERNET = 'INTERNET',
   WATER = 'WATER',
   GAS = 'GAS',
