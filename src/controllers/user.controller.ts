@@ -93,6 +93,7 @@ export class UserController {
 
       const updatedUser = await this.userRepo.findOne({
         where: { id: user.id },
+        relations: ['business', 'identities', 'wallet'],
       });
 
       return res.status(StatusCodes.OK).json(
