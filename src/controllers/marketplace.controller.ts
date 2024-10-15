@@ -17,6 +17,7 @@ import {
   BusinessCategories,
   MerchantBusiness,
   MerchantService,
+  Order,
   SafeHavenService,
   Transaction,
   TransactionCategory,
@@ -30,6 +31,7 @@ import {
   CablePurchaseDto,
   DataPurchaseDto,
   FetchProviderServicesDto,
+  MerchantPurchaseDto,
   UtilityPurchaseDto,
   VerifyPowerOrCableTvDataDto,
 } from './dto';
@@ -41,6 +43,7 @@ export class MarketplaceController {
   private serviceRepo: Repository<MerchantService>;
   private vasRepo: Repository<SafeHavenService>;
   private transactionRepo: Repository<Transaction>;
+  private orderRepo: Repository<Order>;
 
   constructor() {
     this.gateway = new SafeHaven();
@@ -48,6 +51,7 @@ export class MarketplaceController {
     this.serviceRepo = AppDataSource.getRepository(MerchantService);
     this.vasRepo = AppDataSource.getRepository(SafeHavenService);
     this.transactionRepo = AppDataSource.getRepository(Transaction);
+    this.orderRepo = AppDataSource.getRepository(Order);
   }
 
   fetchProviders = async (
@@ -374,7 +378,7 @@ export class MarketplaceController {
           category: TransactionCategory.CABLE_TV,
           customer: cardNumber,
           sourceWallet: new Wallet({ id: wallet.id }),
-          bundle: bundleCode
+          bundle: bundleCode,
         }),
       );
 
@@ -517,7 +521,119 @@ export class MarketplaceController {
     try {
       return res
         .status(StatusCodes.NOT_IMPLEMENTED)
-        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+        .json(apiResponse('error', MESSAGES.OPS_FAILED));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  purchaseMerchantService = async (
+    req: Request<null, null, MerchantPurchaseDto, null> & {
+      user: User;
+      wallet: Wallet;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { businessId, amount, note, payerId, serviceId, subServiceId } =
+      req.body;
+    const user = req.user;
+    const wallet = req.wallet;
+    let payment = {};
+
+    try {
+      const business = await this.businessRepo.findOne({
+        where: { id: businessId },
+        relations: ['merchant', 'merchant.wallet'],
+      });
+
+      if (!business) {
+        throw new CustomError(
+          MESSAGES.INVALID_RESOURCE('merchant'),
+          StatusCodes.NOT_ACCEPTABLE,
+        );
+      }
+
+      const pay = async (
+        senderWallet: Wallet,
+        destinationWallet: Wallet,
+        amount: number,
+        category: TransactionCategory,
+      ) => {
+        // const nameEnquiry = await this.gateway.getAccountDetails({
+        //   accountNumber: destinationWallet.accountNumber,
+        //   bankCode: destinationWallet.bankCode,
+        // });
+
+        // if (nameEnquiry?.data?.accountName) {
+        // const {
+        //   accountNumber: destinationAcctNum,
+        //   sessionId: nameEnquirySessionId,
+        //   bankCode: destinationBankCode,
+        // } = nameEnquiry.data;
+
+        const tx_ref = await generateRandomString(30, '0');
+        const order_ref = await generateRandomString(8, '0');
+
+        await deductBookBalance(senderWallet, amount); // source
+        await incrementBookBalance(destinationWallet, amount); // destination
+
+        const order = await this.orderRepo.save(
+          new Order({
+            reference: order_ref,
+            amount,
+            note,
+            customerName: user.first_name,
+            customer: new User({ id: user.id }),
+            business: new MerchantBusiness({ id: business.id }),
+          }),
+        );
+
+        let senderTrnx = await this.transactionRepo.save(
+          new Transaction({
+            reference: tx_ref,
+            amount,
+            currentWalletBalance: senderWallet.mainBalance - amount,
+            previousWalletBalance: senderWallet.mainBalance,
+            description: `${business.category.toLowerCase()} purchase`,
+            type: TransactionType.DEBIT,
+            category,
+            customer: payerId ?? user.phone_no,
+            sourceWallet: new Wallet({ id: senderWallet.id }),
+            destinationWallet: new Wallet({ id: destinationWallet.id }),
+            order: new Order({ id: order.id }),
+          }),
+        );
+
+        // const gatewayTransfer = await this.gateway.transferFund({
+        //   nameEnquiryReference: nameEnquirySessionId,
+        //   debitAccountNumber: senderWallet.accountNumber,
+        //   beneficiaryBankCode: destinationBankCode,
+        //   beneficiaryAccountNumber: destinationAcctNum,
+        //   amount,
+        //   saveBeneficiary: false,
+        //   narration: `${business.category.toLowerCase()} order`,
+        //   paymentReference: tx_ref,
+        // });
+
+        //   if (gatewayTransfer.statusCode == 200) {
+        //   }
+        // }
+
+        return senderTrnx;
+      };
+
+      if (business.category == BusinessCategories.WATER) {
+        payment = await pay(
+          wallet,
+          business.merchant.wallet,
+          amount,
+          TransactionCategory.WATER,
+        );
+      }
+
+      return res
+        .status(StatusCodes.NOT_IMPLEMENTED)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, payment));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

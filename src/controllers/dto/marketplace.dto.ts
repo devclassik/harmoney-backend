@@ -33,3 +33,13 @@ export interface UtilityPurchaseDto extends BasePurchaseDto {
   vendType: string;
   meterNumber: string;
 }
+
+export interface MerchantPurchaseDto {
+  pin: number;
+  businessId: number;
+  amount: number;
+  note?: string;
+  payerId?: string;
+  serviceId?: number;
+  subServiceId?: number;
+}

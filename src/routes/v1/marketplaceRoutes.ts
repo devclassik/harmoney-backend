@@ -67,13 +67,13 @@ MarketplaceRoutes.post(
 MarketplaceRoutes.post(
   '/marketplace/purchase/internet',
   authGuard,
-  // trnxPinGuard,
+  trnxPinGuard,
   marketplaceController.purchaseInternet,
 );
 
 MarketplaceRoutes.post(
-  '/marketplace/purchase/service',
+  '/marketplace/purchase/merchant-service',
   authGuard,
   trnxPinGuard,
-  marketplaceController.fetchProviderServices,
+  marketplaceController.purchaseMerchantService,
 );

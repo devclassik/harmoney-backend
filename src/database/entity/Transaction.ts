@@ -181,7 +181,7 @@ export class Transaction {
   @JoinColumn()
   sourceWallet?: Wallet;
 
-  @ManyToOne(() => Order, ({ transaction }) => transaction)
+  @ManyToOne(() => Order, ({ transactions }) => transactions)
   @JoinColumn()
   order?: Order;
 

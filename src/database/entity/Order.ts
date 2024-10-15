@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -54,9 +55,6 @@ export class Order {
   status?: OrderStatus;
 
   @Column({ type: 'varchar', nullable: true, default: null })
-  utilityToken?: string;
-
-  @Column({ type: 'varchar', nullable: true, default: null })
   customerAddress?: string;
 
   @Column({ type: 'varchar', nullable: true, default: null })
@@ -70,9 +68,11 @@ export class Order {
   @JoinColumn()
   business?: MerchantBusiness;
 
-  @OneToOne(() => Transaction, ({ order }) => order)
-  @JoinColumn()
-  transaction?: Transaction;
+  // @OneToOne(() => Transaction, ({ order }) => order)
+  // @JoinColumn()
+  // transaction?: Transaction;
+  @OneToMany(() => Transaction, ({ order }) => order)
+  transactions?: Transaction[];
 
   @OneToOne(() => MerchantService, ({ orders }) => orders)
   @JoinColumn()
