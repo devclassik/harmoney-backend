@@ -15,3 +15,5 @@ PaymentRoutes.post(
 );
 
 PaymentRoutes.post('/payment/webhook', paymentController.webhook);
+
+PaymentRoutes.get('/payment/users', authGuard, paymentController.getContacts);

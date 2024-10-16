@@ -1,9 +1,9 @@
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { MESSAGES, apiResponse, generateRandomString } from '../utils';
 import { appEventEmitter, sendCreditAlertMail } from '../services';
-import { ErrorMiddleware } from '../middlewares';
+import { CustomError, ErrorMiddleware } from '../middlewares';
 import {
   AppDataSource,
   MerchantBusiness,
@@ -18,11 +18,13 @@ import { SafeHaven } from '../services';
 
 export class PaymentController {
   private gateway: SafeHaven;
+  private userRepo: Repository<User>;
   private walletRepo: Repository<Wallet>;
   private transactionRepo: Repository<Transaction>;
 
   constructor() {
     this.gateway = new SafeHaven();
+    this.userRepo = AppDataSource.getRepository(User);
     this.walletRepo = AppDataSource.getRepository(Wallet);
     this.transactionRepo = AppDataSource.getRepository(Transaction);
   }
@@ -143,6 +145,39 @@ export class PaymentController {
       }
 
       return res.status(StatusCodes.OK);
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  getContacts = async (
+    req: Request<null, null, null, null> & { user: User },
+    res: Response,
+  ): Promise<Response | void> => {
+    const user = req.user;
+    try {
+      const users = await this.userRepo.find({
+        where: {
+          username: Not(user.username),
+          wallet: { accountNumber: Not(IsNull()) },
+        },
+        relations: ['wallet'],
+        select: {
+          first_name: true,
+          last_name: true,
+          phone_no: true,
+          username: true,
+          wallet: {
+            accountNumber: true,
+            accountName: true,
+            bankCode: true,
+          },
+        },
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, users));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

@@ -12,3 +12,10 @@ OrderRoutes.get(
   businessGuard,
   orderController.fetchOrders,
 );
+
+OrderRoutes.patch(
+  '/order',
+  authGuard,
+  businessGuard,
+  orderController.updateOrderStatus,
+);
