@@ -1,6 +1,6 @@
 import express from 'express';
 import { PaymentController } from '../../controllers';
-import { authGuard } from '../../guards';
+import { authGuard, trnxPinGuard } from '../../guards';
 
 export const PaymentRoutes = express.Router();
 
@@ -17,3 +17,10 @@ PaymentRoutes.post(
 PaymentRoutes.post('/payment/webhook', paymentController.webhook);
 
 PaymentRoutes.get('/payment/users', authGuard, paymentController.getContacts);
+
+PaymentRoutes.post(
+  '/payment/transfer/:transferType',
+  authGuard,
+  trnxPinGuard,
+  paymentController.fundTransfer,
+);

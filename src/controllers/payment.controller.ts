@@ -13,7 +13,7 @@ import {
   User,
   Wallet,
 } from '../database';
-import { BankDetailsDto, WebhookDto } from './dto';
+import { BankDetailsDto, FundTransferDto, WebhookDto } from './dto';
 import { SafeHaven } from '../services';
 
 export class PaymentController {
@@ -178,6 +178,30 @@ export class PaymentController {
       return res
         .status(StatusCodes.OK)
         .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, users));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  fundTransfer = async (
+    req: Request<
+      { transferType: 'external' | 'internal' | 'others' },
+      null,
+      FundTransferDto,
+      null
+    > & { user: User; wallet: Wallet },
+    res: Response,
+  ): Promise<Response | void> => {
+    const user = req.user;
+    const wallet = req.wallet;
+    const { transferType } = req.params;
+    const { amount, description, accountNumber, bankCode, username, email } =
+      req.body;
+
+    try {
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }

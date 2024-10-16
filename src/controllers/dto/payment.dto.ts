@@ -44,3 +44,21 @@ export interface WebhookDto {
     approvedAt: string;
   };
 }
+
+export interface BankDetailsDto {
+  accountNumber: string;
+  bankCode: string;
+}
+
+export interface FundTransferDto {
+  amount: number;
+  pin: string;
+  description?: string;
+  // external
+  accountNumber?: string;
+  bankCode?: string;
+  // internal
+  username?: string;
+  // others
+  email?: string;
+}
