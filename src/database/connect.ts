@@ -11,6 +11,7 @@ import {
   Order,
   MerchantService,
   SafeHavenService,
+  MerchantLocation,
 } from './entity';
 
 export const AppDataSource = new DataSource({
@@ -24,6 +25,7 @@ export const AppDataSource = new DataSource({
   entities: [
     User,
     MerchantBusiness,
+    MerchantLocation,
     MerchantService,
     Wallet,
     UserIdentity,
