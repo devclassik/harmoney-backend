@@ -47,3 +47,31 @@ BusinessRoutes.delete(
   businessGuard,
   businessController.deleteService,
 );
+
+BusinessRoutes.post(
+  '/business/location',
+  authGuard,
+  businessGuard,
+  businessController.createLocation,
+);
+
+BusinessRoutes.get(
+  '/business/locations',
+  authGuard,
+  businessGuard,
+  businessController.fetchLocations,
+);
+
+BusinessRoutes.patch(
+  '/business/location',
+  authGuard,
+  businessGuard,
+  businessController.updateLocation,
+);
+
+BusinessRoutes.delete(
+  '/business/location',
+  authGuard,
+  businessGuard,
+  businessController.deleteLocation,
+);

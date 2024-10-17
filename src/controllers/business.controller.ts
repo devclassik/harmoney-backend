@@ -2,31 +2,34 @@ import { Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { MESSAGES, apiResponse } from '../utils';
-import { FileManager, SafeHaven, appEventEmitter } from '../services';
+import { SafeHaven, appEventEmitter } from '../services';
 import { CustomError, ErrorMiddleware } from '../middlewares';
 import {
   AppDataSource,
   MerchantBusiness,
+  MerchantLocation,
   MerchantService,
   User,
 } from '../database';
 import {
+  CreateLocationDto,
   CreateServiceDto,
   UpdateBusinessBankDetailsDto,
   UpdateBusinessProfileDto,
+  UpdateLocationDto,
   UpdateServiceDto,
 } from './dto';
 
 export class BusinessController {
   private gateway: SafeHaven;
-  private fileManager: FileManager;
   private businessRepo: Repository<MerchantBusiness>;
+  private locationRepo: Repository<MerchantLocation>;
   private serviceRepo: Repository<MerchantService>;
 
   constructor() {
     this.gateway = new SafeHaven();
-    this.fileManager = new FileManager();
     this.businessRepo = AppDataSource.getRepository(MerchantBusiness);
+    this.locationRepo = AppDataSource.getRepository(MerchantLocation);
     this.serviceRepo = AppDataSource.getRepository(MerchantService);
   }
 
@@ -232,6 +235,134 @@ export class BusinessController {
       }
 
       await this.serviceRepo.softDelete(new MerchantService({ id: serviceId }));
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  fetchLocations = async (
+    req: Request<null, null, null, null> & {
+      user: User;
+      business: MerchantBusiness;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const business = req.business;
+
+    try {
+      const locations = await this.locationRepo.find({
+        where: { business: new MerchantBusiness({ id: business.id }) },
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, locations));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  createLocation = async (
+    req: Request<null, null, CreateLocationDto, null> & {
+      user: User;
+      business: MerchantBusiness;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { name, imageUrl } = req.body;
+    const business = req.business;
+
+    try {
+      const location = await this.locationRepo.save(
+        new MerchantLocation({
+          business: new MerchantBusiness({ id: business.id }),
+          name,
+          imageUrl,
+        }),
+      );
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, location));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  updateLocation = async (
+    req: Request<null, null, UpdateLocationDto, null> & {
+      user: User;
+      business: MerchantBusiness;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { locationId, name, imageUrl } = req.body;
+    const business = req.business;
+
+    try {
+      let location = await this.locationRepo.findOne({
+        where: {
+          id: locationId,
+          business: new MerchantBusiness({ id: business.id }),
+        },
+      });
+
+      if (!location) {
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND('Location'),
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      location = await this.locationRepo.save(
+        new MerchantLocation({
+          id: location.id,
+          business: new MerchantBusiness({ id: business.id }),
+          name,
+          imageUrl,
+        }),
+      );
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, location));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  deleteLocation = async (
+    req: Request<null, null, { locationId: number }, null> & {
+      user: User;
+      business: MerchantBusiness;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { locationId } = req.body;
+    const business = req.business;
+
+    try {
+      const location = await this.locationRepo.findOne({
+        where: {
+          id: locationId,
+          business: new MerchantBusiness({ id: business.id }),
+        },
+      });
+
+      if (!location) {
+        throw new CustomError(
+          MESSAGES.RESOURCE_NOT_FOUND('Location'),
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      await this.locationRepo.softDelete(
+        new MerchantLocation({ id: locationId }),
+      );
 
       return res
         .status(StatusCodes.OK)
