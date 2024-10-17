@@ -19,6 +19,12 @@ MarketplaceRoutes.get(
 );
 
 MarketplaceRoutes.get(
+  '/marketplace/providers/:category/locations/:businessId',
+  authGuard,
+  marketplaceController.fetchProvidersLocation,
+);
+
+MarketplaceRoutes.get(
   '/marketplace/vas/:vasIdentifier',
   authGuard,
   marketplaceController.getVasItems,

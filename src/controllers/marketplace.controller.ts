@@ -16,6 +16,7 @@ import {
   AppDataSource,
   BusinessCategories,
   MerchantBusiness,
+  MerchantLocation,
   MerchantService,
   Order,
   SafeHavenService,
@@ -41,6 +42,7 @@ export class MarketplaceController {
   private gateway: SafeHaven;
   private businessRepo: Repository<MerchantBusiness>;
   private serviceRepo: Repository<MerchantService>;
+  private locationRepo: Repository<MerchantLocation>;
   private vasRepo: Repository<SafeHavenService>;
   private transactionRepo: Repository<Transaction>;
   private orderRepo: Repository<Order>;
@@ -49,6 +51,7 @@ export class MarketplaceController {
     this.gateway = new SafeHaven();
     this.businessRepo = AppDataSource.getRepository(MerchantBusiness);
     this.serviceRepo = AppDataSource.getRepository(MerchantService);
+    this.locationRepo = AppDataSource.getRepository(MerchantLocation);
     this.vasRepo = AppDataSource.getRepository(SafeHavenService);
     this.transactionRepo = AppDataSource.getRepository(Transaction);
     this.orderRepo = AppDataSource.getRepository(Order);
@@ -100,6 +103,33 @@ export class MarketplaceController {
       return res
         .status(StatusCodes.OK)
         .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, services));
+    } catch (error) {
+      ErrorMiddleware.handleError(error, req, res);
+    }
+  };
+
+  fetchProvidersLocation = async (
+    req: Request<FetchProviderServicesDto, null, null, null> & {
+      user: User;
+    },
+    res: Response,
+  ): Promise<Response | void> => {
+    const { category, businessId } = req.params;
+
+    try {
+      const locations = await this.locationRepo.find({
+        where: {
+          business: new MerchantBusiness({
+            id: businessId,
+            category: category,
+            activation_status: ActivationStatus.ACTIVATE,
+          }),
+        },
+      });
+
+      return res
+        .status(StatusCodes.OK)
+        .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, locations));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
     }
