@@ -115,7 +115,7 @@ export class BusinessController {
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { name, isFixedAmount, amount, imageUrl, subServices } = req.body;
+    const { name, isFixedAmount, amount, imageUrl, subServiceName } = req.body;
     const business = req.business;
 
     try {
@@ -126,7 +126,7 @@ export class BusinessController {
           amount,
           isFixedAmount,
           imageUrl,
-          subServices,
+          subServiceName,
         }),
       );
 
@@ -167,7 +167,7 @@ export class BusinessController {
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { serviceId, name, isFixedAmount, amount, imageUrl, subServices } =
+    const { serviceId, name, isFixedAmount, amount, imageUrl, subServiceName } =
       req.body;
     const business = req.business;
 
@@ -194,7 +194,7 @@ export class BusinessController {
           amount,
           isFixedAmount,
           imageUrl,
-          subServices,
+          subServiceName,
         }),
       );
 

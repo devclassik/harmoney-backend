@@ -1,4 +1,4 @@
-import { BusinessCategories, SubServiceObj } from '../../database';
+import { BusinessCategories } from '../../database';
 
 export interface UpdateBusinessProfileDto {
   business_name: string;
@@ -18,7 +18,8 @@ export interface CreateServiceDto {
   amount?: number;
   isFixedAmount?: boolean;
   imageUrl?: string;
-  subServices?: SubServiceObj[];
+  subServiceName?: string;
+  // subServices?: SubServiceObj[];
 }
 
 export interface UpdateServiceDto {
@@ -27,5 +28,6 @@ export interface UpdateServiceDto {
   amount?: number;
   isFixedAmount?: boolean;
   imageUrl?: string;
-  subServices?: SubServiceObj[];
+  subServiceName?: string;
+  // subServices?: SubServiceObj[];
 }

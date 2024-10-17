@@ -12,11 +12,11 @@ import {
 import { MerchantBusiness } from './MerchantBusiness';
 import { Order } from './Order';
 
-export interface SubServiceObj {
-  name: string;
-  amount: number;
-  isFixed: boolean;
-}
+// export interface SubServiceObj {
+//   name: string;
+//   amount: number;
+//   isFixed: boolean;
+// }
 
 @Entity('merchant_services')
 export class MerchantService {
@@ -46,8 +46,11 @@ export class MerchantService {
   @Column({ type: 'varchar', nullable: true })
   imageUrl?: string;
 
-  @Column({ type: 'json', nullable: true })
-  subServices?: SubServiceObj[];
+  @Column({ type: 'varchar', nullable: true })
+  subServiceName?: string;
+
+  // @Column({ type: 'json', nullable: true })
+  // subServices?: SubServiceObj[];
 
   @ManyToOne(() => MerchantBusiness, ({ services }) => services)
   @JoinColumn()
