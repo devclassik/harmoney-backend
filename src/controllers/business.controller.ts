@@ -321,7 +321,7 @@ export class BusinessController {
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { name, imageUrl } = req.body;
+    const { name } = req.body;
     const business = req.business;
 
     try {
@@ -329,7 +329,6 @@ export class BusinessController {
         new MerchantLocation({
           business: new MerchantBusiness({ id: business.id }),
           name,
-          imageUrl,
         }),
       );
 
@@ -348,7 +347,7 @@ export class BusinessController {
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { locationId, name, imageUrl } = req.body;
+    const { locationId, name } = req.body;
     const business = req.business;
 
     try {
@@ -371,7 +370,6 @@ export class BusinessController {
           id: location.id,
           business: new MerchantBusiness({ id: business.id }),
           name,
-          imageUrl,
         }),
       );
 

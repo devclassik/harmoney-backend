@@ -29,9 +29,6 @@ export class MerchantLocation {
   @Column({ type: 'varchar', nullable: false })
   name?: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  imageUrl?: string;
-
   @ManyToOne(() => MerchantBusiness, ({ locations }) => locations)
   @JoinColumn()
   business?: MerchantBusiness;

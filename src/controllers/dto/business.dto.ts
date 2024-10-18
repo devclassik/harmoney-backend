@@ -34,11 +34,9 @@ export interface UpdateServiceDto {
 
 export interface CreateLocationDto {
   name: string;
-  imageUrl?: string;
 }
 
 export interface UpdateLocationDto {
   locationId: number;
   name: string;
-  imageUrl?: string;
 }
