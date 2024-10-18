@@ -4,11 +4,14 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { MerchantBusiness } from './MerchantBusiness';
+import { MerchantService } from './MerchantService';
 
 @Entity('merchant_locations')
 export class MerchantLocation {
@@ -32,6 +35,10 @@ export class MerchantLocation {
   @ManyToOne(() => MerchantBusiness, ({ locations }) => locations)
   @JoinColumn()
   business?: MerchantBusiness;
+
+  @ManyToMany(() => MerchantService, ({ locations }) => locations)
+  @JoinTable()
+  services?: MerchantService[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { MESSAGES, apiResponse } from '../utils';
@@ -118,7 +118,14 @@ export class BusinessController {
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { name, isFixedAmount, amount, imageUrl, subServiceName } = req.body;
+    const {
+      name,
+      isFixedAmount,
+      amount,
+      imageUrl,
+      subServiceName,
+      locationIds,
+    } = req.body;
     const business = req.business;
 
     try {
@@ -132,6 +139,23 @@ export class BusinessController {
           subServiceName,
         }),
       );
+
+      if (locationIds.length) {
+        const locations = await this.locationRepo.findBy({
+          id: In(locationIds),
+          business: new MerchantBusiness({ id: business.id }),
+        });
+
+        if (!locations) {
+          throw new CustomError(
+            MESSAGES.RESOURCE_NOT_FOUND('Locations'),
+            StatusCodes.BAD_REQUEST,
+          );
+        }
+
+        service.locations = locations;
+        await this.serviceRepo.save(service);
+      }
 
       return res
         .status(StatusCodes.OK)
@@ -170,8 +194,15 @@ export class BusinessController {
     },
     res: Response,
   ): Promise<Response | void> => {
-    const { serviceId, name, isFixedAmount, amount, imageUrl, subServiceName } =
-      req.body;
+    const {
+      serviceId,
+      name,
+      isFixedAmount,
+      amount,
+      imageUrl,
+      subServiceName,
+      locationIds,
+    } = req.body;
     const business = req.business;
 
     try {
@@ -200,6 +231,23 @@ export class BusinessController {
           subServiceName,
         }),
       );
+
+      if (locationIds.length) {
+        const locations = await this.locationRepo.findBy({
+          id: In(locationIds),
+          business: new MerchantBusiness({ id: business.id }),
+        });
+
+        if (!locations) {
+          throw new CustomError(
+            MESSAGES.RESOURCE_NOT_FOUND('Locations'),
+            StatusCodes.BAD_REQUEST,
+          );
+        }
+
+        service.locations = locations;
+        await this.serviceRepo.save(service);
+      }
 
       return res
         .status(StatusCodes.OK)

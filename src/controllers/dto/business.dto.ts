@@ -19,6 +19,7 @@ export interface CreateServiceDto {
   isFixedAmount?: boolean;
   imageUrl?: string;
   subServiceName?: string;
+  locationIds?: Array<number>;
 }
 
 export interface UpdateServiceDto {
@@ -28,6 +29,7 @@ export interface UpdateServiceDto {
   isFixedAmount?: boolean;
   imageUrl?: string;
   subServiceName?: string;
+  locationIds?: Array<number>;
 }
 
 export interface CreateLocationDto {

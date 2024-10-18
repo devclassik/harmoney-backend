@@ -4,6 +4,8 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,12 +13,7 @@ import {
 } from 'typeorm';
 import { MerchantBusiness } from './MerchantBusiness';
 import { Order } from './Order';
-
-// export interface SubServiceObj {
-//   name: string;
-//   amount: number;
-//   isFixed: boolean;
-// }
+import { MerchantLocation } from './MerchantLocation';
 
 @Entity('merchant_services')
 export class MerchantService {
@@ -49,12 +46,12 @@ export class MerchantService {
   @Column({ type: 'varchar', nullable: true })
   subServiceName?: string;
 
-  // @Column({ type: 'json', nullable: true })
-  // subServices?: SubServiceObj[];
-
   @ManyToOne(() => MerchantBusiness, ({ services }) => services)
   @JoinColumn()
   business?: MerchantBusiness;
+
+  @ManyToMany(() => MerchantLocation, ({ services }) => services)
+  locations?: MerchantLocation[];
 
   @OneToMany(() => Order, ({ business }) => business)
   orders?: Order[];
