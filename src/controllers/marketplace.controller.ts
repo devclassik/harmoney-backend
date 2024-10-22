@@ -1,7 +1,13 @@
 import { Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { MESSAGES, apiResponse, generateRandomString, logger } from '../utils';
+import {
+  MESSAGES,
+  apiResponse,
+  generateRandomString,
+  logger,
+  resolveTransactionCategory,
+} from '../utils';
 import {
   SafeHaven,
   appEventEmitter,
@@ -71,6 +77,7 @@ export class MarketplaceController {
           category: category,
           activation_status: ActivationStatus.ACTIVATE,
         },
+        relations: ['locations'],
       });
 
       return res
@@ -568,7 +575,6 @@ export class MarketplaceController {
       req.body;
     const user = req.user;
     const wallet = req.wallet;
-    let payment = {};
 
     try {
       const business = await this.businessRepo.findOne({
@@ -652,17 +658,23 @@ export class MarketplaceController {
         return senderTrnx;
       };
 
-      if (business.category == BusinessCategories.WATER) {
-        payment = await pay(
-          wallet,
-          business.merchant.wallet,
-          amount,
-          TransactionCategory.WATER,
-        );
+      const transactionCategory = await resolveTransactionCategory(
+        business.category,
+      );
+
+      if (!transactionCategory) {
+        throw new CustomError(MESSAGES.OPS_FAILED, StatusCodes.CONFLICT);
       }
 
+      const payment = await pay(
+        wallet,
+        business.merchant.wallet,
+        amount,
+        transactionCategory,
+      );
+
       return res
-        .status(StatusCodes.NOT_IMPLEMENTED)
+        .status(StatusCodes.OK)
         .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, payment));
     } catch (error) {
       ErrorMiddleware.handleError(error, req, res);
