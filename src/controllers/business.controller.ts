@@ -177,6 +177,7 @@ export class BusinessController {
     try {
       const services = await this.serviceRepo.find({
         where: { business: new MerchantBusiness({ id: business.id }) },
+        relations: ['locations'],
       });
 
       return res

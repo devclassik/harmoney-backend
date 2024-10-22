@@ -66,6 +66,9 @@ export class OrderController {
       order.status = action;
       await this.orderRepo.save(order);
 
+      // todo: if accepted, move money from holding account to merchant account
+      // todo: if rejected, move money from holding account to customer account
+
       return res
         .status(StatusCodes.OK)
         .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL, order));

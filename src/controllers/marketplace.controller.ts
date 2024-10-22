@@ -105,6 +105,7 @@ export class MarketplaceController {
             activation_status: ActivationStatus.ACTIVATE,
           }),
         },
+        relations: ['locations'],
       });
 
       return res
@@ -639,6 +640,7 @@ export class MarketplaceController {
             order: new Order({ id: order.id }),
           }),
         );
+        // todo: move money from sender account to holding account
 
         // const gatewayTransfer = await this.gateway.transferFund({
         //   nameEnquiryReference: nameEnquirySessionId,
