@@ -1,4 +1,4 @@
-import { BusinessCategories, TransactionCategory } from 'database';
+import { BusinessCategories, TransactionCategory } from '../database';
 
 export const resolveTransactionCategory = async (
   businessCategory: BusinessCategories,

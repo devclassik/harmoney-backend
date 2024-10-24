@@ -2,7 +2,11 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { MESSAGES, apiResponse, generateRandomString } from '../utils';
-import { appEventEmitter, sendCreditAlertMail } from '../services';
+import {
+  appEventEmitter,
+  deductBookBalance,
+  sendCreditAlertMail,
+} from '../services';
 import { CustomError, ErrorMiddleware } from '../middlewares';
 import {
   AppDataSource,
@@ -199,6 +203,31 @@ export class PaymentController {
       req.body;
 
     try {
+      if (transferType == 'others') {
+        return res
+          .status(StatusCodes.NOT_IMPLEMENTED)
+          .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));
+      }
+      const tx_ref = await generateRandomString(30, '0');
+
+      if (transferType == 'external') {
+        await deductBookBalance(wallet, amount);
+        let transaction = await this.transactionRepo.save(
+          new Transaction({
+            reference: tx_ref,
+            amount,
+            isExternal: true,
+            currentWalletBalance: wallet.mainBalance - amount,
+            previousWalletBalance: wallet.mainBalance,
+            description,
+            type: TransactionType.DEBIT,
+            category: TransactionCategory.TRANSFER,
+            sourceWallet: new Wallet({ id: wallet.id }),
+            // destinationWallet: new Wallet({ id: destinationWallet.id }),
+          }),
+        );
+      }
+
       return res
         .status(StatusCodes.OK)
         .json(apiResponse('success', MESSAGES.OPS_SUCCESSFUL));

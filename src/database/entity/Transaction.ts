@@ -33,7 +33,7 @@ export enum TransactionSource {
 }
 
 export enum TransactionCategory {
-  BANK = 'BANK',
+  TRANSFER = 'TRANSFER',
   AIRTIME = 'AIRTIME',
   DATA = 'DATA',
   CABLE_TV = 'CABLE_TV',
