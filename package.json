@@ -1,12 +1,12 @@
 {
-  "name": "zippypay-backend",
+  "name": "Harmoney-backend",
   "version": "1.0.0",
-  "description": "Backend service for ZippyPay",
+  "description": "Backend service for Harmoney",
   "main": "src/app.ts",
   "author": "Heimdall Inc.",
   "license": "MIT",
   "private": true,
-  "repository": "https://github.com/heimdallinc/zippypay-backend",
+  "repository": "https://github.com/devclassik/harmoney-backend",
   "scripts": {
     "start": "ts-node src/app.ts",
     "dev": "nodemon --exec ts-node src/app.ts",
