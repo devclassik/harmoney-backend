@@ -48,7 +48,7 @@ AppDataSource.initialize()
       logger.info(`=================================`);
     });
 
-    startJobs();
+    // startJobs();
 
     app.use('/api/v1', Routes);
 
