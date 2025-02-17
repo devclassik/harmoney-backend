@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from 'express'
-import { CustomError } from './customError'
-import { apiResponse, logger} from '../utils'
-import { StatusCodes } from 'http-status-codes'
+import { NextFunction, Request, Response } from 'express';
+import { CustomError } from './customError';
+import { apiResponse, logger } from '../utils';
+import { StatusCodes } from 'http-status-codes';
 
 export class ErrorMiddleware {
   public static handleError(
@@ -10,21 +10,26 @@ export class ErrorMiddleware {
     res: Response,
   ): Response {
     if (error instanceof Error) {
-      logger.error(`⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️ An error occurred ⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️ `)
-      logger.error(error.stack)
+      logger.error(
+        `⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️ An error occurred ⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️.⚠️ `,
+      );
+      logger.error(error.stack);
 
-      const statusCode = error instanceof CustomError ? error.statusCode : StatusCodes.INTERNAL_SERVER_ERROR
+      const statusCode =
+        error instanceof CustomError
+          ? error.statusCode
+          : StatusCodes.INTERNAL_SERVER_ERROR;
 
-      return res
-        .status(statusCode)
-        .json(apiResponse('error', error.message))
+      return res.status(statusCode).json(apiResponse('error', error.message));
     } else {
-      logger.error(`⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️ An UNKNOWN error occurred ⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️ `)
-      logger.error(error)
+      logger.error(
+        `⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️ An UNKNOWN error occurred ⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️*⚠️ `,
+      );
+      logger.error(error);
 
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(apiResponse('error', 'An unknown error occurred', []))
+        .json(apiResponse('error', 'An unknown error occurred', []));
     }
   }
 }
