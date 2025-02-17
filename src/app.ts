@@ -4,17 +4,23 @@ import { AppDataSource } from './database';
 import { ErrorMiddleware } from './middlewares';
 import { logger, stream } from './utils';
 import config from './config';
-import { Routes } from './routes';
 import { StatusCodes } from 'http-status-codes';
 import fileUpload from 'express-fileupload';
 import cors from 'cors';
-import { startJobs } from './cronjobs';
+import { seedDatabase } from './database/seeds';
+import { Routes } from './routes/v1';
+import multer from 'multer';
+import path from 'path';
 
 const { app: server, log } = config;
+console.log('Initializing database connection...');
 
 AppDataSource.initialize()
   .then(async () => {
     const app: Express = express();
+    logger.on('error', (err) => {
+      console.error('Logger error:', err);
+    });
 
     process.on('uncaughtException', (error, origin) => {
       logger.error('<<<<<<<<<<<<<<<< Uncaught exception >>>>>>>>>>>>>>>>');
@@ -34,25 +40,26 @@ AppDataSource.initialize()
       process.exit();
     });
 
+    await seedDatabase(AppDataSource);
+
     app.use(express.json());
     app.use(cors());
-    app.use(fileUpload());
 
     app.use(morgan(log.format, { stream }));
 
     const message = `🚀 ${server.name} ${server.env} running at ${server.url}:${server.port}`;
 
     app.listen(server.port, () => {
-      logger.info(`=================================`);
+      logger.info(`=========================================================`);
       logger.info(message);
-      logger.info(`=================================`);
+      logger.info(`=========================================================`);
     });
 
     // startJobs();
 
     app.use('/api/v1', Routes);
 
-    app.use('/healthz', (req: Request, res: Response) => {
+    app.use('/server-test', (req: Request, res: Response) => {
       res.json({ message });
     });
 
@@ -64,4 +71,4 @@ AppDataSource.initialize()
       ErrorMiddleware.handleError(error, req, res);
     });
   })
-  .catch((error: any) => console.log(error));
+  .catch((error: any) => console.log({ error }));
