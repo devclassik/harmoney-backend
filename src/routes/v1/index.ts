@@ -1,18 +1,18 @@
 import express from 'express';
-import { AuthRoutes } from './authRoutes';
-import { UserRoutes } from './userRoutes';
-import { WalletRoutes } from './walletRoutes';
-import { OrderRoutes } from './orderRoutes';
-import { PaymentRoutes } from './paymentRoutes';
-import { BusinessRoutes } from './businessRoutes';
-import { MarketplaceRoutes } from './marketplaceRoutes';
+import { AuthRoutes } from '../../modules/auth/auth.routes';
+import DepartmentRoutes from '../../modules/department/department.routes';
+import OrganizationRoutes from '../../modules/organization/organization.routes';
+import EmployeeRoutes from '../../modules/employee/employee.routes';
+import PermissionRoute from '../../modules/permission/permission.routes';
+import AccommodationRoutes from '../../modules/accommodation/accommodation.routes';
+import TemplateRoutes from '../../modules/template/template.routes';
 
 export const Routes = express.Router();
 
 Routes.use(AuthRoutes);
-Routes.use(UserRoutes);
-Routes.use(WalletRoutes);
-Routes.use(OrderRoutes);
-Routes.use(PaymentRoutes);
-Routes.use(BusinessRoutes);
-Routes.use(MarketplaceRoutes);
+Routes.use(DepartmentRoutes);
+Routes.use(OrganizationRoutes);
+Routes.use(EmployeeRoutes);
+Routes.use(PermissionRoute);
+Routes.use(AccommodationRoutes);
+Routes.use(TemplateRoutes);
