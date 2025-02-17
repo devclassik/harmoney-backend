@@ -1,77 +1,83 @@
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import * as winston from 'winston';
-import winstonDaily from 'winston-daily-rotate-file';
+import 'winston-daily-rotate-file';
 import config from '../config';
 
-const { dir } = config.log
+const logDir = config?.log?.dir
+  ? join(__dirname, config.log.dir)
+  : join(__dirname, 'logs');
 
-// logs dir
-const logDir: string = join(__dirname, dir);
-
-if (!existsSync(logDir)) {
-  mkdirSync(logDir);
+// Ensure the log directory exists
+try {
+  if (!existsSync(logDir)) {
+    mkdirSync(logDir, { recursive: true });
+  }
+} catch (error) {
+  console.error('Failed to create log directory:', error);
 }
 
 // Define log format
-const logFormat = winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`);
+const logFormat = winston.format.printf(({ timestamp, level, message }) => {
+  return `${timestamp} ${level.toUpperCase()}: ${message}`;
+});
 
-/*
- * Log Level
- * error: 0, warn: 1, info: 2, http: 3, verbose: 4, debug: 5, silly: 6
- */
+// Create logger instance
 const logger = winston.createLogger({
+  level: 'info', // Default log level
   format: winston.format.combine(
-    winston.format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss',
-    }),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.errors({ stack: true }),
+    winston.format.splat(),
     logFormat,
   ),
   transports: [
-    // debug log setting
-    new winstonDaily({
-      level: 'debug',
-      datePattern: 'YYYY-MM-DD',
-      dirname: logDir + '/debug', // log file /logs/debug/*.log in save
-      filename: `%DATE%.log`,
-      maxFiles: 30, // 30 Days saved
-      json: false,
-      zippedArchive: true,
+    new winston.transports.Console({
+      format: winston.format.combine(winston.format.colorize(), logFormat),
+      handleExceptions: true, // Handle uncaught exceptions
     }),
-    // error log setting
-    new winstonDaily({
+    new winston.transports.File({
+      filename: join(logDir, 'error.log'),
       level: 'error',
-      datePattern: 'YYYY-MM-DD',
-      dirname: logDir + '/error', // log file /logs/error/*.log in save
-      filename: `%DATE%.log`,
-      maxFiles: 30, // 30 Days saved
       handleExceptions: true,
-      json: false,
-      zippedArchive: true,
     }),
-    // info log setting
-    new winstonDaily({
-      level: 'info',
-      datePattern: 'YYYY-MM-DD',
-      dirname: logDir + '/info', // log file /logs/info/*.log in save
-      filename: `%DATE%.log`,
-      maxFiles: 30, // 30 Days saved
+    new winston.transports.File({
+      filename: join(logDir, 'combined.log'),
       handleExceptions: true,
-      json: false,
+    }),
+    new winston.transports.DailyRotateFile({
+      filename: join(logDir, 'debug', '%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      level: 'debug',
+      maxFiles: '30d',
       zippedArchive: true,
+      handleExceptions: true,
+    }),
+    new winston.transports.DailyRotateFile({
+      filename: join(logDir, 'info', '%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      level: 'info',
+      maxFiles: '30d',
+      zippedArchive: true,
+      handleExceptions: true,
     }),
   ],
+  exitOnError: false, // Prevent app crashes
 });
 
-logger.add(
-  new winston.transports.Console({
-    format: winston.format.combine(winston.format.splat(), winston.format.colorize()),
-  }),
-);
+// Capture unhandled exceptions
+process.on('uncaughtException', (err) => {
+  logger.error(`Uncaught Exception: ${err.message}`, err);
+});
 
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error(`Unhandled Rejection: ${reason}`);
+});
+
+// Stream for logging HTTP requests
 const stream = {
   write: (message: string) => {
-    logger.info(message.substring(0, message.lastIndexOf('\n')));
+    logger.info(message.trim());
   },
 };
 

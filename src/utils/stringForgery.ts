@@ -1,3 +1,4 @@
+import { AppFeatures } from '../database/entity';
 import {
   uniqueNamesGenerator,
   Config,
@@ -5,7 +6,6 @@ import {
   colors,
   animals,
 } from 'unique-names-generator';
-
 
 /**
  * best used to generate random strings
@@ -68,4 +68,33 @@ export const forgeRandomName = (): string => {
   const shortName: string = uniqueNamesGenerator(customConfig);
 
   return shortName;
+};
+
+export const generateUniqueId = (feature: AppFeatures): string => {
+  const timestamp = new Date().getTime().toString().slice(6);
+  const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const prefixMap: Record<AppFeatures, string> = {
+    [AppFeatures.EMPLOYEE]: 'EMP',
+    [AppFeatures.PAYROLL]: 'PAY',
+    [AppFeatures.DOCUMENT]: 'DOC',
+    [AppFeatures.DEPARTMENT]: 'DEP',
+    [AppFeatures.ORGANIZATION]: 'ORG',
+    [AppFeatures.PERMISSION]: '',
+    [AppFeatures.DASHBOARD]: '',
+    [AppFeatures.ACCOMMODATION]: '',
+    [AppFeatures.EmailTemplate]: '',
+    [AppFeatures.MEETING]: '',
+    [AppFeatures.LEAVE]: '',
+    [AppFeatures.PROMOTION]: '',
+    [AppFeatures.TRANSFER]: '',
+    [AppFeatures.RETIREMENT]: '',
+    [AppFeatures.DISCIPLINE]: '',
+    [AppFeatures.RETRENCHMENT]: '',
+    [AppFeatures.NOTIFICATION]: '',
+    [AppFeatures.REPORT]: '',
+  };
+
+  const prefix = prefixMap[feature] || 'GEN';
+
+  return `${prefix}-${timestamp}-${randomStr}`;
 };

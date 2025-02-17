@@ -3,4 +3,3 @@ export * from './logger';
 export * from './constants';
 export * from './makeUserPublicView';
 export * from './stringForgery';
-export * from './mapCategories';
