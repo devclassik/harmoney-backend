@@ -46,6 +46,7 @@ export const authGuard = async (
 
           const user = await AppDataSource.getRepository(User).findOne({
             where: { email: decodedData.data.email },
+            relations: ['role', 'role.permissions'],
           });
 
           if (!user) {
