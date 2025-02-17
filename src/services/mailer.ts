@@ -57,6 +57,7 @@ const sendMail = async (data: MailDto): Promise<void> => {
           //   'Failed to send email.',
           //   StatusCodes.BAD_GATEWAY,
           // );
+          console.log(err);
         } else {
           console.log('mail sent: %s', res.messageId);
           return true;
@@ -64,7 +65,7 @@ const sendMail = async (data: MailDto): Promise<void> => {
       },
     );
   } catch (error) {
-    // console.log(error);
+    console.log(error);
   }
 };
 
