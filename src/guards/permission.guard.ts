@@ -1,7 +1,7 @@
-import { AppFeatures, User } from 'database/entity';
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { apiResponse } from '../utils';
+import { AppFeatures, User } from '@/database';
 
 export const permissionGuard = (
   feature: AppFeatures,
