@@ -1,4 +1,4 @@
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { StatusCodes } from 'http-status-codes';
 import { CustomError } from '../../middlewares';
 import { MESSAGES } from '../../utils';
@@ -58,12 +58,14 @@ export class BaseService<T> {
 
   async findAll({
     relations = [],
+    where,
     res,
   }: {
     relations?: string[];
     res?: Response;
+    where?: FindOptionsWhere<T>;
   }): Promise<T[] | Response> {
-    const data = await this.repository.find({ relations });
+    const data = await this.repository.find({ where, relations });
 
     if (res) {
       return this.successResponse(res, data);
@@ -87,10 +89,27 @@ export class BaseService<T> {
     return savedData;
   }
 
-  async update(id: number, data: Partial<T>): Promise<T> {
+  async updateById({
+    id,
+    data,
+    res,
+  }: {
+    id: number;
+    data: Partial<T>;
+    res?: Response;
+  }): Promise<T | Response> {
     const entity = await this.findById({ id });
     Object.assign(entity, data);
-    return this.repository.save(entity);
+    const savedData = this.repository.save(entity);
+
+    if (res) {
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: MESSAGES.OPS_SUCCESSFUL,
+        data: savedData,
+      });
+    }
+    return savedData;
   }
 
   async delete({
