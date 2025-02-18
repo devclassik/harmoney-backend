@@ -7,6 +7,7 @@ import EmployeeRoutes from '@/modules/employee/employee.routes';
 import OrganizationRoutes from '@/modules/organization/organization.routes';
 import PermissionRoute from '@/modules/permission/permission.routes';
 import TemplateRoutes from '@/modules/template/template.routes';
+import AppraisalRoutes from '@/modules/appraisal/appraisal.routes';
 
 export const Routes = express.Router();
 
@@ -18,3 +19,4 @@ Routes.use(PermissionRoute);
 Routes.use(AccommodationRoutes);
 Routes.use(TemplateRoutes);
 Routes.use(LeaveRoutes);
+Routes.use(AppraisalRoutes);
