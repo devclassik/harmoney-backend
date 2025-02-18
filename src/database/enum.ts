@@ -21,3 +21,25 @@ export enum DurationUnit {
   MONTH = 'MONTHS',
   YEAR = 'YEARS',
 }
+
+export enum AppraisalCriterial {
+  ATTENDANCE = 'ATTENDANCE',
+  VOLUNTARY_WORK = 'VOLUNTARY_WORK',
+  EVANGELISM = 'EVANGELISM',
+}
+
+export enum EmployeeActions {
+  PROMOTION = 'Promotion',
+  TRANSFER = 'Transfer',
+  RETIREMENT = 'Retirement',
+  DISCIPLINE = 'Discipline',
+  RETRENCHMENT = 'Retrenchment',
+}
+
+export enum PositionTypes {
+  PASTOR = 'PASTOR',
+  SENIOR_PASTOR = 'SENIOR_PASTOR',
+  CLEANER = 'CLEANER',
+  HOD = 'HOD',
+  WORKER = 'WORKER',
+}

@@ -9,32 +9,13 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
-import { Employee } from './Employee';
-import { ChurchPosition } from './ChurchPosition';
-import { Contact } from './Contact';
 import { Appraisal } from './Appraisal';
-
-export enum AppraisalTypes {
-  VERBAL = 'VERBAL',
-  WRITTEN = 'WRITTEN',
-  SUSPENSION = 'SUSPENSION',
-  TERMINATION = 'TERMINATION',
-  DEMOTION = 'DEMOTION',
-  PROMOTION = 'PROMOTION',
-}
+import { AppraisalCriterial } from '../enum';
 
 export enum Status {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
-}
-
-enum DurationUnit {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-  YEAR = 'year',
 }
 
 @Entity()
@@ -51,13 +32,13 @@ export class AppraisalScore {
 
   @Column({
     type: 'enum',
-    enum: AppraisalTypes,
-    default: AppraisalTypes.VERBAL,
+    enum: AppraisalCriterial,
+    nullable: true,
   })
-  criterial?: AppraisalTypes;
+  criterial?: AppraisalCriterial;
 
   @ManyToOne(() => Appraisal, ({ scores }) => scores)
-  appraisal?: Employee;
+  appraisal?: Appraisal;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

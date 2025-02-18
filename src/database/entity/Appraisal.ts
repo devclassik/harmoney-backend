@@ -33,10 +33,14 @@ export class Appraisal {
   @Column({ type: 'date', default: null, nullable: true })
   endDate?: Date;
 
-  @ManyToOne(() => Employee, ({ documents }) => documents)
+  @ManyToOne(() => Employee, ({ appraisals }) => appraisals, {
+    cascade: ['insert', 'update'],
+  })
   employee?: Employee;
 
-  @OneToMany(() => AppraisalScore, ({ appraisal }) => appraisal)
+  @OneToMany(() => AppraisalScore, ({ appraisal }) => appraisal, {
+    cascade: ['insert', 'update'],
+  })
   scores?: AppraisalScore[];
 
   @CreateDateColumn({ type: 'timestamp' })

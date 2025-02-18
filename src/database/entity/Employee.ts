@@ -21,6 +21,7 @@ import { EmployeeDocument } from './EmployeeDocument';
 import { Payroll } from './Payroll';
 import { Department } from './Department';
 import { Leave } from './Leave';
+import { Appraisal } from './Appraisal';
 
 enum Genders {
   MALE = 'MALE',
@@ -188,4 +189,7 @@ export class Employee {
 
   @OneToMany(() => Leave, ({ employee }) => employee)
   leaves?: Leave;
+
+  @OneToMany(() => Appraisal, ({ employee }) => employee)
+  appraisals?: Appraisal;
 }
