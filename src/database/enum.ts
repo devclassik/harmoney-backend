@@ -14,3 +14,10 @@ export enum EmployeeStatus {
   INACTIVE = 'INACTIVE',
   SUSPENDED = 'SUSPENDED',
 }
+
+export enum DurationUnit {
+  DAY = 'DAYS',
+  WEEK = 'WEEKS',
+  MONTH = 'MONTHS',
+  YEAR = 'YEARS',
+}
