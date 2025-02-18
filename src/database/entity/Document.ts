@@ -13,6 +13,7 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
+import { Leave } from '.';
 
 export enum DocumentTypes {
   PDF = 'pdf',
@@ -29,10 +30,10 @@ export class Document {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'varchar', default: null, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   documentId?: string;
 
-  @Column({ type: 'varchar', default: null, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   name?: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -49,4 +50,7 @@ export class Document {
 
   @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
+
+  @ManyToOne(() => Leave, ({ leaveNotes }) => leaveNotes)
+  leave?: Leave;
 }

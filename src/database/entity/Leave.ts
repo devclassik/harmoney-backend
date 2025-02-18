@@ -13,11 +13,13 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
+import { Document } from '.';
+import { DurationUnit } from '../enum';
 
 export enum LeaveTypes {
-  SICK = 'sick',
-  ABSENCE = 'absence',
-  ANNUAL = 'annual',
+  SICK = 'SICK',
+  ABSENCE = 'ABSENCE',
+  ANNUAL = 'ANNUAL',
 }
 
 export enum LeaveStatus {
@@ -35,10 +37,10 @@ export class Leave {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'varchar', default: null, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   leaveId?: string;
 
-  @Column({ type: 'date', default: null, nullable: true })
+  @Column({ type: 'date', nullable: true })
   startDate?: Date;
 
   @Column({ type: 'date', nullable: true })
@@ -49,6 +51,28 @@ export class Leave {
 
   @Column({ type: 'enum', enum: LeaveStatus, default: LeaveStatus.PENDING })
   status?: LeaveStatus;
+
+  @Column({ type: 'varchar', nullable: true })
+  reason?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  location?: string;
+
+  @Column({ type: 'double', default: 0 })
+  duration?: number;
+
+  @Column({ type: 'enum', enum: DurationUnit, default: DurationUnit.DAY })
+  durationUnit?: DurationUnit;
+
+  @OneToMany(() => Document, ({ leave }) => leave, {
+    cascade: ['insert', 'update'],
+  })
+  leaveNotes?: Document[];
+
+  @ManyToOne(() => Employee, ({ leaves }) => leaves, {
+    cascade: ['insert', 'update'],
+  })
+  employee?: Employee;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
