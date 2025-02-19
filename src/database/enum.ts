@@ -43,3 +43,43 @@ export enum PositionTypes {
   HOD = 'HOD',
   WORKER = 'WORKER',
 }
+
+export enum RetrenchmentTypes {
+  PASTOR = 'PASTOR',
+  SENIOR_PASTOR = 'SENIOR_PASTOR',
+  CLEANER = 'CLEANER',
+  HOD = 'HOD',
+  WORKER = 'WORKER',
+}
+
+export enum Status {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum TransferTypes {
+  VERBAL = 'VERBAL',
+  WRITTEN = 'WRITTEN',
+  SUSPENSION = 'SUSPENSION',
+  TERMINATION = 'TERMINATION',
+  DEMOTION = 'DEMOTION',
+  PROMOTION = 'PROMOTION',
+}
+
+export enum DisciplineTypes {
+  VERBAL = 'VERBAL',
+  WRITTEN = 'WRITTEN',
+  SUSPENSION = 'SUSPENSION',
+  TERMINATION = 'TERMINATION',
+  DEMOTION = 'DEMOTION',
+  PROMOTION = 'PROMOTION',
+}
+
+export enum DocumentTypes {
+  PDF = 'PDV',
+  XLS = 'XLS',
+  DOC = 'DOC',
+  JPG = 'JPG',
+  PNG = 'PNG',
+}
