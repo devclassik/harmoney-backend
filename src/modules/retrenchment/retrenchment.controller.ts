@@ -1,0 +1,106 @@
+import { Request, Response } from 'express';
+import { AppDataSource, Employee, Retrenchment } from '@/database';
+import { BaseService } from '../shared/base.service';
+import { Not } from 'typeorm';
+
+export class RetrenchmentController {
+  private retrenchmentRepo = AppDataSource.getRepository(Retrenchment);
+  private baseService = new BaseService(this.retrenchmentRepo);
+  private employeeBaseService = new BaseService(
+    AppDataSource.getRepository(Employee),
+  );
+
+  public create = async (req: Request, res: Response): Promise<Response> => {
+    const { employeeId, reason, retrenchmentType } = req.body;
+
+    try {
+      const employee = await this.employeeBaseService.findById({
+        id: employeeId,
+      });
+      await this.baseService.create(
+        {
+          reason,
+          retrenchmentType,
+          employee,
+        },
+        res,
+      );
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public update = async (req: Request, res: Response): Promise<Response> => {
+    const retrenchmentId = Number(req.params.retrenchmentId);
+    const { reason, retrenchmentType, status } = req.body;
+
+    try {
+      const retrenchment = await this.baseService.findById({
+        id: retrenchmentId,
+        resource: 'Retrenchment',
+      });
+
+      const updatedRetrenchment = await this.retrenchmentRepo.save({
+        ...retrenchment,
+        reason,
+        retrenchmentType,
+
+        status,
+      });
+
+      return this.baseService.updatedResponse(res, updatedRetrenchment);
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public get = async (req: Request, res: Response): Promise<Response> => {
+    const retrenchmentId = Number(req.params.retrenchmentId);
+
+    try {
+      const retrenchment = await this.baseService.findById({
+        id: retrenchmentId,
+        resource: 'Retrenchment',
+        relations: ['employee', 'employee.user'],
+      });
+      const history = await this.retrenchmentRepo.find({
+        where: {
+          id: Not(retrenchmentId),
+          employee: { id: retrenchment.employee.id },
+        },
+      });
+
+      return this.baseService.successResponse(res, {
+        ...retrenchment,
+        history,
+      });
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public getAll = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await this.baseService.findAll({
+        res,
+        relations: ['employee', 'employee.user'],
+      });
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public delete = async (req: Request, res: Response): Promise<Response> => {
+    const retrenchmentId = Number(req.params.retrenchmentId);
+
+    try {
+      await this.baseService.delete({
+        id: retrenchmentId,
+        resource: 'Retrenchment',
+        res,
+      });
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
+}
