@@ -8,6 +8,11 @@ import OrganizationRoutes from '@/modules/organization/organization.routes';
 import PermissionRoute from '@/modules/permission/permission.routes';
 import TemplateRoutes from '@/modules/template/template.routes';
 import AppraisalRoutes from '@/modules/appraisal/appraisal.routes';
+import PromotionRoutes from '@/modules/promotion/promotion.routes';
+import DisciplineRoutes from '@/modules/discipline/discipline.routes';
+import RetirementRoutes from '@/modules/retirement/retirement.routes';
+import RetrenchmentRoutes from '@/modules/retrenchment/retrenchment.routes';
+import TransferRoutes from '@/modules/transfer/transfer.routes';
 
 export const Routes = express.Router();
 
@@ -20,3 +25,8 @@ Routes.use(AccommodationRoutes);
 Routes.use(TemplateRoutes);
 Routes.use(LeaveRoutes);
 Routes.use(AppraisalRoutes);
+Routes.use(PromotionRoutes);
+Routes.use(DisciplineRoutes);
+Routes.use(RetirementRoutes);
+Routes.use(TransferRoutes);
+Routes.use(RetrenchmentRoutes);
