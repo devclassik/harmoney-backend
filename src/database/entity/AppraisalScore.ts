@@ -12,12 +12,6 @@ import {
 import { Appraisal } from './Appraisal';
 import { AppraisalCriterial } from '../enum';
 
-export enum Status {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
-
 @Entity()
 export class AppraisalScore {
   constructor(data: AppraisalScore) {

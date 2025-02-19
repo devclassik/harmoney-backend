@@ -13,23 +13,7 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
-import { Status } from './AppraisalScore';
-
-export enum DisciplineTypes {
-  VERBAL = 'VERBAL',
-  WRITTEN = 'WRITTEN',
-  SUSPENSION = 'SUSPENSION',
-  TERMINATION = 'TERMINATION',
-  DEMOTION = 'DEMOTION',
-  PROMOTION = 'PROMOTION',
-}
-
-enum DurationUnit {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-  YEAR = 'year',
-}
+import { DisciplineTypes, DurationUnit, Status } from '../enum';
 
 @Entity()
 export class Discipline {
@@ -41,13 +25,16 @@ export class Discipline {
   id?: number;
 
   @Column({ type: 'varchar', default: null, nullable: true })
-  promotionId?: string;
+  disciplineId?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  reason?: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status?: Status;
 
   @Column({ type: 'enum', enum: DisciplineTypes })
-  type?: DisciplineTypes;
+  disciplineType?: DisciplineTypes;
 
   @Column({ type: 'double', default: 0 })
   duration?: number;

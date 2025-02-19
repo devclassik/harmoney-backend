@@ -13,16 +13,7 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
-import { Status } from './AppraisalScore';
-
-export enum RetrenchmentTypes {
-  VERBAL = 'VERBAL',
-  WRITTEN = 'WRITTEN',
-  SUSPENSION = 'SUSPENSION',
-  TERMINATION = 'TERMINATION',
-  DEMOTION = 'DEMOTION',
-  PROMOTION = 'PROMOTION',
-}
+import { RetrenchmentTypes, Status } from '../enum';
 
 @Entity()
 export class Retrenchment {
@@ -34,7 +25,7 @@ export class Retrenchment {
   id?: number;
 
   @Column({ type: 'varchar', default: null, nullable: true })
-  retirementId?: string;
+  retrenchmentId?: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status?: Status;
@@ -42,9 +33,12 @@ export class Retrenchment {
   @Column({
     type: 'enum',
     enum: RetrenchmentTypes,
-    default: RetrenchmentTypes.VERBAL,
+    nullable: true,
   })
-  type?: RetrenchmentTypes;
+  retrenchmentType?: RetrenchmentTypes;
+
+  @Column({ type: 'varchar', nullable: true })
+  reason?: string;
 
   @ManyToOne(() => Employee, ({ documents }) => documents)
   employee?: Employee;

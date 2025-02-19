@@ -9,17 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
-import { Employee } from './Employee';
-import { ChurchPosition } from './ChurchPosition';
-import { Contact } from './Contact';
 import { Leave } from '.';
-
-export enum DocumentTypes {
-  PDF = 'pdf',
-  XLS = 'xls',
-  DOC = 'doc',
-}
+import { DocumentTypes } from '../enum';
 
 @Entity()
 export class Document {

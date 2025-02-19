@@ -13,16 +13,7 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
-import { Status } from './AppraisalScore';
-
-export enum TransferTypes {
-  VERBAL = 'VERBAL',
-  WRITTEN = 'WRITTEN',
-  SUSPENSION = 'SUSPENSION',
-  TERMINATION = 'TERMINATION',
-  DEMOTION = 'DEMOTION',
-  PROMOTION = 'PROMOTION',
-}
+import { PositionTypes, Status, TransferTypes } from '../enum';
 
 @Entity()
 export class Transfer {
@@ -39,11 +30,17 @@ export class Transfer {
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status?: Status;
 
+  @Column({ type: 'varchar', nullable: true })
+  reason?: string;
+
   @Column({ type: 'enum', enum: TransferTypes })
-  type?: TransferTypes;
+  transferType?: TransferTypes;
 
   @Column({ type: 'varchar', default: 0 })
   destination?: string;
+
+  @Column({ type: 'enum', enum: PositionTypes, nullable: true })
+  newPosition?: PositionTypes;
 
   @ManyToOne(() => Employee, ({ documents }) => documents)
   employee?: Employee;

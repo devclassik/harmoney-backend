@@ -13,7 +13,7 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
-import { Status } from './AppraisalScore';
+import { Status } from '../enum';
 
 @Entity()
 export class Retirement {
@@ -24,17 +24,20 @@ export class Retirement {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'varchar', default: null, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   retirementId?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  reason?: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status?: Status;
 
-  @Column({ type: 'date' })
-  requestDate?: Date;
-
   @ManyToOne(() => Employee, ({ documents }) => documents)
   employee?: Employee;
+
+  @ManyToOne(() => Employee, ({ documents }) => documents)
+  recommendedReplacement?: Employee;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

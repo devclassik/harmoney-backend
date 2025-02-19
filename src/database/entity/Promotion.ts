@@ -13,15 +13,7 @@ import { User } from './User';
 import { Employee } from './Employee';
 import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
-import { Status } from './AppraisalScore';
-
-export enum EmployeeActions {
-  PROMOTION = 'Promotion',
-  TRANSFER = 'Transfer',
-  RETIREMENT = 'Retirement',
-  DISCIPLINE = 'Discipline',
-  RETRENCHMENT = 'Retrenchment',
-}
+import { PositionTypes, Status } from '../enum';
 
 @Entity()
 export class Promotion {
@@ -37,6 +29,9 @@ export class Promotion {
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status?: Status;
+
+  @Column({ type: 'enum', enum: PositionTypes, nullable: true })
+  newPosition?: PositionTypes;
 
   @ManyToOne(() => Employee, ({ documents }) => documents)
   employee?: Employee;
