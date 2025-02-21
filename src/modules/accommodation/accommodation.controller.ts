@@ -63,7 +63,7 @@ export class AccommodationController {
       const accommodation = await this.baseService.findById({
         id: accommodationId,
         resource: 'Accommodation',
-        relations: ['rooms'],
+        relations: ['rooms', 'rooms.occupants'],
       });
 
       return this.baseService.successResponse(res, accommodation);
