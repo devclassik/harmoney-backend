@@ -22,37 +22,16 @@ import { Payroll } from './Payroll';
 import { Department } from './Department';
 import { Leave } from './Leave';
 import { Appraisal } from './Appraisal';
-
-enum Genders {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-}
-
-enum EmployeeStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  SUSPENDED = 'SUSPENDED',
-}
-
-enum PhoneTypes {
-  HOME = 'HOME',
-  WORK = 'WORK',
-  CELL = 'CELL',
-}
-
-export enum EmploymentTypes {
-  STAFF = 'STAFF',
-  VOLUNTEER = 'VOLUNTEER',
-}
-
-export enum TitleTypes {
-  MR = 'MR',
-  MRS = 'MRS',
-  DR = 'DR',
-  BAR = 'BAR',
-  HON = 'HON',
-  CHIEF = 'CHIEF',
-}
+import { CampMeeting } from './CampMeeting';
+import { Room } from './Room';
+import { Notification } from './Notification';
+import {
+  TitleTypes,
+  Genders,
+  PhoneTypes,
+  EmployeeStatus,
+  EmploymentTypes,
+} from '../enum';
 
 @Entity()
 export class Employee {
@@ -126,6 +105,12 @@ export class Employee {
   @Column({ type: 'enum', enum: EmploymentTypes, nullable: true })
   employmentType?: EmploymentTypes;
 
+  @Column({ type: 'date', nullable: true })
+  serviceStartDate?: Date;
+
+  @Column({ type: 'date', nullable: true })
+  retiredDate?: Date;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
 
@@ -187,9 +172,33 @@ export class Employee {
   @ManyToMany(() => Department, ({ members }) => members)
   departments?: Department[];
 
+  @ManyToMany(() => CampMeeting, ({ attendees }) => attendees)
+  campMeetings?: CampMeeting[];
+
   @OneToMany(() => Leave, ({ employee }) => employee)
   leaves?: Leave;
 
   @OneToMany(() => Appraisal, ({ employee }) => employee)
   appraisals?: Appraisal;
+
+  @ManyToMany(() => Room, ({ occupants }) => occupants)
+  campRooms?: Room[];
+
+  @OneToMany(() => Notification, ({ actionBy }) => actionBy)
+  createdNotifications?: Notification[];
+
+  @OneToMany(() => Notification, ({ actionFor }) => actionFor)
+  notificationsForMe?: Notification[];
+
+  @OneToMany(() => Notification, ({ actionTo }) => actionTo)
+  notificationsToMe?: Notification[];
+
+  @OneToMany(() => Notification, ({ actionBy }) => actionBy)
+  createdMessages?: Notification[];
+
+  @OneToMany(() => Notification, ({ actionFor }) => actionFor)
+  messagesForMe?: Notification[];
+
+  @OneToMany(() => Notification, ({ actionTo }) => actionTo)
+  messagesToMe?: Notification[];
 }

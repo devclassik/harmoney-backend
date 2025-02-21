@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Leave } from '.';
 import { DocumentTypes } from '../enum';
+import { AppMessage } from './AppMessage';
 
 @Entity()
 export class Document {
@@ -44,4 +45,7 @@ export class Document {
 
   @ManyToOne(() => Leave, ({ leaveNotes }) => leaveNotes)
   leave?: Leave;
+
+  @ManyToOne(() => AppMessage, ({ attachments }) => attachments)
+  appMessage?: AppMessage;
 }

@@ -31,7 +31,7 @@ export class FileIndex {
   downloadUrl?: string;
 
   @Column({ type: 'enum', enum: DocumentTypes, default: DocumentTypes.PDF })
-  type?: DocumentTypes;
+  fileType?: DocumentTypes;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

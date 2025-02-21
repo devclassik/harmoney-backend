@@ -25,3 +25,6 @@ export * from './SpiritualHistory';
 export * from './Template';
 export * from './Transfer';
 export * from './User';
+export * from './FileIndex';
+export * from './Notification';
+export * from './AppMessage';

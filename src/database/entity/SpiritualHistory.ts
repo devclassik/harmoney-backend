@@ -9,16 +9,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
 import { Employee } from './Employee';
-import { ChurchPosition } from './ChurchPosition';
 import { Contact } from './Contact';
-
-export enum SpiritualStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  SUSPENDED = 'SUSPENDED',
-}
+import { SpiritualStatus } from '../enum';
 
 @Entity()
 export class SpiritualHistory {

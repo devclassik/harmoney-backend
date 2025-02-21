@@ -3,16 +3,15 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
 import { Employee } from './Employee';
-import { Department } from './Department';
+import { Room } from './Room';
 
 @Entity()
 export class CampMeeting {
@@ -26,11 +25,23 @@ export class CampMeeting {
   @Column({ type: 'varchar', default: null, nullable: true })
   name?: string;
 
+  @Column({ type: 'varchar', default: null, nullable: true })
+  agenda?: string;
+
   @Column({ type: 'date', default: null, nullable: true })
   startDate?: Date;
 
   @Column({ type: 'date', default: null, nullable: true })
   endDate?: Date;
+
+  @OneToMany(() => Room, ({ campMeeting }) => campMeeting)
+  campRooms?: Room[];
+
+  @ManyToMany(() => Employee, ({ campMeetings }) => campMeetings, {
+    cascade: ['insert', 'update'],
+  })
+  @JoinTable()
+  attendees: Employee[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

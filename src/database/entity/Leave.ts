@@ -9,24 +9,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
 import { Employee } from './Employee';
-import { ChurchPosition } from './ChurchPosition';
-import { Contact } from './Contact';
 import { Document } from '.';
-import { DurationUnit } from '../enum';
-
-export enum LeaveTypes {
-  SICK = 'SICK',
-  ABSENCE = 'ABSENCE',
-  ANNUAL = 'ANNUAL',
-}
-
-export enum LeaveStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
+import { DurationUnit, LeaveTypes, Status } from '../enum';
 
 @Entity()
 export class Leave {
@@ -49,8 +34,8 @@ export class Leave {
   @Column({ type: 'enum', enum: LeaveTypes, default: LeaveTypes.ANNUAL })
   type?: LeaveTypes;
 
-  @Column({ type: 'enum', enum: LeaveStatus, default: LeaveStatus.PENDING })
-  status?: LeaveStatus;
+  @Column({ type: 'enum', enum: Status, default: Status.PENDING })
+  status?: Status;
 
   @Column({ type: 'varchar', nullable: true })
   reason?: string;

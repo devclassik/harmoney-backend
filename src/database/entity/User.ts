@@ -11,9 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Employee } from './Employee';
-import { Role } from './Role';
-import { join } from 'path';
+import { Employee, Role, Notification } from '.';
 
 @Entity()
 export class User {

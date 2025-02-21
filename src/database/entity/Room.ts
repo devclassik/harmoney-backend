@@ -3,17 +3,16 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
 import { Employee } from './Employee';
-import { Department } from './Department';
 import { Accommodation } from './Accommodation';
+import { CampMeeting } from './CampMeeting';
 
 @Entity()
 export class Room {
@@ -31,10 +30,15 @@ export class Room {
   capacity?: number;
 
   @ManyToOne(() => Accommodation, ({ rooms }) => rooms)
+  @JoinColumn()
   accommodation?: Accommodation;
 
-  // @ManyToMany(() => Accommodation, ({ rooms }) => rooms)
-  // accommodation?: Accommodation;
+  @ManyToOne(() => CampMeeting, ({ campRooms }) => campRooms)
+  campMeeting?: CampMeeting;
+
+  @ManyToMany(() => Employee, ({ campRooms }) => campRooms)
+  @JoinTable()
+  occupants?: Employee[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;

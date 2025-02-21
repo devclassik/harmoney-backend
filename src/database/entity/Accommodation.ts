@@ -3,16 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ManyToMany,
-  ManyToOne,
+  JoinColumn,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './User';
-import { Employee } from './Employee';
-import { Department } from './Department';
 import { Room } from './Room';
 
 export enum AccommodationTypes {
