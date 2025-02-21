@@ -19,3 +19,20 @@ export const MESSAGES = {
   CONFIRM_PIN_ERROR: 'Confirm transaction pin mismatch.',
   INSUFFICIENT_BALANCE: 'Insufficient Balance.',
 };
+
+export const QUARTERLY_MONTHS = ['Jan-Mar', 'Apr-Jun', 'Jul-Sep', 'Oct-Dec'];
+
+export const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];

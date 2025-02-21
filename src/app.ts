@@ -5,19 +5,18 @@ import { ErrorMiddleware } from './middlewares';
 import { logger, stream } from './utils';
 import config from './config';
 import { StatusCodes } from 'http-status-codes';
-import fileUpload from 'express-fileupload';
 import cors from 'cors';
 import { seedDatabase } from './database/seeds';
 import { Routes } from './routes/v1';
-import multer from 'multer';
-import path from 'path';
+import { createIOServer } from './services/io.service';
 
-const { app: server, log } = config;
+const { app: serverConfig, log } = config;
 console.log('Initializing database connection...');
 
 AppDataSource.initialize()
   .then(async () => {
-    const app: Express = express();
+    const { server, app } = createIOServer();
+
     logger.on('error', (err) => {
       console.error('Logger error:', err);
     });
@@ -47,9 +46,10 @@ AppDataSource.initialize()
 
     app.use(morgan(log.format, { stream }));
 
-    const message = `🚀 ${server.name} ${server.env} running at ${server.url}:${server.port}`;
+    const message = `🚀 ${serverConfig.name} ${serverConfig.env} running at ${serverConfig.url}:${serverConfig.port}`;
+    // Create HTTP server and WebSocket server
 
-    app.listen(server.port, () => {
+    server.listen(serverConfig.port, () => {
       logger.info(`=========================================================`);
       logger.info(message);
       logger.info(`=========================================================`);
