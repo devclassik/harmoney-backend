@@ -29,6 +29,9 @@ import {
   SpiritualHistory,
   Template,
   Transfer,
+  Notification,
+  AppMessage,
+  FileIndex,
 } from './entity';
 
 export const AppDataSource = new DataSource({
@@ -70,6 +73,9 @@ export const AppDataSource = new DataSource({
     SpiritualHistory,
     Template,
     Transfer,
+    Notification,
+    AppMessage,
+    FileIndex,
   ],
   migrations: [],
   subscribers: [],

@@ -13,6 +13,9 @@ export enum EmployeeStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   SUSPENDED = 'SUSPENDED',
+  ON_LEAVE = 'ON_LEAVE',
+  ON_DISCIPLINE = 'ON_DISCIPLINE',
+  RETIRED = 'RETIRED',
 }
 
 export enum DurationUnit {
@@ -82,4 +85,30 @@ export enum DocumentTypes {
   DOC = 'DOC',
   JPG = 'JPG',
   PNG = 'PNG',
+}
+
+export enum EmploymentTypes {
+  STAFF = 'STAFF',
+  VOLUNTEER = 'VOLUNTEER',
+}
+
+export enum TitleTypes {
+  MR = 'MR',
+  MRS = 'MRS',
+  DR = 'DR',
+  BAR = 'BAR',
+  HON = 'HON',
+  CHIEF = 'CHIEF',
+}
+
+export enum LeaveTypes {
+  SICK = 'SICK',
+  ABSENCE = 'ABSENCE',
+  ANNUAL = 'ANNUAL',
+}
+
+export enum SpiritualStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
 }
