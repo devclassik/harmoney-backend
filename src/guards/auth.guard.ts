@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
-import { AppDataSource, User } from '../database';
+import { AppDataSource, Employee, User } from '../database';
 import { apiResponse } from '../utils';
 
 dotenv.config();
@@ -21,7 +21,7 @@ export interface TokenDto {
  * @returns
  */
 export const authGuard = async (
-  req: Request<any, any, any, any> & { user: User },
+  req: Request<any, any, any, any> & { user: User; employee: Employee },
   res: Response,
   next: NextFunction,
 ): Promise<void | Response> => {
@@ -54,6 +54,7 @@ export const authGuard = async (
           }
 
           req.user = user;
+          req.employee = user.employee;
 
           next();
         }
