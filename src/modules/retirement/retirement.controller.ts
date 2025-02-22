@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, Retirement } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Retirement } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
+import { MessageService } from '../message/message.service';
+import { Status } from '@/database/enum';
 
 export class RetirementController {
   private retirementRepo = AppDataSource.getRepository(Retirement);
@@ -10,8 +12,11 @@ export class RetirementController {
     AppDataSource.getRepository(Employee),
   );
 
-  public create = async (req: Request, res: Response): Promise<Response> => {
-    const { employeeId, reason, recommendedReplacementId } = req.body;
+  public create = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
+    const { employeeId, reason, recommendedReplacementId, status } = req.body;
 
     try {
       const employee = await this.employeeBaseService.findById({
@@ -23,20 +28,33 @@ export class RetirementController {
         canBeNull: true,
       });
 
-      await this.baseService.create(
-        {
-          reason,
-          employee,
-          recommendedReplacement,
-        },
-        res,
-      );
+      const retirement = await this.baseService.create({
+        reason,
+        employee,
+        recommendedReplacement,
+      });
+
+      await MessageService.send({
+        title: `Retirement ${status || 'Request'}`,
+        feature: AppFeatures.RETIREMENT,
+        message: 'Retirement request submitted',
+        metadata: {},
+        actionBy: req.employee.id,
+        actionFor: employeeId,
+        actionTo: [employeeId],
+        documents: ['request url'],
+      });
+
+      return this.baseService.createdResponse(res, retirement);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
   };
 
-  public update = async (req: Request, res: Response): Promise<Response> => {
+  public update = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
     const retirementId = Number(req.params.retirementId);
     const { reason, status, recommendedReplacementId } = req.body;
 
@@ -44,6 +62,7 @@ export class RetirementController {
       const retirement = await this.baseService.findById({
         id: retirementId,
         resource: 'Retirement',
+        relations: ['employee'],
       });
       const recommendedReplacement = await this.employeeBaseService.findById({
         id: recommendedReplacementId,
@@ -55,6 +74,26 @@ export class RetirementController {
         status,
         recommendedReplacement,
       });
+
+      if (status) {
+        await MessageService.send({
+          title: `Retirement ${status}`,
+          feature: AppFeatures.RETIREMENT,
+          message: 'Retirement request ' + status,
+          metadata: {},
+          actionBy: req.employee.id,
+          actionFor: retirement.employee?.id,
+          actionTo: [retirement.employee?.id],
+          documents: ['approvedUrl1'],
+        });
+      }
+
+      if (status && status === Status.APPROVED) {
+        await this.employeeBaseService.updateById({
+          id: retirement.employee?.id,
+          data: { ...retirement.employee, retiredDate: new Date() },
+        });
+      }
 
       return this.baseService.updatedResponse(res, updatedRetirement);
     } catch (error) {

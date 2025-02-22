@@ -18,8 +18,9 @@ export const createRetirementSchema = Joi.object({
 });
 
 export const updateRetirementSchema = createRetirementSchema
-  .fork(['status', 'reason', 'recommendedReplacementId'], (schema) =>
-    schema.optional(),
+  .fork(
+    ['status', 'reason', 'recommendedReplacementId', 'employeeId'],
+    (schema) => schema.optional(),
   )
   .min(1)
   .message('Nothing to update');
