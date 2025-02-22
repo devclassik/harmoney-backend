@@ -1,4 +1,4 @@
-import { PositionTypes, Status } from '@/database/enum';
+import { PositionTypes, Status } from 'src/database/enum';
 import Joi from 'joi';
 
 export const createPromotionSchema = Joi.object({

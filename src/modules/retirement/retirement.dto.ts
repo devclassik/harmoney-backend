@@ -1,4 +1,4 @@
-import { Status } from '@/database/enum';
+import { Status } from 'src/database/enum';
 
 export interface CreateDisciplineDto {
   employeeId: number;

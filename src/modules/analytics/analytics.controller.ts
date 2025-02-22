@@ -13,9 +13,9 @@ import {
   EmployeeStatus,
   Genders,
   LeaveTypes,
-} from '@/database/enum';
-import { getDuration } from '@/utils/helper';
-import { MONTHS, QUARTERLY_MONTHS } from '@/utils';
+} from 'src/database/enum';
+import { getDuration } from 'src/utils/helper';
+import { MONTHS, QUARTERLY_MONTHS } from 'src/utils';
 
 export class AnalyticsController {
   private leaveRepo = AppDataSource.getRepository(Leave);

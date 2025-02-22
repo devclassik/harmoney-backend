@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource, CampMeeting, Employee, Room } from '@/database';
+import { AppDataSource, CampMeeting, Employee, Room } from 'src/database';
 import { BaseService } from '../shared/base.service';
 
 export class CampMeetingController {

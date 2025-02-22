@@ -1,4 +1,4 @@
-import { DisciplineTypes, DurationUnit, Status } from '@/database/enum';
+import { DisciplineTypes, DurationUnit, Status } from 'src/database/enum';
 
 export interface CreateDisciplineDto {
   employeeId: string;

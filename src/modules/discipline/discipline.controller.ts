@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, Discipline, AppFeatures } from '@/database';
+import { AppDataSource, Employee, Discipline, AppFeatures } from 'src/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';

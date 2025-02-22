@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { AppDataSource, AppFeatures, Employee, Retirement } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Retirement } from 'src/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
-import { Status } from '@/database/enum';
+import { Status } from 'src/database/enum';
 
 export class RetirementController {
   private retirementRepo = AppDataSource.getRepository(Retirement);

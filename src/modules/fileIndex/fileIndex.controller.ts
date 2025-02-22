@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, FileIndex } from '@/database';
+import { AppDataSource, Employee, FileIndex } from 'src/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 

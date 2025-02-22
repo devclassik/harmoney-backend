@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import Joi from 'joi';
-import { DurationUnit, Status } from '@/database/enum';
+import { DurationUnit, Status } from 'src/database/enum';
 
 // Validation Schemas
 export const baseLeaveSchema = Joi.object({

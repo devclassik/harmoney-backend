@@ -1,4 +1,4 @@
-import { DocumentTypes } from '@/database/enum';
+import { DocumentTypes } from 'src/database/enum';
 import Joi from 'joi';
 
 export const createFileIndexSchema = Joi.object({

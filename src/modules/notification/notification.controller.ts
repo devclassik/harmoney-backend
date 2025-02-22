@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { BaseService } from '../shared/base.service';
-import { AppDataSource, Notification, Employee, AppFeatures } from '@/database';
+import {
+  AppDataSource,
+  Notification,
+  Employee,
+  AppFeatures,
+} from 'src/database';
 import { NotificationService } from './notification.service';
 
 export class NotificationController {

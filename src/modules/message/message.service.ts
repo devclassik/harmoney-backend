@@ -1,11 +1,11 @@
-import { onlineUsers, io } from '@/services/io.service';
+import { onlineUsers, io } from 'src/services/io.service';
 import {
   AppDataSource,
   AppFeatures,
   Employee,
   AppMessage,
   Document,
-} from '@/database';
+} from 'src/database';
 import { NotificationService } from '../notification/notification.service';
 
 export class MessageService {

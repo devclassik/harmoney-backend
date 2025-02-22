@@ -1,4 +1,4 @@
-import { Status } from '@/database/enum';
+import { Status } from 'src/database/enum';
 import Joi from 'joi';
 
 export const getStatSchema = Joi.object({

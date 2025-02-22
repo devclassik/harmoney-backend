@@ -3,7 +3,7 @@ import {
   PositionTypes,
   RetrenchmentTypes,
   Status,
-} from '@/database/enum';
+} from 'src/database/enum';
 
 export interface CreateDisciplineDto {
   employeeId: string;
