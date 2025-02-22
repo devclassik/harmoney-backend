@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, Promotion } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Promotion } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
+import { MessageService } from '../message/message.service';
 
 export class PromotionController {
   private promotionRepo = AppDataSource.getRepository(Promotion);
@@ -10,26 +11,42 @@ export class PromotionController {
     AppDataSource.getRepository(Employee),
   );
 
-  public create = async (req: Request, res: Response): Promise<Response> => {
-    const { employeeId, newPosition } = req.body;
+  public create = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
+    const { employeeId, newPosition, status } = req.body;
 
     try {
       const employee = await this.employeeBaseService.findById({
         id: employeeId,
       });
-      await this.baseService.create(
-        {
-          newPosition,
-          employee,
-        },
-        res,
-      );
+      const promotion = await this.baseService.create({
+        newPosition,
+        employee,
+      });
+
+      await MessageService.send({
+        title: `Promotion ${status || 'Request'}`,
+        feature: AppFeatures.PROMOTION,
+        message: 'Promotion request submitted',
+        metadata: {},
+        actionBy: req.employee.id,
+        actionFor: employeeId,
+        actionTo: [employeeId],
+        documents: ['request url'],
+      });
+
+      return this.baseService.createdResponse(res, promotion);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
   };
 
-  public update = async (req: Request, res: Response): Promise<Response> => {
+  public update = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
     const promotionId = Number(req.params.promotionId);
     const { newPosition, status } = req.body;
 
@@ -37,6 +54,7 @@ export class PromotionController {
       const promotion = await this.baseService.findById({
         id: promotionId,
         resource: 'Promotion',
+        relations: ['employee'],
       });
 
       const updatedPromotion = await this.promotionRepo.save({
@@ -45,6 +63,18 @@ export class PromotionController {
         status,
       });
 
+      if (status) {
+        await MessageService.send({
+          title: `Promotion ${status}`,
+          feature: AppFeatures.PROMOTION,
+          message: 'Promotion request ' + status,
+          metadata: {},
+          actionBy: req.employee.id,
+          actionFor: promotion.employee?.id,
+          actionTo: [promotion.employee?.id],
+          documents: ['approvedUrl1'],
+        });
+      }
       return this.baseService.updatedResponse(res, updatedPromotion);
     } catch (error) {
       return this.baseService.errorResponse(res, error);

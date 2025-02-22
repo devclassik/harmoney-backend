@@ -12,7 +12,7 @@ export const createPromotionSchema = Joi.object({
 });
 
 export const updatePromotionSchema = createPromotionSchema
-  .fork(['newPosition', 'status'], (schema) => schema.optional())
+  .fork(['newPosition', 'status', 'employeeId'], (schema) => schema.optional())
   .min(1)
   .message('Nothing to update');
 
