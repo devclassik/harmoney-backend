@@ -10,6 +10,7 @@ const config = {
     port: process.env.PORT || 3000,
   },
   db: {
+    type: (process.env.DB_TYPE as 'postgres' | 'mysql') || 'postgres',
     url: process.env.DB_URL,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
