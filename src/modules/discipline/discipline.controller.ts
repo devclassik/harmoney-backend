@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, Discipline } from '@/database';
+import { AppDataSource, Employee, Discipline, AppFeatures } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
+import { MessageService } from '../message/message.service';
 
 export class DisciplineController {
   private disciplineRepo = AppDataSource.getRepository(Discipline);
@@ -10,30 +11,52 @@ export class DisciplineController {
     AppDataSource.getRepository(Employee),
   );
 
-  public create = async (req: Request, res: Response): Promise<Response> => {
-    const { employeeId, reason, disciplineType, duration, durationUnit } =
-      req.body;
+  public create = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
+    const {
+      employeeId,
+      reason,
+      disciplineType,
+      duration,
+      durationUnit,
+      status,
+    } = req.body;
 
     try {
       const employee = await this.employeeBaseService.findById({
         id: employeeId,
       });
-      await this.baseService.create(
-        {
-          reason,
-          disciplineType,
-          duration,
-          durationUnit,
-          employee,
-        },
-        res,
-      );
+      const discipline = await this.baseService.create({
+        reason,
+        disciplineType,
+        duration,
+        durationUnit,
+        employee,
+      });
+
+      await MessageService.send({
+        title: `Discipline ${status || 'Request'}`,
+        feature: AppFeatures.PROMOTION,
+        message: 'Promotion request submitted',
+        metadata: {},
+        actionBy: req.employee.id,
+        actionFor: employeeId,
+        actionTo: [employeeId],
+        documents: ['request url'],
+      });
+
+      return this.baseService.createdResponse(res, discipline);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
   };
 
-  public update = async (req: Request, res: Response): Promise<Response> => {
+  public update = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
     const disciplineId = Number(req.params.disciplineId);
     const { reason, disciplineType, duration, durationUnit, status } = req.body;
 
@@ -41,6 +64,7 @@ export class DisciplineController {
       const discipline = await this.baseService.findById({
         id: disciplineId,
         resource: 'Discipline',
+        relations: ['employee'],
       });
 
       const updatedDiscipline = await this.disciplineRepo.save({
@@ -52,6 +76,18 @@ export class DisciplineController {
         status,
       });
 
+      if (status) {
+        await MessageService.send({
+          title: `Discipline ${status}`,
+          feature: AppFeatures.DISCIPLINE,
+          message: 'Discipline request ' + status,
+          metadata: {},
+          actionBy: req.employee.id,
+          actionFor: discipline.employee?.id,
+          actionTo: [discipline.employee?.id],
+          documents: ['approvedUrl1'],
+        });
+      }
       return this.baseService.updatedResponse(res, updatedDiscipline);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
