@@ -74,6 +74,39 @@ export class BaseService<T> {
     return data;
   }
 
+  async findByIds({
+    ids,
+    relations = [],
+    resource,
+    validate = true,
+  }: {
+    ids: number[];
+    relations?: string[];
+    resource?: string;
+    validate?: boolean;
+  }): Promise<T[]> {
+    if (!ids?.length && validate) {
+      throw new CustomError(
+        `${resource || 'Resource'} ids are required`,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    const entity = await this.repository.find({
+      where: { id: In(ids) } as any,
+      relations,
+    });
+
+    if (validate && entity.length < ids?.length) {
+      throw new CustomError(
+        `Some ${resource || 'resource'} not found`,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    return entity;
+  }
+
   async create(data: Partial<T>, res?: Response): Promise<T | Response> {
     const entity = this.repository.create(data as T);
 
