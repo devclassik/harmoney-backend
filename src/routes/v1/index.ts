@@ -1,6 +1,6 @@
 import express from 'express';
-import LeaveRoutes from '@/modules/leave/leave.routes';
 import AccommodationRoutes from '@/modules/accommodation/accommodation.routes';
+import LeaveRoutes from '@/modules/leave/leave.routes';
 import { AuthRoutes } from '@/modules/auth/auth.routes';
 import DepartmentRoutes from '@/modules/department/department.routes';
 import EmployeeRoutes from '@/modules/employee/employee.routes';
