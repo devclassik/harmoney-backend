@@ -27,7 +27,7 @@ export class Room {
   @Column({ type: 'varchar', default: null, nullable: true })
   name?: string;
 
-  @Column({ type: 'double', default: null, nullable: true })
+  @Column({ type: 'float', default: null, nullable: true })
   capacity?: number;
 
   @ManyToOne(() => Accommodation, ({ rooms }) => rooms)

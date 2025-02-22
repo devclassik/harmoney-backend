@@ -36,7 +36,7 @@ export class Discipline {
   @Column({ type: 'enum', enum: DisciplineTypes })
   disciplineType?: DisciplineTypes;
 
-  @Column({ type: 'double', default: 0 })
+  @Column({ type: 'float', default: 0 })
   duration?: number;
 
   @Column({ type: 'enum', enum: DurationUnit, default: DurationUnit.DAY })

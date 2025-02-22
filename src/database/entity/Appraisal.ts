@@ -24,7 +24,7 @@ export class Appraisal {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ type: 'double', default: null, nullable: true })
+  @Column({ type: 'float', default: null, nullable: true })
   averageScore?: number;
 
   @Column({ type: 'date', default: null, nullable: true })
