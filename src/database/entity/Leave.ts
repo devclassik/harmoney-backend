@@ -43,7 +43,7 @@ export class Leave {
   @Column({ type: 'varchar', nullable: true })
   location?: string;
 
-  @Column({ type: 'double', default: 0 })
+  @Column({ type: 'float', default: 0 })
   duration?: number;
 
   @Column({ type: 'enum', enum: DurationUnit, default: DurationUnit.DAY })

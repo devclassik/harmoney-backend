@@ -35,13 +35,13 @@ import {
 } from './entity';
 
 export const AppDataSource = new DataSource({
-  type: 'mysql',
-  url:
-    config.db.url ||
-    `mysql://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.name}`,
+  type: 'postgres',
   // url:
   //   config.db.url ||
-  //   `postgres://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.name}`,
+  //   `mysql://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.name}`,
+  url:
+    config.db.url ||
+    `postgres://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.name}`,
   synchronize: !!config.db.sync,
   logging: !!config.db.logging,
   ssl: config.app.env === 'local' ? false : { rejectUnauthorized: true },
