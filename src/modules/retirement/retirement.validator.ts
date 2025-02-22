@@ -1,4 +1,4 @@
-import { Status } from 'src/database/enum';
+import { Status } from '@/database/enum';
 import Joi from 'joi';
 
 export const createRetirementSchema = Joi.object({

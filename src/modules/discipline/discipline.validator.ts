@@ -3,7 +3,7 @@ import {
   DurationUnit,
   PositionTypes,
   Status,
-} from 'src/database/enum';
+} from '@/database/enum';
 import Joi from 'joi';
 
 export const createDisciplineSchema = Joi.object({

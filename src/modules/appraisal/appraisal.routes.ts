@@ -1,5 +1,5 @@
-import { authGuard } from 'src/guards';
-import { validateRequest } from 'src/middlewares/validateRequest.middleware';
+import { authGuard } from '@/guards';
+import { validateRequest } from '@/middlewares/validateRequest.middleware';
 import express from 'express';
 import {
   createAppraisalSchema,

@@ -1,4 +1,4 @@
-import { Status } from 'src/database/enum';
+import { Status } from '@/database/enum';
 
 export interface GetLeaveStatDto {
   year: number;

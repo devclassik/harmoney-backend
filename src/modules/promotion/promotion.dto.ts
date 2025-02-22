@@ -1,4 +1,4 @@
-import { PositionTypes, Status } from 'src/database/enum';
+import { PositionTypes, Status } from '@/database/enum';
 
 export interface CreatePromotionDto {
   employeeId: string;

@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { AppraisalCriterial } from 'src/database/enum';
+import { AppraisalCriterial } from '@/database/enum';
 
 export const createAppraisalSchema = Joi.object({
   startDate: Joi.date().required(),

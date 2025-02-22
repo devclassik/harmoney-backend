@@ -1,11 +1,6 @@
 import { getRepository } from 'typeorm';
-import { onlineUsers, io } from 'src/services/io.service';
-import {
-  AppDataSource,
-  AppFeatures,
-  Employee,
-  Notification,
-} from 'src/database';
+import { onlineUsers, io } from '@/services/io.service';
+import { AppDataSource, AppFeatures, Employee, Notification } from '@/database';
 
 export class NotificationService {
   static async inApp({

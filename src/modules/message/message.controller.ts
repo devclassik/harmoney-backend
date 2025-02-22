@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { BaseService } from '../shared/base.service';
-import { AppDataSource, AppMessage, Employee, AppFeatures } from 'src/database';
+import { AppDataSource, AppMessage, Employee, AppFeatures } from '@/database';
 import { MessageService } from './message.service';
 
 export class MessageController {

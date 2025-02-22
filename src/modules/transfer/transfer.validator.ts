@@ -3,7 +3,7 @@ import {
   PositionTypes,
   Status,
   TransferTypes,
-} from 'src/database/enum';
+} from '@/database/enum';
 import Joi from 'joi';
 
 export const createTransferSchema = Joi.object({

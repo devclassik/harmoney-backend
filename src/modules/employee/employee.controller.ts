@@ -15,7 +15,7 @@ import { Request, Response } from 'express';
 import { BaseService } from '../shared/base.service';
 import { generateRandomString } from '../../utils';
 import { UpdateEmployeeDto } from './employee.dto';
-import { hashPassword } from 'src/middlewares';
+import { hashPassword } from '@/middlewares';
 
 export class EmployeeController {
   private orgRepo = AppDataSource.getRepository(Organization);

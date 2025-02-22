@@ -1,4 +1,4 @@
-import { DurationUnit } from 'src/database/enum';
+import { DurationUnit } from '@/database/enum';
 
 export const capitalizeFirst = (str?: string): string => {
   if (!str) return '';

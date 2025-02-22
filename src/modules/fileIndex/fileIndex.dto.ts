@@ -1,4 +1,4 @@
-import { DocumentTypes } from 'src/database/enum';
+import { DocumentTypes } from '@/database/enum';
 
 export interface CreateFileIndexDto {
   name: string;

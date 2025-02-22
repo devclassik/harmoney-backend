@@ -6,10 +6,10 @@ import {
   User,
   Employee,
   AppFeatures,
-} from 'src/database';
+} from '@/database';
 import { BaseService } from '../shared/base.service';
-import { getNumberOfDays } from 'src/utils/helper';
-import { DurationUnit, LeaveTypes } from 'src/database/enum';
+import { getNumberOfDays } from '@/utils/helper';
+import { DurationUnit, LeaveTypes } from '@/database/enum';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
 

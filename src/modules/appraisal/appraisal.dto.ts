@@ -1,4 +1,4 @@
-import { AppraisalCriterial } from 'src/database/enum';
+import { AppraisalCriterial } from '@/database/enum';
 
 export interface CreateAppraisalDto {
   startDate: Date;

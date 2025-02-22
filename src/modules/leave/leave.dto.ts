@@ -1,4 +1,4 @@
-import { DurationUnit } from 'src/database/enum';
+import { DurationUnit } from '@/database/enum';
 
 export interface BaseLeaveDto {
   employeeId: number;
