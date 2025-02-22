@@ -7,7 +7,7 @@ const config = {
     name: process.env.APP_NAME,
     url: process.env.BASE_URL,
     env: process.env.ENV || 'dev',
-    port: process.env.PORT || 4040,
+    port: process.env.PORT || 5050,
   },
   db: {
     type: (process.env.DB_TYPE as 'postgres' | 'mysql') || 'postgres',

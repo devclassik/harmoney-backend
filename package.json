@@ -8,10 +8,10 @@
   "private": true,
   "repository": "https://github.com/devclassik/harmoney-backend",
   "scripts": {
-    "start": "node -r tsconfig-paths/register dist/app.js",
+    "start": "node -r tsconfig-paths/register build/app.js",
     "reg": "ts-node -r tsconfig-paths/register src/app.ts",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/app.ts",
-    "dev:js": "nodemon -r dotenv/config --exec node build/app.js",
+    "dev:js": "nodemon -r dotenv/config tsconfig-paths/register --exec node build/app.js",
     "compile": "./node_modules/.bin/tsc --project ./tsconfig.json",
     "compile:noEmit": "./node_modules/.bin/tsc --project ./tsconfig.json --noEmit",
     "serve:js": "node build/app.js",
