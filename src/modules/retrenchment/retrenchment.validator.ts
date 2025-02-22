@@ -13,7 +13,9 @@ export const createRetrenchmentSchema = Joi.object({
 });
 
 export const updateRetrenchmentSchema = createRetrenchmentSchema
-  .fork(['status', 'reason', 'retrenchmentType'], (schema) => schema.optional())
+  .fork(['status', 'reason', 'retrenchmentType', 'employeeId'], (schema) =>
+    schema.optional(),
+  )
   .min(1)
   .message('Nothing to update');
 
