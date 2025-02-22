@@ -1,13 +1,15 @@
 import Joi from 'joi';
 
-import {
-  EmploymentTypes,
-  SpiritualStatus,
-  TitleTypes,
-  UserRoles,
-} from '../../database';
+import { UserRoles } from '../../database';
 import { CreateEmployeeDto } from './employee.dto';
-import { Genders, PhoneTypes, EmployeeStatus } from '../../database/enum';
+import {
+  Genders,
+  PhoneTypes,
+  EmployeeStatus,
+  EmploymentTypes,
+  TitleTypes,
+  SpiritualStatus,
+} from '../../database/enum';
 
 export const createEmployeeSchema = Joi.object<CreateEmployeeDto>({
   employeeId: Joi.string().required().messages({

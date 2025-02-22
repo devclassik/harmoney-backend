@@ -1,10 +1,12 @@
-import { Genders, PhoneTypes, EmployeeStatus } from 'database/enum';
 import {
+  Genders,
+  PhoneTypes,
+  EmployeeStatus,
   EmploymentTypes,
-  SpiritualStatus,
   TitleTypes,
-  UserRoles,
-} from '../../database';
+  SpiritualStatus,
+} from '../../database/enum';
+import { UserRoles } from '../../database';
 
 export interface CreateEmployeeDto {
   employeeId: string;
