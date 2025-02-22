@@ -23,7 +23,14 @@ export const createTransferSchema = Joi.object({
 
 export const updateTransferSchema = createTransferSchema
   .fork(
-    ['newPosition', 'status', 'reason', 'destination', 'transferType'],
+    [
+      'newPosition',
+      'status',
+      'reason',
+      'destination',
+      'transferType',
+      'employeeId',
+    ],
     (schema) => schema.optional(),
   )
   .min(1)

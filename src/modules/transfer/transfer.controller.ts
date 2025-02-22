@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, Transfer } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Transfer } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
+import { MessageService } from '../message/message.service';
 
 export class TransferController {
   private transferRepo = AppDataSource.getRepository(Transfer);
@@ -10,30 +11,52 @@ export class TransferController {
     AppDataSource.getRepository(Employee),
   );
 
-  public create = async (req: Request, res: Response): Promise<Response> => {
-    const { employeeId, reason, transferType, newPosition, destination } =
-      req.body;
+  public create = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
+    const {
+      employeeId,
+      reason,
+      transferType,
+      newPosition,
+      destination,
+      status,
+    } = req.body;
 
     try {
       const employee = await this.employeeBaseService.findById({
         id: employeeId,
       });
-      await this.baseService.create(
-        {
-          reason,
-          transferType,
-          newPosition,
-          destination,
-          employee,
-        },
-        res,
-      );
+      const transfer = await this.baseService.create({
+        reason,
+        transferType,
+        newPosition,
+        destination,
+        employee,
+      });
+
+      await MessageService.send({
+        title: `Transfer ${status || 'Request'}`,
+        feature: AppFeatures.TRANSFER,
+        message: 'Transfer request submitted',
+        metadata: {},
+        actionBy: req.employee.id,
+        actionFor: employeeId,
+        actionTo: [employeeId],
+        documents: ['request url'],
+      });
+
+      return this.baseService.createdResponse(res, transfer);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
   };
 
-  public update = async (req: Request, res: Response): Promise<Response> => {
+  public update = async (
+    req: Request & { employee: Employee },
+    res: Response,
+  ): Promise<Response> => {
     const transferId = Number(req.params.transferId);
     const { reason, transferType, newPosition, destination, status } = req.body;
 
@@ -41,6 +64,7 @@ export class TransferController {
       const transfer = await this.baseService.findById({
         id: transferId,
         resource: 'Transfer',
+        relations: ['employee'],
       });
 
       const updatedTransfer = await this.transferRepo.save({
@@ -52,6 +76,18 @@ export class TransferController {
         status,
       });
 
+      if (status) {
+        await MessageService.send({
+          title: `Transfer ${status}`,
+          feature: AppFeatures.TRANSFER,
+          message: 'Transfer request ' + status,
+          metadata: {},
+          actionBy: req.employee.id,
+          actionFor: transfer.employee?.id,
+          actionTo: [transfer.employee?.id],
+          documents: ['approvedUrl1'],
+        });
+      }
       return this.baseService.updatedResponse(res, updatedTransfer);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
