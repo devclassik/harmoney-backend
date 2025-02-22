@@ -13,6 +13,11 @@ import DisciplineRoutes from '@/modules/discipline/discipline.routes';
 import RetirementRoutes from '@/modules/retirement/retirement.routes';
 import RetrenchmentRoutes from '@/modules/retrenchment/retrenchment.routes';
 import TransferRoutes from '@/modules/transfer/transfer.routes';
+import CampMeetingRoute from '@/modules/campMeeting/campMeeting.routes';
+import AnalyticsRoutes from '@/modules/analytics/analytics.routes';
+import NotificationRoutes from '@/modules/notification/notification.routes';
+import MessageRoutes from '@/modules/message/message.routes';
+import FileIndexRoutes from '@/modules/fileIndex/fileIndex.routes';
 
 export const Routes = express.Router();
 
@@ -30,3 +35,8 @@ Routes.use(DisciplineRoutes);
 Routes.use(RetirementRoutes);
 Routes.use(TransferRoutes);
 Routes.use(RetrenchmentRoutes);
+Routes.use(CampMeetingRoute);
+Routes.use(AnalyticsRoutes);
+Routes.use(NotificationRoutes);
+Routes.use(MessageRoutes);
+Routes.use(FileIndexRoutes);
