@@ -1,15 +1,24 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Leave, Document, LeaveTypes, User } from '@/database';
+import {
+  AppDataSource,
+  Leave,
+  Document,
+  User,
+  Employee,
+  AppFeatures,
+} from '@/database';
 import { BaseService } from '../shared/base.service';
-import { GetLeaveDto, UpdateAbsenceLeaveDto } from './leave.dto';
 import { getNumberOfDays } from '@/utils/helper';
-import { DurationUnit } from '@/database/enum';
+import { DurationUnit, LeaveTypes } from '@/database/enum';
 import { Not } from 'typeorm';
+import { MessageService } from '../message/message.service';
 
 export class LeaveController {
+  private employeeRepo = AppDataSource.getRepository(Employee);
   private leaveRepo = AppDataSource.getRepository(Leave);
   private docRepo = AppDataSource.getRepository(Document);
   private baseService = new BaseService(this.leaveRepo);
+  private employeeBaseService = new BaseService(this.employeeRepo);
 
   public setDurationToReq(req: Request) {
     const { startDate, endDate } = req.body;
@@ -112,7 +121,7 @@ export class LeaveController {
     type?: LeaveTypes,
   ): Promise<Response> => {
     try {
-      const leaves = await this.baseService.findAll({
+      await this.baseService.findAll({
         res,
         relations: ['leaveNotes', 'employee', 'employee.user'],
         where: { type },
@@ -127,8 +136,13 @@ export class LeaveController {
     res: Response,
   ): Promise<Response> => {
     const updateData = req.body;
-    const { leaveNotesUrls } = updateData;
+    const { leaveNotesUrls, employeeId, status } = updateData;
     try {
+      const employee = await this.employeeBaseService.findById({
+        id: employeeId,
+        resource: 'Employee',
+      });
+
       const leave = new Leave(updateData);
 
       if (leaveNotesUrls?.length) {
@@ -136,8 +150,19 @@ export class LeaveController {
           (downloadUrl) => new Document({ downloadUrl }),
         );
       }
-      leave.employee = req.user.employee;
+      leave.employee = employee;
       await this.leaveRepo.save(leave);
+
+      await MessageService.send({
+        title: `${leave.type} Leave ${status || 'Request'}`,
+        feature: AppFeatures.LEAVE,
+        message: `${leave.type} Leave request submitted`,
+        metadata: {},
+        actionBy: req.user.employee.id,
+        actionFor: employeeId,
+        actionTo: [employeeId],
+        documents: ['request url'],
+      });
 
       return await this.baseService.createdResponse(res, leave);
     } catch (error) {
@@ -145,15 +170,18 @@ export class LeaveController {
     }
   };
 
-  public update = async (req: Request, res: Response): Promise<Response> => {
+  public update = async (
+    req: Request & { employee?: Employee },
+    res: Response,
+  ): Promise<Response> => {
     const updateData = req.body;
-    const { leaveNotesUrls } = updateData;
+    const { leaveNotesUrls, status } = updateData;
 
     try {
       const leave = await this.baseService.findById({
         id: Number(req.params.leaveId),
         resource: 'Leave',
-        relations: ['leaveNotes'],
+        relations: ['leaveNotes', 'employee'],
       });
 
       Object.assign(leave, req.body);
@@ -165,6 +193,20 @@ export class LeaveController {
       }
 
       await this.leaveRepo.save(leave);
+
+      if (status) {
+        await MessageService.send({
+          title: `${leave.type} Leave ${status || 'Request'}`,
+          feature: AppFeatures.LEAVE,
+          message: `${leave.type} Leave request submitted`,
+          metadata: {},
+          actionBy: req.employee?.id,
+          actionFor: leave.employee?.id,
+          actionTo: [leave.employee?.id],
+          documents: ['request url'],
+        });
+      }
+
       return await this.baseService.successResponse(res, leave);
     } catch (error) {
       return this.baseService.catchErrorResponse(res, error);

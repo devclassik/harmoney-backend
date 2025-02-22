@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import Joi from 'joi';
-import { DurationUnit } from '@/database/enum';
-import { LeaveStatus } from '@/database';
+import { DurationUnit, Status } from '@/database/enum';
 
 // Validation Schemas
 export const baseLeaveSchema = Joi.object({
+  employeeId: Joi.number().integer().positive().required(),
   startDate: Joi.date().required(),
   reason: Joi.string().required(),
   status: Joi.string()
-    .valid(...Object.values(LeaveStatus))
+    .valid(...Object.values(Status))
     .optional(),
 });
 
@@ -17,7 +17,7 @@ export const createAnnualLeaveSchema = baseLeaveSchema.keys({
 });
 
 export const updateAnnualLeaveSchema = createAnnualLeaveSchema
-  .fork(['startDate', 'reason', 'endDate', 'status'], (schema) =>
+  .fork(['startDate', 'reason', 'endDate', 'status', 'employeeId'], (schema) =>
     schema.optional(),
   )
   .min(1)
@@ -37,6 +37,8 @@ export const createAbsenceLeaveSchema = baseLeaveSchema.keys({
 export const updateAbsenceLeaveSchema = createAbsenceLeaveSchema
   .fork(
     [
+      'status',
+      'employeeId',
       'startDate',
       'reason',
       'location',

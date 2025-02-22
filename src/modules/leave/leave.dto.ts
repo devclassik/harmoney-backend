@@ -1,6 +1,7 @@
 import { DurationUnit } from '@/database/enum';
 
 export interface BaseLeaveDto {
+  employeeId: number;
   startDate: Date;
   reason: string;
 }
