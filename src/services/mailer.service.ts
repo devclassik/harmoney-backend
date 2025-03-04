@@ -14,6 +14,7 @@ interface MailDto {
 
 const sendMail = async (data: MailDto): Promise<void> => {
   const transporter = nodemailer.createTransport({
+    service: mail.service,
     port: Number(mail.port),
     host: mail.host,
     auth: {
@@ -24,7 +25,7 @@ const sendMail = async (data: MailDto): Promise<void> => {
 
   try {
     const res = await transporter.sendMail({
-      from: `Harmoney <${mail.user}>`,
+      from: `Harmony <${mail.user}>`,
       ...data,
     });
     console.log('Mail sent:', res.messageId);
