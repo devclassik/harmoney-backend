@@ -55,7 +55,7 @@ export class AuthController {
     req: Request<null, null, RegisterDto, null>,
     res: Response,
   ): Promise<Response | void> => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, roleId } = req.body;
 
     try {
       let existingUser = await this.userRepo.findOne({
@@ -69,12 +69,38 @@ export class AuthController {
         );
       }
 
+      const userCount = await this.userRepo.count();
+      const isFirstUser = userCount === 0;
+
+      let role;
+
+      if (isFirstUser) {
+        role = await this.roleRepo.findOne({
+          where: { name: UserRoles.ADMIN },
+        });
+
+      } else {
+        if (!roleId) {
+          throw new CustomError(
+            'Role is required for registration',
+            StatusCodes.BAD_REQUEST,
+          );
+        }
+      };
+
+      role = await this.roleRepo.findOne({
+        where: { id: roleId },
+      });
+
+      if (!role) {
+        throw new CustomError(
+          'Invalid role specified',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
       const pwdHash = await hashPassword(password);
       const verifyEmailOTP = await generateRandomString(6, '0');
-
-      const role = await this.roleRepo.findOne({
-        where: { name: UserRoles.ADMIN },
-      });
 
       let user = this.userRepo.create({
         email,
