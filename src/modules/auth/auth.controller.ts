@@ -78,25 +78,19 @@ export class AuthController {
         role = await this.roleRepo.findOne({
           where: { name: UserRoles.ADMIN },
         });
-
       } else {
-        if (!roleId) {
+        const finalRoleId = roleId ?? 4;
+
+        role = await this.roleRepo.findOne({
+          where: { id: finalRoleId },
+        });
+
+        if (!role) {
           throw new CustomError(
-            'Role is required for registration',
+            'Invalid role specified',
             StatusCodes.BAD_REQUEST,
           );
         }
-      };
-
-      role = await this.roleRepo.findOne({
-        where: { id: roleId },
-      });
-
-      if (!role) {
-        throw new CustomError(
-          'Invalid role specified',
-          StatusCodes.BAD_REQUEST,
-        );
       }
 
       const pwdHash = await hashPassword(password);
