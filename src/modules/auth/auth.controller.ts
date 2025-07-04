@@ -262,9 +262,11 @@ export class AuthController {
               rememberMe,
             });
 
+
             return res.status(StatusCodes.OK).json(
               apiResponse('success', MESSAGES.OPS_SUCCESSFUL, {
                 ...makeUserPublicView(user),
+                isLoggedIn: true,
                 ...(user.isEmailVerified && { token }),
               }),
             );
