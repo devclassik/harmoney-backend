@@ -41,6 +41,9 @@ export class Leave {
   reason?: string;
 
   @Column({ type: 'varchar', nullable: true })
+  requestType?: string;
+
+  @Column({ type: 'varchar', nullable: true })
   location?: string;
 
   @Column({ type: 'float', default: 0 })
