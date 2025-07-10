@@ -65,7 +65,7 @@ export class AnalyticsController {
     let query = await this.leaveRepo
       .createQueryBuilder('leave')
       .select([
-        "DATE_FORMAT(leave.startDate, '%Y-%m') as month",
+        "TO_CHAR(leave.startDate, '%Y-%m') as month",
         'leave.type as type',
         'COUNT(leave.id) as count',
       ])
@@ -109,7 +109,7 @@ export class AnalyticsController {
     let query = this.disciplineRepo
       .createQueryBuilder('discipline')
       .select([
-        "DATE_FORMAT(discipline.createdAt, '%Y-%m') as month",
+        "TO_CHAR(discipline.createdAt, '%Y-%m') as month",
         'discipline.disciplineType as type',
         'COUNT(discipline.id) as count',
       ])
@@ -149,6 +149,9 @@ export class AnalyticsController {
   ): Promise<Response> => {
     const { year, employeeId } = req.query;
     const selectedYear = year || new Date().getFullYear();
+
+    const QUARTERS = ['Jan-Mar', 'Apr-Jun', 'Jul-Sep', 'Oct-Dec'];
+
     try {
       await this.baseService.findById({
         id: Number(employeeId),
@@ -159,25 +162,25 @@ export class AnalyticsController {
         .createQueryBuilder('appraisal')
         .select([
           `CASE 
-              WHEN MONTH(appraisal.startDate) BETWEEN 1 AND 3 THEN 'Jan-Mar'
-              WHEN MONTH(appraisal.startDate) BETWEEN 4 AND 6 THEN 'Apr-Jun'
-              WHEN MONTH(appraisal.startDate) BETWEEN 7 AND 9 THEN 'Jul-Sep'
+              WHEN EXTRACT(MONTH FROM appraisal.startDate) BETWEEN 1 AND 3 THEN 'Jan-Mar'
+              WHEN EXTRACT(MONTH FROM appraisal.startDate) BETWEEN 4 AND 6 THEN 'Apr-Jun'
+              WHEN EXTRACT(MONTH FROM appraisal.startDate) BETWEEN 7 AND 9 THEN 'Jul-Sep'
               ELSE 'Oct-Dec'
             END AS quarter`,
           'AVG(appraisal.averageScore) as avgScore',
         ])
         .innerJoin('appraisal.employee', 'employee')
         .where('employee.id = :employeeId', { employeeId })
-        .andWhere('YEAR(appraisal.startDate) = :selectedYear', { selectedYear })
+        .andWhere('EXTRACT(YEAR FROM appraisal.startDate) = :selectedYear', { selectedYear })
         .groupBy('quarter')
-        .orderBy(`FIELD(quarter, 'Jan-Mar', 'Apr-Jun', 'Jul-Sep', 'Oct-Dec')`)
+        // .orderBy(`FIELD(quarter, 'Jan-Mar', 'Apr-Jun', 'Jul-Sep', 'Oct-Dec')`)
         .getRawMany();
 
       const resultsMap = new Map(
-        rawResults.map((item) => [item.quarter, item.avgScore]),
+        rawResults.map((item) => [item.quarter, parseFloat(item.avgScore)]),
       );
 
-      const result = QUARTERLY_MONTHS.map((quarter) => ({
+      const result = QUARTERS.map((quarter) => ({
         quarter,
         avgScore: resultsMap.get(quarter) || 0,
       }));
