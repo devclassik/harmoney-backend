@@ -18,6 +18,7 @@ import AnalyticsRoutes from '@/modules/analytics/analytics.routes';
 import NotificationRoutes from '@/modules/notification/notification.routes';
 import MessageRoutes from '@/modules/message/message.routes';
 import FileIndexRoutes from '@/modules/fileIndex/fileIndex.routes';
+import { UploadRoutes } from '@/modules/shared/upload.routes';
 
 export const Routes = express.Router();
 
@@ -40,3 +41,4 @@ Routes.use(AnalyticsRoutes);
 Routes.use(NotificationRoutes);
 Routes.use(MessageRoutes);
 Routes.use(FileIndexRoutes);
+Routes.use(UploadRoutes);

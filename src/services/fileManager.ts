@@ -17,6 +17,33 @@ export class FileManager {
     this.storageBucket = fbAdmin.storage().bucket(firebase.storage_bucket);
   }
 
+  private uploader = async (file: Express.Multer.File): Promise<string> => {
+
+    const fileName = new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname;
+
+    const fileToStore = this.storageBucket.file(fileName);
+    if (!file.buffer) {
+      throw new Error('No file buffer found!');
+    }
+
+    const uniqueId = await generateRandomString(32, 'aA0');
+
+    await fileToStore.save(file.buffer, {
+      metadata: {
+        metadata: {
+          firebaseStorageDownloadTokens: uniqueId,
+        },
+      },
+    });
+
+    return (
+      `https://firebasestorage.googleapis.com/v0/b/${this.storageBucket.name}/o/` +
+      encodeURIComponent(fileName) +
+      `?alt=media&token=${uniqueId}`
+    );
+  };
+
+
   private upload = async (file: UploadedFile): Promise<string> => {
     const fileName =
       new Date().toISOString().replace(/:/g, '-') + '-' + file.name;
@@ -55,6 +82,26 @@ export class FileManager {
       } else {
         const singleFile = files;
         return await this.upload(singleFile);
+      }
+    } catch (error) {
+      console.log('upload error: ', error);
+      // return { error };
+    }
+  };
+
+  uploaderFile = async (files: any): Promise<string[] | string> => {
+    try {
+      if (Array.isArray(files)) {
+        const fileUrls = await Promise.all(
+          files.map(async (file) => {
+            return await this.uploader(file);
+          }),
+        );
+
+        return fileUrls;
+      } else {
+        const singleFile = files;
+        return await this.uploader(singleFile);
       }
     } catch (error) {
       console.log('upload error: ', error);

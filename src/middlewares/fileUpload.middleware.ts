@@ -1,11 +1,17 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+
 
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const folder = req.originalUrl.split('/').pop();
-    cb(null, `uploads/${folder}s/`);
+    const uploadPath = `uploads/${folder}s/`;
+
+    fs.mkdirSync(uploadPath, { recursive: true });
+
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
@@ -30,7 +36,7 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Only PDF and DOCX files are allowed!'), false);
+    cb(new Error('Only image files and documents (PDF, DOCX) are allowed!'), false);
   }
 };
 
