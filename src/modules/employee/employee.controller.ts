@@ -307,36 +307,36 @@ export class EmployeeController {
         dateOfFirstSermon,
         spiritualStatus,
         ...(firstSermonAddress ||
-        firstSermonCity ||
-        firstSermonState ||
-        firstSermonCountry ||
-        firstSermonZipCode
+          firstSermonCity ||
+          firstSermonState ||
+          firstSermonCountry ||
+          firstSermonZipCode
           ? {
-              locationOfFirstSermon: {
-                ...employee?.spiritualHistory?.locationOfFirstSermon,
-                address: firstSermonAddress,
-                city: firstSermonCity,
-                state: firstSermonState,
-                country: firstSermonCountry,
-                zipCode: firstSermonZipCode,
-              },
-            }
+            locationOfFirstSermon: {
+              ...employee?.spiritualHistory?.locationOfFirstSermon,
+              address: firstSermonAddress,
+              city: firstSermonCity,
+              state: firstSermonState,
+              country: firstSermonCountry,
+              zipCode: firstSermonZipCode,
+            },
+          }
           : {}),
         ...(currentChurchAddress ||
-        currentChurchCity ||
-        currentChurchState ||
-        currentChurchCountry ||
-        currentChurchZipCode
+          currentChurchCity ||
+          currentChurchState ||
+          currentChurchCountry ||
+          currentChurchZipCode
           ? {
-              currentChurchLocation: {
-                ...employee?.spiritualHistory?.currentChurchLocation,
-                address: currentChurchAddress,
-                city: currentChurchCity,
-                state: currentChurchState,
-                country: currentChurchCountry,
-                zipCode: currentChurchZipCode,
-              },
-            }
+            currentChurchLocation: {
+              ...employee?.spiritualHistory?.currentChurchLocation,
+              address: currentChurchAddress,
+              city: currentChurchCity,
+              state: currentChurchState,
+              country: currentChurchCountry,
+              zipCode: currentChurchZipCode,
+            },
+          }
           : {}),
       };
 
@@ -345,7 +345,7 @@ export class EmployeeController {
       return res.status(200).json(employee);
     } catch (error) {
       console.error('Error updating employee:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: 'Internal server error due to property is in use by another person', ActualError: error });
     }
   };
 
