@@ -204,5 +204,5 @@ export class Employee {
 
 
   @Column({ type: 'varchar', nullable: true })
-  nationalIdNumber?: string;
+  nationIdNumber?: string;
 }
