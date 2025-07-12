@@ -9,6 +9,7 @@ import {
   updateEmployeeSchema,
   getAllEmployeesSchema,
   bulkUploadSchema,
+  getEmployeeByNameSchema,
 } from './employee.validator';
 import { EmployeeController } from './employee.controller';
 
@@ -38,6 +39,14 @@ EmployeeRoutes.get(
 );
 
 EmployeeRoutes.get('/employee', validateRequest(getAllEmployeesSchema), authGuard, employeeCtrl.getAll);
+
+// Get employees by name
+EmployeeRoutes.get(
+  '/employee/name/:name',
+  validateRequest(getEmployeeByNameSchema),
+  authGuard,
+  employeeCtrl.getEmployeeByName,
+);
 
 EmployeeRoutes.delete(
   '/employee/:employeeId',

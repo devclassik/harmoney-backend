@@ -227,4 +227,21 @@ export class LeaveController {
       return this.baseService.catchErrorResponse(res, error);
     }
   };
+
+  public getLeavesByEmployee = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const employeeId = Number(req.params.employeeId);
+
+      await this.baseService.findAll({
+        res,
+        relations: ['leaveNotes', 'employee', 'employee.user'],
+        where: { employee: { id: employeeId } },
+      });
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
+    }
+  };
 }

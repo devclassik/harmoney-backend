@@ -10,6 +10,7 @@ import {
   updateSickLeaveSchema,
   getLeaveSchema,
   deleteLeaveSchema,
+  getLeavesByEmployeeSchema,
 } from './leave.validator';
 import { LeaveController } from './leave.controller';
 
@@ -67,6 +68,14 @@ LeaveRoutes.put(
 );
 
 LeaveRoutes.get('/leave/sick', authGuard, leaveCtrl.getAllSickLeaves);
+
+// Get all leaves by employee ID
+LeaveRoutes.get(
+  '/leave/employee/:employeeId',
+  validateRequest(getLeavesByEmployeeSchema),
+  authGuard,
+  leaveCtrl.getLeavesByEmployee,
+);
 
 // General Leave Routes
 LeaveRoutes.get(

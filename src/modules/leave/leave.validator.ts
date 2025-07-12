@@ -59,3 +59,7 @@ export const getLeaveSchema = Joi.object({
 });
 
 export const deleteLeaveSchema = getLeaveSchema;
+
+export const getLeavesByEmployeeSchema = Joi.object({
+  employeeId: Joi.number().integer().positive().required(),
+});

@@ -185,3 +185,7 @@ export const bulkUploadSchema = Joi.object({
   // This schema is mainly for route validation, file validation is handled in the controller
   // The actual Excel file validation happens in the controller method
 });
+
+export const getEmployeeByNameSchema = Joi.object({
+  name: Joi.string().min(1).required(),
+});

@@ -18,6 +18,7 @@ import { UpdateEmployeeDto } from './employee.dto';
 import { hashPassword } from '@/middlewares';
 import * as XLSX from 'xlsx';
 import { StatusCodes } from 'http-status-codes';
+import { Like } from 'typeorm';
 
 export class EmployeeController {
   private orgRepo = AppDataSource.getRepository(Organization);
@@ -344,10 +345,10 @@ export class EmployeeController {
 
       await this.employeeRepo.save(employee);
 
-      return res.status(200).json(employee);
+      return res.status(StatusCodes.OK).json(employee);
     } catch (error) {
       console.error('Error updating employee:', error);
-      return res.status(500).json({ error: 'Internal server error due to property is in use by another person', ActualError: error });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error due to property is in use by another person', ActualError: error });
     }
   };
 
@@ -397,6 +398,28 @@ export class EmployeeController {
       });
     } catch (error) {
       return await this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public getEmployeeByName = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const { name } = req.params;
+
+      const employees = await this.employeeRepo.find({
+        relations: ['user', 'mailingAddress', 'user.role', 'departments'],
+        where: [
+          { firstName: Like(`%${name}%`) },
+          { lastName: Like(`%${name}%`) },
+          { middleName: Like(`%${name}%`) },
+        ],
+      });
+
+      return await this.baseService.successResponse(res, employees);
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
     }
   };
 
