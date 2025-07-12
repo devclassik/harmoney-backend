@@ -11,6 +11,8 @@ import {
   getLeaveSchema,
   deleteLeaveSchema,
   getLeavesByEmployeeSchema,
+  getLeavesByTypeSchema,
+  getLeavesByTypeAndEmployeeSchema,
 } from './leave.validator';
 import { LeaveController } from './leave.controller';
 
@@ -75,6 +77,44 @@ LeaveRoutes.get(
   validateRequest(getLeavesByEmployeeSchema),
   authGuard,
   leaveCtrl.getLeavesByEmployee,
+);
+
+// Get leaves by type (annual, absence, sick)
+LeaveRoutes.get(
+  '/leave/type/:type',
+  validateRequest(getLeavesByTypeSchema),
+  authGuard,
+  leaveCtrl.getLeavesByType,
+);
+
+// Get leaves by type and employee ID
+LeaveRoutes.get(
+  '/leave/type/:type/employee/:employeeId',
+  validateRequest(getLeavesByTypeAndEmployeeSchema),
+  authGuard,
+  leaveCtrl.getLeavesByTypeAndEmployee,
+);
+
+// Convenience endpoints for specific leave types by employee
+LeaveRoutes.get(
+  '/leave/annual/employee/:employeeId',
+  validateRequest(getLeavesByEmployeeSchema),
+  authGuard,
+  leaveCtrl.getAnnualLeavesByEmployee,
+);
+
+LeaveRoutes.get(
+  '/leave/absence/employee/:employeeId',
+  validateRequest(getLeavesByEmployeeSchema),
+  authGuard,
+  leaveCtrl.getAbsenceLeavesByEmployee,
+);
+
+LeaveRoutes.get(
+  '/leave/sick/employee/:employeeId',
+  validateRequest(getLeavesByEmployeeSchema),
+  authGuard,
+  leaveCtrl.getSickLeavesByEmployee,
 );
 
 // General Leave Routes

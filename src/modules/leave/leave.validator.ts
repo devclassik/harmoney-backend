@@ -63,3 +63,12 @@ export const deleteLeaveSchema = getLeaveSchema;
 export const getLeavesByEmployeeSchema = Joi.object({
   employeeId: Joi.number().integer().positive().required(),
 });
+
+export const getLeavesByTypeSchema = Joi.object({
+  type: Joi.string().valid('ANNUAL', 'ABSENCE', 'SICK').required(),
+});
+
+export const getLeavesByTypeAndEmployeeSchema = Joi.object({
+  type: Joi.string().valid('ANNUAL', 'ABSENCE', 'SICK').required(),
+  employeeId: Joi.number().integer().positive().required(),
+});

@@ -244,4 +244,117 @@ export class LeaveController {
       return this.baseService.catchErrorResponse(res, error);
     }
   };
+
+  public getLeavesByType = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const { type } = req.params;
+
+      // Validate leave type
+      const validTypes = Object.values(LeaveTypes);
+      if (!validTypes.includes(type as LeaveTypes)) {
+        return res.status(400).json({
+          error: `Invalid leave type. Must be one of: ${validTypes.join(', ')}`,
+        });
+      }
+
+      await this.baseService.findAll({
+        res,
+        relations: ['leaveNotes', 'employee', 'employee.user'],
+        where: { type: type as LeaveTypes },
+      });
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
+    }
+  };
+
+  public getLeavesByTypeAndEmployee = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const { type, employeeId } = req.params;
+
+      // Validate leave type
+      const validTypes = Object.values(LeaveTypes);
+      if (!validTypes.includes(type as LeaveTypes)) {
+        return res.status(400).json({
+          error: `Invalid leave type. Must be one of: ${validTypes.join(', ')}`,
+        });
+      }
+
+      await this.baseService.findAll({
+        res,
+        relations: ['leaveNotes', 'employee', 'employee.user'],
+        where: {
+          type: type as LeaveTypes,
+          employee: { id: Number(employeeId) }
+        },
+      });
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
+    }
+  };
+
+  public getAnnualLeavesByEmployee = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const employeeId = Number(req.params.employeeId);
+
+      await this.baseService.findAll({
+        res,
+        relations: ['leaveNotes', 'employee', 'employee.user'],
+        where: {
+          type: LeaveTypes.ANNUAL,
+          employee: { id: employeeId }
+        },
+      });
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
+    }
+  };
+
+  public getAbsenceLeavesByEmployee = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const employeeId = Number(req.params.employeeId);
+
+      await this.baseService.findAll({
+        res,
+        relations: ['leaveNotes', 'employee', 'employee.user'],
+        where: {
+          type: LeaveTypes.ABSENCE,
+          employee: { id: employeeId }
+        },
+      });
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
+    }
+  };
+
+  public getSickLeavesByEmployee = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    try {
+      const employeeId = Number(req.params.employeeId);
+
+      await this.baseService.findAll({
+        res,
+        relations: ['leaveNotes', 'employee', 'employee.user'],
+        where: {
+          type: LeaveTypes.SICK,
+          employee: { id: employeeId }
+        },
+      });
+    } catch (error) {
+      return this.baseService.catchErrorResponse(res, error);
+    }
+  };
 }
