@@ -53,6 +53,18 @@ CampMeetingRoute.get(
   controller.getAllAttendee,
 );
 
+CampMeetingRoute.get(
+  '/camp-meeting/check-attendance/:userId',
+  authGuard,
+  controller.checkUserAttendance,
+);
+
+CampMeetingRoute.get(
+  '/camp-meeting/:meetingId/check-attendance/:userId',
+  authGuard,
+  controller.checkUserAttendance,
+);
+
 CampMeetingRoute.delete(
   '/camp-meeting/:meetingId',
   validateRequest(deleteCampMeetingSchema),

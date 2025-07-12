@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AppDataSource, CampMeeting, Employee, Room } from '@/database';
 import { BaseService } from '../shared/base.service';
+import { StatusCodes } from 'http-status-codes';
 
 export class CampMeetingController {
   private campMeetingRepo = AppDataSource.getRepository(CampMeeting);
@@ -267,6 +268,89 @@ export class CampMeetingController {
       await this.roomRepo.save(room);
 
       return this.baseService.successResponse(res, room);
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public checkUserAttendance = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    const { userId } = req.params;
+    const meetingId = req.params.meetingId ? Number(req.params.meetingId) : null;
+
+    try {
+      // Find the employee associated with the user ID
+      const employee = await this.employeeRepo.findOne({
+        where: { user: { id: Number(userId) } },
+        relations: ['user'],
+      });
+
+      if (!employee) {
+        return this.baseService.errorResponse(res, {
+          message: 'User not found',
+          status: StatusCodes.NOT_FOUND,
+        });
+      }
+
+      // If meetingId is provided, check attendance for that specific meeting
+      if (meetingId) {
+        const campMeeting = await this.campMeetingRepo.findOne({
+          where: { id: meetingId },
+          relations: ['attendees'],
+        });
+
+        if (!campMeeting) {
+          return this.baseService.errorResponse(res, {
+            message: 'Camp meeting not found',
+            status: StatusCodes.NOT_FOUND,
+          });
+        }
+
+        const isAttendee = campMeeting.attendees.some(
+          (attendee) => attendee.id === employee.id
+        );
+
+        return this.baseService.successResponse(res, {
+          isAttendee,
+          employee: {
+            id: employee.id,
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            middleName: employee.middleName,
+            profferedName: employee.profferedName,
+          },
+          campMeeting: {
+            id: campMeeting.id,
+            name: campMeeting.name,
+          },
+        });
+      }
+
+      // If no meetingId provided, check if user is an attendee of any camp meeting
+      const campMeetings = await this.campMeetingRepo.find({
+        relations: ['attendees'],
+      });
+
+      const attendedMeetings = campMeetings.filter((meeting) =>
+        meeting.attendees.some((attendee) => attendee.id === employee.id)
+      );
+
+      return this.baseService.successResponse(res, {
+        isAttendee: attendedMeetings.length > 0,
+        employee: {
+          id: employee.id,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          middleName: employee.middleName,
+          profferedName: employee.profferedName,
+        },
+        attendedMeetings: attendedMeetings.map((meeting) => ({
+          id: meeting.id,
+          name: meeting.name,
+        })),
+      });
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
