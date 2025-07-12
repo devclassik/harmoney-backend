@@ -5,7 +5,7 @@ import { MESSAGES } from '../../utils';
 import { Response } from 'express';
 
 export class BaseService<T> {
-  constructor(private repository: Repository<T>) {}
+  constructor(private repository: Repository<T>) { }
 
   async findByProperty({
     property,
@@ -72,6 +72,43 @@ export class BaseService<T> {
     }
 
     return data;
+  }
+
+  async findAllWithPagination({
+    relations = [],
+    where,
+    res,
+    page = 1,
+    limit = 10,
+  }: {
+    relations?: string[];
+    res?: Response;
+    where?: FindOptionsWhere<T>;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: T[]; pagination: { page: number; limit: number; total: number; totalPages: number } } | Response> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.repository.findAndCount({
+      where,
+      relations,
+      skip,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+    const pagination = {
+      page,
+      limit,
+      total,
+      totalPages,
+    };
+
+    if (res) {
+      return this.successResponse(res, { data, pagination });
+    }
+
+    return { data, pagination };
   }
 
   async findByIds({

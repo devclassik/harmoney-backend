@@ -12,6 +12,8 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel', // .xls files
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx files
     ];
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);

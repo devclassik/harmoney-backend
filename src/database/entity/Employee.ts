@@ -202,7 +202,6 @@ export class Employee {
   @OneToMany(() => Notification, ({ actionTo }) => actionTo)
   messagesToMe?: Notification[];
 
-
   @Column({ type: 'varchar', nullable: true })
   nationIdNumber?: string;
 }

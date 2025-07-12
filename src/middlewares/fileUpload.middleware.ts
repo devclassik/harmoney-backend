@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter (only accept PDFs and DOCX files)
+// File filter (only accept PDFs, DOCX, and Excel files)
 const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
   const allowedTypes = [
     'image/jpeg',
@@ -32,11 +32,13 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel', // .xls files
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx files
   ];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files and documents (PDF, DOCX) are allowed!'), false);
+    cb(new Error('Only image files and documents (PDF, DOCX, Excel) are allowed!'), false);
   }
 };
 

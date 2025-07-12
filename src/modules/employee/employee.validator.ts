@@ -165,3 +165,23 @@ export const getEmployeeSchema = Joi.object({
 export const deleteEmployeeSchema = Joi.object({
   employeeId: Joi.number().required(),
 });
+
+export const getAllEmployeesSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1).messages({
+    'number.base': 'Page must be a number',
+    'number.integer': 'Page must be an integer',
+    'number.min': 'Page must be at least 1',
+  }),
+  limit: Joi.number().integer().min(1).max(100).default(10).messages({
+    'number.base': 'Limit must be a number',
+    'number.integer': 'Limit must be an integer',
+    'number.min': 'Limit must be at least 1',
+    'number.max': 'Limit cannot exceed 100',
+  }),
+});
+
+
+export const bulkUploadSchema = Joi.object({
+  // This schema is mainly for route validation, file validation is handled in the controller
+  // The actual Excel file validation happens in the controller method
+});
