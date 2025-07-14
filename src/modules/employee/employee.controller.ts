@@ -434,8 +434,9 @@ export class EmployeeController {
         id: employeeId,
         resource: 'employee',
       });
+      return this.baseService.successResponse(res, "Deleted Successfully ")
     } catch (error) {
-      this.baseService.errorResponse(res, error);
+      return this.baseService.errorResponse(res, error);
     }
   };
 

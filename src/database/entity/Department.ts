@@ -27,7 +27,7 @@ export class Department {
   @Column({ type: 'varchar', default: null, nullable: true })
   name?: string;
 
-  @ManyToOne(() => Employee, ({ departmentHeads }) => departmentHeads)
+  @ManyToOne(() => Employee, ({ departmentHeads }) => departmentHeads, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn()
   hod?: Employee;
 

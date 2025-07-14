@@ -51,7 +51,7 @@ export class User {
 
   // Relations
 
-  @OneToOne(() => Employee, ({ user }) => user)
+  @OneToOne(() => Employee, ({ user }) => user, { onDelete: 'CASCADE' })
   @JoinColumn()
   employee?: Employee;
 
