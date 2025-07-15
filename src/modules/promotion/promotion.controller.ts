@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource, AppFeatures, Employee, Promotion } from '@/database';
+import { AppDataSource, AppFeatures, Appraisal, Employee, Promotion } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
@@ -90,6 +90,18 @@ export class PromotionController {
         resource: 'Promotion',
         relations: ['employee', 'employee.user'],
       });
+
+      // Fetch appraisals with their scores for this employee
+      const appraisals = await AppDataSource.getRepository(Appraisal).find({
+        where: { employee: { id: promotion.employee.id } },
+        relations: ['scores'],
+        order: { startDate: 'DESC' },
+      });
+      // Optionally attach appraisals to the employee object if needed
+      if (promotion.employee) {
+        (promotion.employee as any).appraisals = appraisals;
+      }
+
       const history = await this.promotionRepo.find({
         where: {
           id: Not(promotionId),
