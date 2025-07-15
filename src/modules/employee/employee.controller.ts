@@ -10,6 +10,7 @@ import {
   Role,
   User,
   UserRoles,
+  Appraisal,
 } from '../../database';
 import { Request, Response } from 'express';
 import { BaseService } from '../shared/base.service';
@@ -378,6 +379,14 @@ export class EmployeeController {
           'spiritualHistory.currentChurchLocation',
         ],
       });
+
+      // Fetch appraisals with their scores for this employee
+      const appraisals = await AppDataSource.getRepository(Appraisal).find({
+        where: { employee: { id: employeeId } },
+        relations: ['scores'],
+        order: { startDate: 'DESC' },
+      });
+      employee.appraisals = appraisals;
 
       return this.baseService.updatedResponse(res, employee);
     } catch (error) {

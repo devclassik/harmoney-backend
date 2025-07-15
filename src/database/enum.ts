@@ -45,6 +45,8 @@ export enum PositionTypes {
   CLEANER = 'CLEANER',
   HOD = 'HOD',
   WORKER = 'WORKER',
+  MINISTER = 'MINISTER',
+  OVERSEER = 'OVERSEER',
 }
 
 export enum RetrenchmentTypes {
@@ -53,6 +55,8 @@ export enum RetrenchmentTypes {
   CLEANER = 'CLEANER',
   HOD = 'HOD',
   WORKER = 'WORKER',
+  MINISTER = 'MINISTER',
+  OVERSEER = 'OVERSEER',
 }
 
 export enum Status {

@@ -179,7 +179,7 @@ export class Employee {
   leaves?: Leave;
 
   @OneToMany(() => Appraisal, ({ employee }) => employee)
-  appraisals?: Appraisal;
+  appraisals?: Appraisal[];
 
   @ManyToMany(() => Room, ({ occupants }) => occupants)
   campRooms?: Room[];
