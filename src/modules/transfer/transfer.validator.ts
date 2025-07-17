@@ -37,9 +37,9 @@ export const updateTransferSchema = createTransferSchema
   .message('Nothing to update');
 
 export const getTransferSchema = Joi.object({
-  TransferId: Joi.number().integer().positive().required(),
+  transferId: Joi.number().integer().positive().required(),
 });
 
 export const deleteTransferSchema = Joi.object({
-  TransferId: Joi.number().integer().positive().required(),
+  transferId: Joi.number().integer().positive().required(),
 });
