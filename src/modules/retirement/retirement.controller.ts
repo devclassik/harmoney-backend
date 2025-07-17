@@ -16,7 +16,7 @@ export class RetirementController {
     req: Request & { employee: Employee },
     res: Response,
   ): Promise<Response> => {
-    const { employeeId, reason, recommendedReplacementId, status } = req.body;
+    const { employeeId, reason, recommendedReplacementId, status, documents } = req.body;
 
     try {
       const employee = await this.employeeBaseService.findById({
@@ -32,6 +32,7 @@ export class RetirementController {
         reason,
         employee,
         recommendedReplacement,
+        documents
       });
 
       await MessageService.send({
@@ -56,7 +57,7 @@ export class RetirementController {
     res: Response,
   ): Promise<Response> => {
     const retirementId = Number(req.params.retirementId);
-    const { reason, status, recommendedReplacementId } = req.body;
+    const { reason, status, recommendedReplacementId, documents } = req.body;
 
     try {
       const retirement = await this.baseService.findById({
@@ -73,6 +74,7 @@ export class RetirementController {
         reason,
         status,
         recommendedReplacement,
+        documents,
       });
 
       if (status) {

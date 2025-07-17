@@ -39,6 +39,9 @@ export class Retirement {
   @ManyToOne(() => Employee, ({ documents }) => documents)
   recommendedReplacement?: Employee;
 
+  @Column({ type: 'varchar', array: true, nullable: true })
+  documents: string[];
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
 

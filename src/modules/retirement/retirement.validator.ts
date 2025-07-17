@@ -15,11 +15,14 @@ export const createRetirementSchema = Joi.object({
   status: Joi.string()
     .valid(...Object.values(Status))
     .optional(),
+  documents: Joi.array()
+    .items(Joi.string().uri())
+    .optional()
 });
 
 export const updateRetirementSchema = createRetirementSchema
   .fork(
-    ['status', 'reason', 'recommendedReplacementId', 'employeeId'],
+    ['status', 'reason', 'recommendedReplacementId', 'employeeId', 'documents'],
     (schema) => schema.optional(),
   )
   .min(1)
