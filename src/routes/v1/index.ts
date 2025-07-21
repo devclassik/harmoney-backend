@@ -20,6 +20,7 @@ import MessageRoutes from '@/modules/message/message.routes';
 import FileIndexRoutes from '@/modules/fileIndex/fileIndex.routes';
 import DocumentRoutes from '@/modules/document/document.routes';
 import { UploadRoutes } from '@/modules/shared/upload.routes';
+import PayrollRoutes from '@/modules/payroll/payroll.routes';
 
 export const Routes = express.Router();
 
@@ -44,3 +45,4 @@ Routes.use(MessageRoutes);
 Routes.use(FileIndexRoutes);
 Routes.use(DocumentRoutes);
 Routes.use(UploadRoutes);
+Routes.use(PayrollRoutes);
