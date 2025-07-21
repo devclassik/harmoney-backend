@@ -6,6 +6,7 @@ export const createCampMeetingSchema = Joi.object({
   startDate: Joi.date().required(),
   endDate: Joi.date().required(),
   attendees: Joi.array().items(Joi.number().required()).required(),
+  documents: Joi.array().items(Joi.string().required()).optional(),
 });
 
 export const updateCampMeetingSchema = createCampMeetingSchema

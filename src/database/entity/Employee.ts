@@ -25,6 +25,7 @@ import { Appraisal } from './Appraisal';
 import { CampMeeting } from './CampMeeting';
 import { Room } from './Room';
 import { Notification } from './Notification';
+import { CampMeetingAttendee } from './CampMeetingAttendee';
 import {
   TitleTypes,
   Genders,
@@ -172,8 +173,8 @@ export class Employee {
   @ManyToMany(() => Department, ({ members }) => members)
   departments?: Department[];
 
-  @ManyToMany(() => CampMeeting, ({ attendees }) => attendees)
-  campMeetings?: CampMeeting[];
+  @OneToMany(() => CampMeetingAttendee, ({ employee }) => employee)
+  campMeetingAttendances?: CampMeetingAttendee[];
 
   @OneToMany(() => Leave, ({ employee }) => employee)
   leaves?: Leave;

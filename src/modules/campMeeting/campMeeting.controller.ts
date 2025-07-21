@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource, CampMeeting, Employee, Room } from '@/database';
+import { AppDataSource, CampMeeting, Employee, Room, CampMeetingAttendee } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { StatusCodes } from 'http-status-codes';
 
@@ -7,9 +7,11 @@ export class CampMeetingController {
   private campMeetingRepo = AppDataSource.getRepository(CampMeeting);
   private employeeRepo = AppDataSource.getRepository(Employee);
   private roomRepo = AppDataSource.getRepository(Room);
+  private campMeetingAttendeeRepo = AppDataSource.getRepository(CampMeetingAttendee);
   private baseService = new BaseService(this.campMeetingRepo);
   private employeeBaseService = new BaseService(this.employeeRepo);
   private roomBaseService = new BaseService(this.roomRepo);
+  private attendeeBaseService = new BaseService(this.campMeetingAttendeeRepo);
 
   public create = async (req: Request, res: Response): Promise<Response> => {
     const {
@@ -18,25 +20,39 @@ export class CampMeetingController {
       startDate,
       endDate,
       attendees: employeeIds,
+      documents
     } = req.body;
 
     try {
-      const attendees = await this.employeeBaseService.findByIds({
+      const employees = await this.employeeBaseService.findByIds({
         ids: employeeIds,
         resource: 'employee',
         validate: true,
       });
 
-      await this.baseService.create(
-        {
-          name,
-          agenda,
-          startDate,
-          endDate,
-          attendees,
-        },
-        res,
-      );
+      // Create camp meeting first
+      const campMeeting = await this.campMeetingRepo.save({
+        name,
+        agenda,
+        startDate,
+        endDate,
+        documents
+      });
+
+      // Create attendee records
+      const attendeeRecords = employees.map(employee => ({
+        campMeeting,
+        employee,
+      }));
+
+      await this.campMeetingAttendeeRepo.save(attendeeRecords);
+
+      const createdMeeting = await this.campMeetingRepo.findOne({
+        where: { id: campMeeting.id },
+        relations: ['attendees', 'attendees.employee'],
+      });
+
+      return this.baseService.successResponse(res, createdMeeting);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
@@ -50,6 +66,7 @@ export class CampMeetingController {
       startDate,
       endDate,
       attendees: employeeIds,
+      documents,
     } = req.body;
     try {
       const campMeeting = await this.baseService.findById({
@@ -57,23 +74,53 @@ export class CampMeetingController {
         resource: 'CampMeeting',
       });
 
-      let attendees: Employee[];
-      if (employeeIds?.length) {
-        attendees = await this.employeeBaseService.findByIds({
-          ids: employeeIds,
-          resource: 'employee',
-        });
-      }
+      // Update camp meeting basic info
       const updatedCampMeeting = await this.campMeetingRepo.save({
         ...campMeeting,
         name,
         agenda,
         startDate,
         endDate,
-        attendees,
+        documents,
       });
 
-      return this.baseService.updatedResponse(res, updatedCampMeeting);
+      // Update attendees if provided
+      if (employeeIds?.length) {
+        // Fetch existing attendees
+        const existingAttendees = await this.campMeetingAttendeeRepo.find({
+          where: { campMeeting: { id: meetingId } },
+          relations: ['employee'],
+        });
+        const existingEmployeeIds = new Set(existingAttendees.map(a => a.employee.id));
+
+        // Only add new unique employee IDs, ensuring they are numbers
+        const uniqueNewEmployeeIds: number[] = [...new Set(employeeIds)]
+          .map(id => Number(id))
+          .filter(id => !isNaN(id) && !existingEmployeeIds.has(id));
+        const newEmployees = await this.employeeBaseService.findByIds({
+          ids: uniqueNewEmployeeIds,
+          resource: 'employee',
+        });
+
+        const newAttendeeRecords = newEmployees.map(employee => ({
+          campMeeting: updatedCampMeeting,
+          employee,
+        }));
+
+        await this.campMeetingAttendeeRepo.save(newAttendeeRecords);
+
+        // Optionally, remove attendees not in the new list:
+        // const toRemove = existingAttendees.filter(a => !employeeIds.includes(a.employee.id));
+        // if (toRemove.length > 0) {
+        //   await this.campMeetingAttendeeRepo.remove(toRemove);
+        // }
+      }
+      const result = await this.campMeetingRepo.findOne({
+        where: { id: updatedCampMeeting.id },
+        relations: ['attendees', 'attendees.employee'],
+      });
+
+      return this.baseService.updatedResponse(res, result);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
@@ -86,7 +133,7 @@ export class CampMeetingController {
       const campMeeting = await this.baseService.findById({
         id: meetingId,
         resource: 'CampMeeting',
-        relations: ['attendees', 'attendees.user'],
+        relations: ['attendees', 'attendees.employee', 'attendees.employee.user', 'attendees.assignedRoom'],
       });
 
       return this.baseService.successResponse(res, campMeeting);
@@ -99,7 +146,7 @@ export class CampMeetingController {
     try {
       await this.baseService.findAll({
         res,
-        relations: ['attendees', 'attendees.user'],
+        relations: ['attendees', 'attendees.employee', 'attendees.employee.user', 'attendees.assignedRoom'],
       });
     } catch (error) {
       return this.baseService.errorResponse(res, error);
@@ -134,13 +181,15 @@ export class CampMeetingController {
         .createQueryBuilder('employee')
         .leftJoinAndSelect('employee.campRooms', 'room')
         .leftJoinAndSelect('room.accommodation', 'accommodation')
-        .leftJoinAndSelect('room.campMeeting', 'campMeeting');
+        .leftJoinAndSelect('employee.campMeetingAttendances', 'attendance')
+        .leftJoinAndSelect('attendance.campMeeting', 'campMeeting')
+        .leftJoinAndSelect('attendance.assignedRoom', 'assignedRoom');
 
       if (meetingId) {
         query.where('campMeeting.id = :meetingId', { meetingId });
       }
       if (!meetingId) {
-        query.where('campMeeting.id != NULL');
+        query.where('campMeeting.id IS NOT NULL');
       }
 
       const attendees = await query.getMany();
@@ -162,55 +211,80 @@ export class CampMeetingController {
       const campMeeting = await this.baseService.findById({
         id: meetingId,
         resource: 'CampMeeting',
-        relations: ['attendees'],
+        relations: ['attendees', 'attendees.employee'],
       });
-      let room = await this.roomBaseService.findById({
+
+      const room = await this.roomBaseService.findById({
         id: roomId,
         resource: 'Room',
         relations: ['occupants', 'campMeeting'],
       });
+
       const employee = await this.employeeBaseService.findById({
         id: employeeId,
         resource: 'Employee',
       });
 
-      if (campMeeting.attendees.some((att) => att.id !== employeeId)) {
+      // Check if employee is an attendee
+      const isAttendee = campMeeting.attendees.some(
+        (att) => att.employee.id === employeeId
+      );
+      if (!isAttendee) {
         return this.baseService.errorResponse(res, {
           message: 'Employee is not an attendee',
           status: 403,
         });
       }
 
-      if (room.occupants.some((oc) => oc.id === employeeId)) {
+      // Check if employee is already assigned to a room
+      const existingAssignment = await this.campMeetingAttendeeRepo.findOne({
+        where: {
+          campMeeting: { id: meetingId },
+          employee: { id: employeeId },
+        },
+        relations: ['assignedRoom'],
+      });
+
+      if (existingAssignment?.assignedRoom) {
         return this.baseService.errorResponse(res, {
-          message: 'Employee is already an occupant of this room',
+          message: 'Employee is already assigned to a room',
           status: 403,
         });
       }
 
-      if (room.capacity <= room.occupants.length) {
+      // Check room capacity
+      const currentOccupants = await this.campMeetingAttendeeRepo.count({
+        where: { assignedRoom: { id: roomId } },
+      });
+
+      if (room.capacity && currentOccupants >= room.capacity) {
         return this.baseService.errorResponse(res, {
           message: 'Room is fully occupied',
           status: 403,
         });
       }
 
-      if (room.campMeeting && room.campMeeting?.id !== meetingId) {
+      // Check if room belongs to the same camp meeting
+      if (room.campMeeting && room.campMeeting.id !== meetingId) {
         return this.baseService.errorResponse(res, {
-          message: 'Room already belong a camp meeting',
+          message: 'Room already belongs to a different camp meeting',
           status: 403,
         });
       }
 
-      room = {
-        ...room,
-        campMeeting,
-        occupants: [...room.occupants, employee],
-      };
+      // Update or create attendee record with room assignment
+      if (existingAssignment) {
+        existingAssignment.assignedRoom = room;
+        await this.campMeetingAttendeeRepo.save(existingAssignment);
+      } else {
+        await this.campMeetingAttendeeRepo.save({
+          campMeeting,
+          employee,
+          assignedRoom: room,
+        });
+      }
 
-      await this.roomRepo.save(room);
-
-      return this.baseService.successResponse(res, room);
+      return this.baseService.successResponse(res, { message: 'Room assigned successfully' });
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
@@ -225,49 +299,59 @@ export class CampMeetingController {
       const campMeeting = await this.baseService.findById({
         id: meetingId,
         resource: 'CampMeeting',
-        relations: ['attendees'],
-      });
-      let room = await this.roomBaseService.findById({
-        id: roomId,
-        resource: 'CampMeeting',
-        relations: ['occupants'],
-      });
-      await this.employeeBaseService.findById({
-        id: employeeId,
-        resource: 'CampMeeting',
+        relations: ['attendees', 'attendees.employee'],
       });
 
-      if (campMeeting.attendees.some(({ id }) => id !== employeeId)) {
+      const room = await this.roomBaseService.findById({
+        id: roomId,
+        resource: 'Room',
+        relations: ['campMeeting'],
+      });
+
+      const employee = await this.employeeBaseService.findById({
+        id: employeeId,
+        resource: 'Employee',
+      });
+
+      // Check if employee is an attendee
+      const isAttendee = campMeeting.attendees.some(
+        (att) => att.employee.id === employeeId
+      );
+      if (!isAttendee) {
         return this.baseService.errorResponse(res, {
           message: 'Employee is not an attendee',
           status: 403,
         });
       }
 
-      if (room.occupants.some(({ id }) => id !== employeeId)) {
+      // Check if room belongs to the same camp meeting
+      if (room.campMeeting && room.campMeeting.id !== meetingId) {
         return this.baseService.errorResponse(res, {
-          message: 'Employee is not an occupant of this room',
+          message: 'Room belongs to a different camp meeting',
           status: 403,
         });
       }
 
-      if (room.campMeeting.id !== meetingId) {
+      // Remove room assignment
+      const attendeeRecord = await this.campMeetingAttendeeRepo.findOne({
+        where: {
+          campMeeting: { id: meetingId },
+          employee: { id: employeeId },
+          assignedRoom: { id: roomId },
+        },
+      });
+
+      if (!attendeeRecord) {
         return this.baseService.errorResponse(res, {
-          message: 'Room already belong a camp meeting',
+          message: 'Employee is not assigned to this room',
           status: 403,
         });
       }
 
-      const newOccupants = room.occupants.filter(({ id }) => id !== employeeId);
-      room = {
-        ...room,
-        campMeeting,
-        occupants: newOccupants,
-      };
+      attendeeRecord.assignedRoom = null;
+      await this.campMeetingAttendeeRepo.save(attendeeRecord);
 
-      await this.roomRepo.save(room);
-
-      return this.baseService.successResponse(res, room);
+      return this.baseService.successResponse(res, { message: 'Room unassigned successfully' });
     } catch (error) {
       return this.baseService.errorResponse(res, error);
     }
@@ -296,24 +380,29 @@ export class CampMeetingController {
 
       // If meetingId is provided, check attendance for that specific meeting
       if (meetingId) {
-        const campMeeting = await this.campMeetingRepo.findOne({
-          where: { id: meetingId },
-          relations: ['attendees'],
+        const attendance = await this.campMeetingAttendeeRepo.findOne({
+          where: {
+            campMeeting: { id: meetingId },
+            employee: { id: employee.id },
+          },
+          relations: ['campMeeting', 'assignedRoom'],
         });
 
-        if (!campMeeting) {
-          return this.baseService.errorResponse(res, {
-            message: 'Camp meeting not found',
-            status: StatusCodes.NOT_FOUND,
+        if (!attendance) {
+          return this.baseService.successResponse(res, {
+            isAttendee: false,
+            employee: {
+              id: employee.id,
+              firstName: employee.firstName,
+              lastName: employee.lastName,
+              middleName: employee.middleName,
+              profferedName: employee.profferedName,
+            },
           });
         }
 
-        const isAttendee = campMeeting.attendees.some(
-          (attendee) => attendee.id === employee.id
-        );
-
         return this.baseService.successResponse(res, {
-          isAttendee,
+          isAttendee: true,
           employee: {
             id: employee.id,
             firstName: employee.firstName,
@@ -322,23 +411,24 @@ export class CampMeetingController {
             profferedName: employee.profferedName,
           },
           campMeeting: {
-            id: campMeeting.id,
-            name: campMeeting.name,
+            id: attendance.campMeeting.id,
+            name: attendance.campMeeting.name,
           },
+          assignedRoom: attendance.assignedRoom ? {
+            id: attendance.assignedRoom.id,
+            name: attendance.assignedRoom.name,
+          } : null,
         });
       }
 
       // If no meetingId provided, check if user is an attendee of any camp meeting
-      const campMeetings = await this.campMeetingRepo.find({
-        relations: ['attendees'],
+      const attendances = await this.campMeetingAttendeeRepo.find({
+        where: { employee: { id: employee.id } },
+        relations: ['campMeeting', 'assignedRoom'],
       });
 
-      const attendedMeetings = campMeetings.filter((meeting) =>
-        meeting.attendees.some((attendee) => attendee.id === employee.id)
-      );
-
       return this.baseService.successResponse(res, {
-        isAttendee: attendedMeetings.length > 0,
+        isAttendee: attendances.length > 0,
         employee: {
           id: employee.id,
           firstName: employee.firstName,
@@ -346,9 +436,13 @@ export class CampMeetingController {
           middleName: employee.middleName,
           profferedName: employee.profferedName,
         },
-        attendedMeetings: attendedMeetings.map((meeting) => ({
-          id: meeting.id,
-          name: meeting.name,
+        attendedMeetings: attendances.map((attendance) => ({
+          id: attendance.campMeeting.id,
+          name: attendance.campMeeting.name,
+          assignedRoom: attendance.assignedRoom ? {
+            id: attendance.assignedRoom.id,
+            name: attendance.assignedRoom.name,
+          } : null,
         })),
       });
     } catch (error) {

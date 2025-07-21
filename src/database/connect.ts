@@ -32,6 +32,7 @@ import {
   Notification,
   AppMessage,
   FileIndex,
+  CampMeetingAttendee,
 } from './entity';
 
 export const AppDataSource = new DataSource({
@@ -73,6 +74,7 @@ export const AppDataSource = new DataSource({
     Notification,
     AppMessage,
     FileIndex,
+    CampMeetingAttendee,
   ],
   migrations: [],
   subscribers: [],

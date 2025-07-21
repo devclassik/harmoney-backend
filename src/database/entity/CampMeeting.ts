@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Employee } from './Employee';
 import { Room } from './Room';
+import { CampMeetingAttendee } from './CampMeetingAttendee';
 
 @Entity()
 export class CampMeeting {
@@ -37,11 +38,10 @@ export class CampMeeting {
   @OneToMany(() => Room, ({ campMeeting }) => campMeeting)
   campRooms?: Room[];
 
-  @ManyToMany(() => Employee, ({ campMeetings }) => campMeetings, {
+  @OneToMany(() => CampMeetingAttendee, ({ campMeeting }) => campMeeting, {
     cascade: ['insert', 'update'],
   })
-  @JoinTable()
-  attendees: Employee[];
+  attendees?: CampMeetingAttendee[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
@@ -51,4 +51,7 @@ export class CampMeeting {
 
   @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
+
+  @Column({ type: "varchar", array: true, nullable: true })
+  documents?: string[];
 }

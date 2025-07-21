@@ -22,6 +22,13 @@ CampMeetingRoute.post(
 );
 
 CampMeetingRoute.put(
+  '/camp-meeting/:meetingId',
+  validateRequest(updateCampMeetingSchema),
+  authGuard,
+  controller.update,
+);
+
+CampMeetingRoute.put(
   '/camp-meeting/assign-room',
   validateRequest(assignRoomSchema),
   authGuard,
@@ -35,12 +42,6 @@ CampMeetingRoute.put(
   controller.assignRoom,
 );
 
-CampMeetingRoute.put(
-  '/camp-meeting/:meetingId',
-  validateRequest(updateCampMeetingSchema),
-  authGuard,
-  controller.update,
-);
 
 CampMeetingRoute.get(
   '/camp-meeting/attendees',

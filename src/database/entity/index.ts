@@ -2,6 +2,7 @@ export * from './Accommodation';
 export * from './Appraisal';
 export * from './AppraisalScore';
 export * from './CampMeeting';
+export * from './CampMeetingAttendee';
 export * from './ChurchPosition';
 export * from './Discipline';
 export * from './Contact';
