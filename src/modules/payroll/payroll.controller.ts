@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { BaseService } from '../shared/base.service';
 import { PaymentStatus } from '../../database/entity/Payroll';
 import { MESSAGES } from '../../utils';
+import XLSX from 'xlsx';
 
 export class PayrollController {
     private payrollRepo = AppDataSource.getRepository(Payroll);
@@ -105,4 +106,50 @@ export class PayrollController {
             return this.baseService.errorResponse(res, error);
         }
     };
+
+    public uploadPayrollExcel = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'No file uploaded' });
+            }
+            // Parse Excel file from buffer
+            const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+
+            const results = [];
+            const errors = [];
+
+            for (const row of rows) {
+                const { payrollId, status, reference, amount, employeeId } = row as any;
+                if (!employeeId) {
+                    errors.push({ row, error: 'Missing employeeId' });
+                    continue;
+                }
+                const employee = await this.employeeRepo.findOne({ where: { id: Number(employeeId) } });
+                if (!employee) {
+                    errors.push({ row, error: `Employee with id ${employeeId} not found` });
+                    continue;
+                }
+                try {
+                    const payroll = this.payrollRepo.create({
+                        payrollId: payrollId?.toString(),
+                        status: status || undefined,
+                        reference: reference?.toString(),
+                        amount: amount ? Number(amount) : 0,
+                        employee,
+                    });
+                    const saved = await this.payrollRepo.save(payroll);
+                    results.push(saved);
+                } catch (err) {
+                    errors.push({ row, error: err.message });
+                }
+            }
+            return res.status(201).json({ message: 'Payroll upload complete', created: results.length, errors, data: results });
+        } catch (error) {
+            return res.status(500).json({ message: 'Failed to process payroll Excel', error: error.message });
+        }
+    };
+
 } 

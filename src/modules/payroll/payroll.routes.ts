@@ -3,6 +3,7 @@ import { validateRequest } from '../../middlewares/validateRequest.middleware';
 import { authGuard } from '../../guards';
 import { PayrollController } from './payroll.controller';
 import { createPayrollSchema, updatePayrollSchema, getPayrollSchema, deletePayrollSchema, getAllPayrollsSchema } from './payroll.validator';
+import { uploader } from '@/middlewares/uploader';
 
 export const PayrollRoutes = express.Router();
 
@@ -42,5 +43,13 @@ PayrollRoutes.delete(
     authGuard,
     payrollCtrl.delete,
 );
+
+PayrollRoutes.post(
+    '/payroll/upload',
+    authGuard,
+    uploader.single('files'), // up to 10 files
+    payrollCtrl.uploadPayrollExcel,
+);
+
 
 export default PayrollRoutes; 
