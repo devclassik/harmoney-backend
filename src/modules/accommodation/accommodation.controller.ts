@@ -33,7 +33,7 @@ export class AccommodationController {
     const accommodationId = Number(req.params.accommodationId);
     const { name, type, isPetAllowed, rooms } = req.body;
 
-    await this.baseService.isPropertyTaken('name', name, 'Accommodation name');
+    await this.baseService.isPropertyTaken('name', name, 'Accommodation name', accommodationId);
 
     try {
       const accommodation = await this.baseService.findById({

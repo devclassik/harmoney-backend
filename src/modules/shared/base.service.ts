@@ -1,4 +1,4 @@
-import { FindOptionsWhere, In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Not, Repository } from 'typeorm';
 import { StatusCodes } from 'http-status-codes';
 import { CustomError } from '../../middlewares';
 import { MESSAGES } from '../../utils';
@@ -202,10 +202,19 @@ export class BaseService<T> {
     property: string,
     value: any,
     errorName?: string,
+    excludeId?: number,
   ): Promise<boolean> {
-    const existing = await this.repository.findOne({
-      where: { [property]: value } as any,
-    });
+    const whereClause: any = { [property]: value };
+
+    if (excludeId) {
+      whereClause.id = Not(excludeId);
+    }
+
+    const existing = await this.repository.findOne({ where: whereClause });
+
+    // const existing = await this.repository.findOne({
+    //   where: { [property]: value } as any,
+    // });
 
     if (existing) {
       throw new CustomError(
