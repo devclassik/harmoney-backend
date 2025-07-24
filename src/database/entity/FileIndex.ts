@@ -41,4 +41,7 @@ export class FileIndex {
 
   @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
+
+  @Column({ type: 'boolean', nullable: true })
+  isTraining?: boolean;
 }
