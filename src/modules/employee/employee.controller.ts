@@ -346,7 +346,8 @@ export class EmployeeController {
 
       await this.employeeRepo.save(employee);
 
-      return res.status(StatusCodes.OK).json(employee);
+      return this.baseService.updatedResponse(res, employee);
+
     } catch (error) {
       console.error('Error updating employee:', error);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error due to property is in use by another person', ActualError: error });
