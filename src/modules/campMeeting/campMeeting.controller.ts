@@ -214,21 +214,29 @@ export class CampMeetingController {
         relations: ['attendees', 'attendees.employee'],
       });
 
+      console.log("CampMeeting found:", campMeeting);
+
+
       const room = await this.roomBaseService.findById({
         id: roomId,
         resource: 'Room',
         relations: ['occupants', 'campMeeting'],
       });
+      console.log("Room found:", room);
 
       const employee = await this.employeeBaseService.findById({
         id: employeeId,
         resource: 'Employee',
       });
 
+      console.log("Employee found:", employee);
+
       // Check if employee is an attendee
       const isAttendee = campMeeting.attendees.some(
         (att) => att.employee.id === employeeId
       );
+      console.log("Is employee an attendee?", isAttendee);
+
       if (!isAttendee) {
         return this.baseService.errorResponse(res, {
           message: 'Employee is not an attendee',
@@ -245,6 +253,9 @@ export class CampMeetingController {
         relations: ['assignedRoom'],
       });
 
+      console.log("Existing assignment:", existingAssignment);
+
+
       if (existingAssignment?.assignedRoom) {
         return this.baseService.errorResponse(res, {
           message: 'Employee is already assigned to a room',
@@ -257,7 +268,11 @@ export class CampMeetingController {
         where: { assignedRoom: { id: roomId } },
       });
 
+      console.log("Room current occupants:", currentOccupants, "Capacity:", room.capacity);
+
       if (room.capacity && currentOccupants >= room.capacity) {
+        console.log("Room is fully occupied.");
+
         return this.baseService.errorResponse(res, {
           message: 'Room is fully occupied',
           status: 403,
@@ -266,6 +281,8 @@ export class CampMeetingController {
 
       // Check if room belongs to the same camp meeting
       if (room.campMeeting && room.campMeeting.id !== meetingId) {
+        console.log("Room belongs to a different camp meeting.");
+
         return this.baseService.errorResponse(res, {
           message: 'Room already belongs to a different camp meeting',
           status: 403,
@@ -274,9 +291,13 @@ export class CampMeetingController {
 
       // Update or create attendee record with room assignment
       if (existingAssignment) {
+        console.log("Updating existing attendee record with room assignment...");
+
         existingAssignment.assignedRoom = room;
         await this.campMeetingAttendeeRepo.save(existingAssignment);
       } else {
+        console.log("Creating new attendee record with room assignment...");
+
         await this.campMeetingAttendeeRepo.save({
           campMeeting,
           employee,
@@ -284,8 +305,12 @@ export class CampMeetingController {
         });
       }
 
+      console.log("Room assigned successfully.");
+
       return this.baseService.successResponse(res, { message: 'Room assigned successfully' });
     } catch (error) {
+      console.error("Unhandled error in assignRoom:", error);
+
       return this.baseService.errorResponse(res, error);
     }
   };

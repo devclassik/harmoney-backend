@@ -29,14 +29,14 @@ CampMeetingRoute.put(
 );
 
 CampMeetingRoute.put(
-  '/camp-meeting/assign-room',
+  '/camp-meeting/room/assign-room',
   validateRequest(assignRoomSchema),
   authGuard,
   controller.assignRoom,
 );
 
 CampMeetingRoute.put(
-  '/camp-meeting/unassign-room',
+  '/camp-meeting/room/unassign-room',
   validateRequest(assignRoomSchema),
   authGuard,
   controller.assignRoom,
