@@ -42,9 +42,8 @@ export class TemplateController {
       });
 
       if (file) {
-        template.downloadUrl = `${req.protocol}://${req.get('host')}/${
-          file.path
-        }`;
+        template.downloadUrl = `${req.protocol}://${req.get('host')}/${file.path
+          }`;
       }
       if (type) {
         template.type = type;

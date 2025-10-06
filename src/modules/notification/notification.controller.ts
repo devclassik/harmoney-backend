@@ -10,7 +10,7 @@ export class NotificationController {
   public create = async (req: Request, res: Response): Promise<Response> => {
     try {
       const notification = await NotificationService.inApp({
-        message: 'Sending a message from te backend  service of harmony',
+        message: 'Sending a message from the backend  service of harmony',
         feature: AppFeatures.ACCOMMODATION,
         actionBy: 1,
         actionFor: 1,
@@ -68,21 +68,38 @@ export class NotificationController {
     res: Response,
   ): Promise<Response> => {
     const id = req.employee?.id;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
     try {
-      const notifications = await this.notificationRepo.find({
+      const [notifications, total] = await this.notificationRepo.findAndCount({
         where: [
           { actionBy: { id } },
           { actionFor: { id } },
           { actionTo: { id } },
         ],
         relations: ['actionTo', 'actionBy', 'actionFor'],
+        order: { createdAt: 'DESC' },
+        skip,
+        take: limit,
       });
-      return this.baseService.updatedResponse(res, notifications);
+
+      const meta = {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      };
+
+      return this.baseService.successResponse(res, { data: notifications, meta });
     } catch (error) {
       return await this.baseService.errorResponse(res, error);
     }
   };
+
 
   public delete = async (
     req: Request,
