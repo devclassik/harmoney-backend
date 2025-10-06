@@ -55,6 +55,7 @@ export const authGuard = async (
 
           req.user = user;
           req.employee = user.employee;
+          // console.log('eeee', req.employee);
 
           next();
         }

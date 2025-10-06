@@ -62,6 +62,12 @@ export class Leave {
   })
   employee?: Employee;
 
+  @ManyToOne(() => Employee, { nullable: true })
+  substitution?: Employee;
+
+  @Column({ type: 'int', nullable: true })
+  substitutionId?: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt?: Date;
 

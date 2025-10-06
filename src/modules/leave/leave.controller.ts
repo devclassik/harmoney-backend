@@ -175,16 +175,34 @@ export class LeaveController {
     res: Response,
   ): Promise<Response> => {
     const updateData = req.body;
-    const { leaveNotesUrls, status } = updateData;
+    const { leaveNotesUrls, status, substitutionId } = updateData;
 
     try {
       const leave = await this.baseService.findById({
         id: Number(req.params.leaveId),
         resource: 'Leave',
-        relations: ['leaveNotes', 'employee'],
+        relations: ['leaveNotes', 'employee', 'substitution'],
       });
 
+      if (!leave) {
+        return this.baseService.errorResponse(res, 'Leave record not found');
+      }
+
       Object.assign(leave, req.body);
+
+      if (substitutionId) {
+        const substitute = await this.employeeRepo.findOne({
+          where: { id: substitutionId },
+        });
+        if (!substitute) {
+          return this.baseService.errorResponse(
+            res,
+            'Substitute employee not found',
+          );
+        }
+        leave.substitution = substitute;
+      }
+
       if (leaveNotesUrls?.length && leave.leaveNotes?.length) {
         await this.docRepo.remove(leave.leaveNotes);
         leave.leaveNotes = leaveNotesUrls.map(

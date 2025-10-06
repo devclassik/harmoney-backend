@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import Joi from 'joi';
 import { DurationUnit, Status } from '@/database/enum';
 
@@ -7,6 +6,7 @@ export const baseLeaveSchema = Joi.object({
   employeeId: Joi.number().integer().positive().required(),
   startDate: Joi.date().required(),
   reason: Joi.string().required(),
+  substitutionId: Joi.number().optional(),
   status: Joi.string()
     .valid(...Object.values(Status))
     .optional(),
@@ -17,7 +17,7 @@ export const createAnnualLeaveSchema = baseLeaveSchema.keys({
 });
 
 export const updateAnnualLeaveSchema = createAnnualLeaveSchema
-  .fork(['startDate', 'reason', 'endDate', 'status', 'employeeId'], (schema) =>
+  .fork(['startDate', 'reason', 'endDate', 'status', 'employeeId', 'substitutionId'], (schema) =>
     schema.optional(),
   )
   .min(1)
@@ -28,6 +28,7 @@ export const updateAnnualLeaveSchema = createAnnualLeaveSchema
 export const createAbsenceLeaveSchema = baseLeaveSchema.keys({
   location: Joi.string().optional(),
   duration: Joi.number().required(),
+  substitutionId: Joi.number().optional(),
   durationUnit: Joi.string()
     .valid(...Object.values(DurationUnit))
     .required(),
@@ -45,6 +46,7 @@ export const updateAbsenceLeaveSchema = createAbsenceLeaveSchema
       'duration',
       'durationUnit',
       'leaveNotesUrls',
+      'substitutionId',
     ],
     (schema) => schema.optional(),
   )
