@@ -84,7 +84,7 @@ export enum DisciplineTypes {
 }
 
 export enum DocumentTypes {
-  PDF = 'PDF',
+  PDF = 'PDV',
   XLS = 'XLS',
   XLSX = 'XLSX',
   DOC = 'DOC',
