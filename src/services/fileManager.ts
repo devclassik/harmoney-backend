@@ -168,4 +168,34 @@ export class FileManager {
       throw e;
     }
   };
+
+  uploaderPersonalize = async (files: any): Promise<string[] | string> => {
+    try {
+      // Check if files is an array
+      if (Array.isArray(files)) {
+        // If multiple files, use Promise.all to handle them all in parallel
+        const fileUrls = await Promise.all(
+          files.map(async (file) => {
+            // Ensure the file is in the correct format (buffer and originalname)
+            if (!file.buffer || !file.originalname) {
+              throw new Error('Invalid file format or missing file data');
+            }
+            return await this.uploader(file);
+          })
+        );
+        return fileUrls;
+      } else {
+        // Single file upload
+        if (!files.buffer || !files.originalname) {
+          throw new Error('Invalid file format or missing file data');
+        }
+        return await this.uploader(files);
+      }
+    } catch (error) {
+      // Log the error for debugging purposes
+      console.error('Upload error: ', error);
+      throw new Error(`File upload failed: ${error.message}`);
+    }
+  };
+
 }

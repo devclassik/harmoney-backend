@@ -1,3 +1,4 @@
+import { TemplateTypes } from '@/database/entity/Template';
 import { DurationUnit } from '@/database/enum';
 
 export const capitalizeFirst = (str?: string): string => {
@@ -45,3 +46,16 @@ export function getDurationDivisionFactor(
       return day;
   }
 }
+
+export const mapLeaveTypeToTemplate = (leaveType: string): TemplateTypes | null => {
+  switch (leaveType) {
+    case 'SICK':
+      return TemplateTypes.SICK_LEAVE_APPROVAL;
+    case 'ANNUAL':
+      return TemplateTypes.ANNUAL_LEAVE_APPROVAL;
+    case 'ABSENCE':
+      return TemplateTypes.ABSENCE_LEAVE_APPROVAL;
+    default:
+      return null;
+  }
+};

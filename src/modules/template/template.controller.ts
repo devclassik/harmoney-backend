@@ -1,10 +1,46 @@
 import { Request, Response } from 'express';
 import { AppDataSource, Template } from '../../database';
 import { BaseService } from '../shared/base.service';
+import { FileManager } from '@/services';
+
+
+const fileManager = new FileManager();
 
 export class TemplateController {
   private templateRepo = AppDataSource.getRepository(Template);
   private baseService = new BaseService(this.templateRepo);
+
+  public upload = async (req: Request, res: Response): Promise<Response> => {
+    const { templateId, type } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: 'File upload is required' });
+    }
+    // console.log(req);
+    // console.log(req.file);
+
+    try {
+      await this.baseService.isPropertyTaken('type', type, 'Template type');
+      const downloadUrl = await fileManager.uploaderFile(req.file);
+
+      if (!downloadUrl) {
+        return res.status(500).json({ error: 'File upload failed' });
+      }
+      if (Array.isArray(downloadUrl)) {
+        throw new Error('Expected a single string for downloadUrl, but got an array');
+      }
+
+      const template = await this.baseService.create({
+        templateId,
+        type,
+        downloadUrl,
+      });
+      return this.baseService.createdResponse(res, template);
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
+    }
+  };
 
   public create = async (req: Request, res: Response): Promise<Response> => {
     const { templateId, type } = req.body;
@@ -13,7 +49,8 @@ export class TemplateController {
     if (!file) {
       return res.status(400).json({ error: 'File upload is required' });
     }
-    console.log(req);
+    // console.log(req);
+    // console.log(req.file);
 
     try {
       await this.baseService.isPropertyTaken('type', type, 'Template type');
@@ -64,7 +101,6 @@ export class TemplateController {
         id: Number(templateId),
         resource: 'Template',
       });
-
       return this.baseService.successResponse(res, template);
     } catch (error) {
       return this.baseService.errorResponse(res, error);
@@ -93,6 +129,31 @@ export class TemplateController {
       });
     } catch (error) {
       this.baseService.errorResponse(res, error);
+    }
+  };
+
+  public updateTemplate = async (req: Request, res: Response): Promise<Response> => {
+    const templateId = req.params.templateId;
+    const { type } = req.body;
+    const file = req.file;
+
+    try {
+      const template = await this.baseService.findById({
+        id: Number(templateId),
+        resource: 'Template',
+      });
+
+      const downloadUrl = await fileManager.uploaderFile(file);
+      if (typeof downloadUrl === 'string') {
+        template.downloadUrl = downloadUrl;
+      } else {
+        throw new Error('Expected downloadUrl to be a string, but got an array');
+      }
+      template.type = type;
+      const updatedTemplate = await this.templateRepo.save(template);
+      return this.baseService.updatedResponse(res, updatedTemplate);
+    } catch (error) {
+      return this.baseService.errorResponse(res, error);
     }
   };
 }

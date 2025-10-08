@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import e, { Request, Response } from 'express';
 import {
   AppDataSource,
   Leave,
@@ -6,17 +6,21 @@ import {
   User,
   Employee,
   AppFeatures,
+  Template,
 } from '@/database';
 import { BaseService } from '../shared/base.service';
-import { getNumberOfDays } from '@/utils/helper';
-import { DurationUnit, LeaveTypes } from '@/database/enum';
+import { getNumberOfDays, mapLeaveTypeToTemplate } from '@/utils/helper';
+import { DurationUnit, LeaveTypes, Status } from '@/database/enum';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
+import { personalizePDF } from '@/utils/pdfWriter';
 
 export class LeaveController {
   private employeeRepo = AppDataSource.getRepository(Employee);
   private leaveRepo = AppDataSource.getRepository(Leave);
   private docRepo = AppDataSource.getRepository(Document);
+  private templateRepo = AppDataSource.getRepository(Template);
+  private templateBaseService = new BaseService(this.templateRepo);
   private baseService = new BaseService(this.leaveRepo);
   private employeeBaseService = new BaseService(this.employeeRepo);
 
@@ -210,6 +214,25 @@ export class LeaveController {
         );
       }
 
+      // await this.leaveRepo.save(leave);
+
+      const url = await this.templateBaseService.findAll({
+        where: { type: mapLeaveTypeToTemplate(leave.type) },
+      });
+
+      if (status === Status.APPROVED && (!leave.letterUrl || leave.letterUrl.trim() === "")) {
+        const letter = await personalizePDF(
+          url[0].downloadUrl,
+          `${req.employee.firstName + ' ' + req.employee.lastName}`,
+          leave.type,
+          leave.status,
+          leave.startDate,
+          leave.endDate,
+          leave.reason
+        );
+        leave.letterUrl = letter;
+      }
+
       await this.leaveRepo.save(leave);
 
       if (status) {
@@ -221,6 +244,18 @@ export class LeaveController {
           actionBy: req.employee?.id,
           actionFor: leave.employee?.id,
           actionTo: [leave.employee?.id],
+          documents: ['request url'],
+        });
+      }
+      if (leave.substitution) {
+        await MessageService.send({
+          title: `${leave.type} Leave ${status || 'Request'}`,
+          feature: AppFeatures.LEAVE,
+          message: `${leave.type} Substitution request submitted`,
+          metadata: {},
+          actionBy: req.employee?.id,
+          actionFor: leave.substitution?.id,
+          actionTo: [leave.substitution?.id],
           documents: ['request url'],
         });
       }

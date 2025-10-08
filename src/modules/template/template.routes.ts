@@ -9,6 +9,7 @@ import {
   getTemplateSchema,
   deleteTemplateSchema,
 } from './template.validator';
+import { uploader } from '@/middlewares/uploader';
 
 export const TemplateRoutes = express.Router();
 
@@ -22,12 +23,28 @@ TemplateRoutes.post(
   templateCtrl.create,
 );
 
+TemplateRoutes.post(
+  '/template-upload',
+  authGuard,
+  uploader.single('file'),
+  validateRequest(createTemplateSchema),
+  templateCtrl.upload,
+);
+
+// TemplateRoutes.put(
+//   '/template/:templateId',
+//   authGuard,
+//   upload.single('file'),
+//   validateRequest(updateTemplateSchema),
+//   templateCtrl.update,
+// );
+
 TemplateRoutes.put(
   '/template/:templateId',
   authGuard,
-  upload.single('file'),
+  uploader.single('file'),
   validateRequest(updateTemplateSchema),
-  templateCtrl.update,
+  templateCtrl.updateTemplate,
 );
 
 TemplateRoutes.get(

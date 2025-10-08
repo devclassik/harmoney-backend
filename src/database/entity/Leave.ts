@@ -46,6 +46,9 @@ export class Leave {
   @Column({ type: 'varchar', nullable: true })
   location?: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  letterUrl?: string;
+
   @Column({ type: 'float', default: 0 })
   duration?: number;
 
