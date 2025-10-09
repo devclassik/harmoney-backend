@@ -1,13 +1,17 @@
 import { Request, Response } from 'express';
-import { AppDataSource, AppFeatures, Employee, Retirement } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Retirement, Template } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
 import { Status } from '@/database/enum';
+import { retirementPDF } from '@/utils/pdfWriter';
+import { mapLeaveTypeToTemplate } from '@/utils/helper';
 
 export class RetirementController {
   private retirementRepo = AppDataSource.getRepository(Retirement);
+  private templateRepo = AppDataSource.getRepository(Template);
   private baseService = new BaseService(this.retirementRepo);
+  private templateBaseService = new BaseService(this.templateRepo);
   private employeeBaseService = new BaseService(
     AppDataSource.getRepository(Employee),
   );
@@ -69,6 +73,23 @@ export class RetirementController {
         id: recommendedReplacementId,
         canBeNull: true,
       });
+
+      const url = await this.templateBaseService.findAll({
+        where: { type: mapLeaveTypeToTemplate('RETIREMENT') },
+      });
+
+      if (status === 'APPROVED' && (!retirement.letterUrl || retirement.letterUrl.trim() === '')) {
+        const letter = await retirementPDF(
+          url[0].downloadUrl,
+          `${retirement?.employee?.firstName || ''} ${retirement?.employee?.lastName || ''}`,
+          status,
+          retirement.reason,
+          `${retirement.recommendedReplacement.firstName + '' + retirement.recommendedReplacement.lastName}`,
+          retirement.updatedAt
+        );
+        retirement.letterUrl = letter;
+      }
+
       const updatedRetirement = await this.retirementRepo.save({
         ...retirement,
         reason,

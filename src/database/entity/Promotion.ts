@@ -30,6 +30,9 @@ export class Promotion {
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status?: Status;
 
+  @Column({ type: 'varchar', nullable: true })
+  letterUrl?: string;
+
   @Column({ type: 'enum', enum: PositionTypes, nullable: true })
   newPosition?: PositionTypes;
 

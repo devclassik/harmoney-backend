@@ -1,12 +1,16 @@
 import { Request, Response } from 'express';
-import { AppDataSource, AppFeatures, Employee, Retrenchment } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Retrenchment, Template } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
+import { mapLeaveTypeToTemplate } from '@/utils/helper';
+import { retrenchmentPDF } from '@/utils/pdfWriter';
 
 export class RetrenchmentController {
   private retrenchmentRepo = AppDataSource.getRepository(Retrenchment);
+  private templateRepo = AppDataSource.getRepository(Template);
   private baseService = new BaseService(this.retrenchmentRepo);
+  private templateBaseService = new BaseService(this.templateRepo);
   private employeeBaseService = new BaseService(
     AppDataSource.getRepository(Employee),
   );
@@ -57,6 +61,22 @@ export class RetrenchmentController {
         resource: 'Retrenchment',
         relations: ['employee'],
       });
+
+      const url = await this.templateBaseService.findAll({
+        where: { type: mapLeaveTypeToTemplate('RETRENCHMENT') },
+      });
+
+      if (status === 'APPROVED' && (!retrenchment.letterUrl || retrenchment.letterUrl.trim() === '')) {
+        const letter = await retrenchmentPDF(
+          url[0].downloadUrl,
+          `${retrenchment?.employee?.firstName || ''} ${retrenchment?.employee?.lastName || ''}`,
+          status,
+          retrenchment.reason,
+          retrenchment.retrenchmentType,
+          retrenchment.updatedAt
+        );
+        retrenchment.letterUrl = letter;
+      }
 
       const updatedRetrenchment = await this.retrenchmentRepo.save({
         ...retrenchment,

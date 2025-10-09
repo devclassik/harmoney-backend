@@ -39,6 +39,9 @@ export class Transfer {
   @Column({ type: 'varchar', default: 0 })
   destination?: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  letterUrl?: string;
+
   @Column({ type: 'enum', enum: PositionTypes, nullable: true })
   newPosition?: PositionTypes;
 

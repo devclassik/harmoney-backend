@@ -39,6 +39,9 @@ export class Discipline {
   @Column({ type: 'float', default: 0 })
   duration?: number;
 
+  @Column({ type: 'varchar', nullable: true })
+  letterUrl?: string;
+
   @Column({ type: 'enum', enum: DurationUnit, default: DurationUnit.DAY })
   durationUnit?: DurationUnit;
 

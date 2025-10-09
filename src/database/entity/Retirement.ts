@@ -36,6 +36,9 @@ export class Retirement {
   @ManyToOne(() => Employee, ({ documents }) => documents)
   employee?: Employee;
 
+  @Column({ type: 'varchar', nullable: true })
+  letterUrl?: string;
+
   @ManyToOne(() => Employee, ({ documents }) => documents)
   recommendedReplacement?: Employee;
 

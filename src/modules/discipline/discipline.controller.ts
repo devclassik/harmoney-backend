@@ -1,11 +1,15 @@
 import { Request, Response } from 'express';
-import { AppDataSource, Employee, Discipline, AppFeatures } from '@/database';
+import { AppDataSource, Employee, Discipline, AppFeatures, Template, TemplateTypes } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
+import { mapLeaveTypeToTemplate } from '@/utils/helper';
+import { disciplinePDF, } from '@/utils/pdfWriter';
 
 export class DisciplineController {
   private disciplineRepo = AppDataSource.getRepository(Discipline);
+  private templateRepo = AppDataSource.getRepository(Template);
+  private templateBaseService = new BaseService(this.templateRepo);
   private baseService = new BaseService(this.disciplineRepo);
   private employeeBaseService = new BaseService(
     AppDataSource.getRepository(Employee),
@@ -66,6 +70,23 @@ export class DisciplineController {
         resource: 'Discipline',
         relations: ['employee'],
       });
+
+      const url = await this.templateBaseService.findAll({
+        where: { type: mapLeaveTypeToTemplate('DISCIPLINE') },
+      });
+
+      if (status === 'APPROVED' && (!discipline.letterUrl || discipline.letterUrl.trim() === '')) {
+        const letter = await disciplinePDF(
+          url[0].downloadUrl,
+          `${discipline?.employee?.firstName || ''} ${discipline?.employee?.lastName || ''}`,
+          status,
+          discipline.disciplineType,
+          discipline.duration,
+          discipline.durationUnit,
+          discipline.reason || '',
+        );
+        discipline.letterUrl = letter;
+      }
 
       const updatedDiscipline = await this.disciplineRepo.save({
         ...discipline,

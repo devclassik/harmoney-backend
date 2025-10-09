@@ -13,7 +13,7 @@ import { getNumberOfDays, mapLeaveTypeToTemplate } from '@/utils/helper';
 import { DurationUnit, LeaveTypes, Status } from '@/database/enum';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
-import { personalizePDF } from '@/utils/pdfWriter';
+import { leavePDF } from '@/utils/pdfWriter';
 
 export class LeaveController {
   private employeeRepo = AppDataSource.getRepository(Employee);
@@ -214,16 +214,14 @@ export class LeaveController {
         );
       }
 
-      // await this.leaveRepo.save(leave);
-
       const url = await this.templateBaseService.findAll({
         where: { type: mapLeaveTypeToTemplate(leave.type) },
       });
 
       if (status === Status.APPROVED && (!leave.letterUrl || leave.letterUrl.trim() === "")) {
-        const letter = await personalizePDF(
+        const letter = await leavePDF(
           url[0].downloadUrl,
-          `${req.employee.firstName + ' ' + req.employee.lastName}`,
+          `${leave?.employee?.firstName || ''} ${leave?.employee?.lastName || ''}`,
           leave.type,
           leave.status,
           leave.startDate,

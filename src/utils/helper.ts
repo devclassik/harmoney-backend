@@ -55,6 +55,16 @@ export const mapLeaveTypeToTemplate = (leaveType: string): TemplateTypes | null 
       return TemplateTypes.ANNUAL_LEAVE_APPROVAL;
     case 'ABSENCE':
       return TemplateTypes.ABSENCE_LEAVE_APPROVAL;
+    case 'PROMOTION':
+      return TemplateTypes.PROMOTION_APPROVAL;
+    case 'DISCIPLINE':
+      return TemplateTypes.DISCIPLINE_APPROVAL;
+    case 'TRANSFER':
+      return TemplateTypes.TRANSFER_APPROVAL;
+    case 'RETIREMENT':
+      return TemplateTypes.RETIREMENT_APPROVAL;
+    case 'RETRENCHMENT':
+      return TemplateTypes.RETRENCHMENT_APPROVAL;
     default:
       return null;
   }

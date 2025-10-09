@@ -40,6 +40,9 @@ export class Retrenchment {
   @Column({ type: 'varchar', nullable: true })
   reason?: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  letterUrl?: string;
+
   @ManyToOne(() => Employee, ({ documents }) => documents)
   employee?: Employee;
 

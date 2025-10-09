@@ -1,11 +1,15 @@
 import { Request, Response } from 'express';
-import { AppDataSource, AppFeatures, Appraisal, Employee, Promotion } from '@/database';
+import { AppDataSource, AppFeatures, Appraisal, Employee, Promotion, Template } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
+import { mapLeaveTypeToTemplate } from '@/utils/helper';
+import { promotionPDF } from '@/utils/pdfWriter';
 
 export class PromotionController {
   private promotionRepo = AppDataSource.getRepository(Promotion);
+  private templateRepo = AppDataSource.getRepository(Template);
+  private templateBaseService = new BaseService(this.templateRepo);
   private baseService = new BaseService(this.promotionRepo);
   private employeeBaseService = new BaseService(
     AppDataSource.getRepository(Employee),
@@ -56,6 +60,21 @@ export class PromotionController {
         resource: 'Promotion',
         relations: ['employee'],
       });
+
+      const url = await this.templateBaseService.findAll({
+        where: { type: mapLeaveTypeToTemplate('PROMOTION') },
+      });
+
+      if (status === 'APPROVED' && (!promotion.letterUrl || promotion.letterUrl.trim() === '')) {
+        const letter = await promotionPDF(
+          url[0].downloadUrl,
+          `${promotion?.employee?.firstName || ''} ${promotion?.employee?.lastName || ''}`,
+          status,
+          promotion.newPosition,
+          promotion.updatedAt,
+        );
+        promotion.letterUrl = letter;
+      }
 
       const updatedPromotion = await this.promotionRepo.save({
         ...promotion,

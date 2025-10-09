@@ -1,12 +1,16 @@
 import { Request, Response } from 'express';
-import { AppDataSource, AppFeatures, Employee, Transfer } from '@/database';
+import { AppDataSource, AppFeatures, Employee, Template, Transfer } from '@/database';
 import { BaseService } from '../shared/base.service';
 import { Not } from 'typeorm';
 import { MessageService } from '../message/message.service';
+import { mapLeaveTypeToTemplate } from '@/utils/helper';
+import { transferPDF } from '@/utils/pdfWriter';
 
 export class TransferController {
   private transferRepo = AppDataSource.getRepository(Transfer);
+  private templateRepo = AppDataSource.getRepository(Template);
   private baseService = new BaseService(this.transferRepo);
+  private templateBaseService = new BaseService(this.templateRepo);
   private employeeBaseService = new BaseService(
     AppDataSource.getRepository(Employee),
   );
@@ -66,6 +70,23 @@ export class TransferController {
         resource: 'Transfer',
         relations: ['employee'],
       });
+
+      const url = await this.templateBaseService.findAll({
+        where: { type: mapLeaveTypeToTemplate('TRANSFER') },
+      });
+
+      if (status === 'APPROVED' && (!transfer.letterUrl || transfer.letterUrl.trim() === '')) {
+        const letter = await transferPDF(
+          url[0].downloadUrl,
+          `${transfer?.employee?.firstName || ''} ${transfer?.employee?.lastName || ''}`,
+          status,
+          transfer.destination,
+          transfer.newPosition,
+          transfer.reason,
+          transfer.updatedAt
+        );
+        transfer.letterUrl = letter;
+      }
 
       const updatedTransfer = await this.transferRepo.save({
         ...transfer,
