@@ -84,7 +84,6 @@ export class RetirementController {
           `${retirement?.employee?.firstName || ''} ${retirement?.employee?.lastName || ''}`,
           status,
           retirement.reason,
-          `${retirement.recommendedReplacement.firstName + '' + retirement.recommendedReplacement.lastName}`,
           retirement.updatedAt
         );
         retirement.letterUrl = letter;

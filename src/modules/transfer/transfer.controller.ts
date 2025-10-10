@@ -83,6 +83,7 @@ export class TransferController {
           transfer.destination,
           transfer.newPosition,
           transfer.reason,
+          transfer.transferType,
           transfer.updatedAt
         );
         transfer.letterUrl = letter;
